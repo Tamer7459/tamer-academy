@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../ai/chat_controller.dart';
 import '../core/app_localizations.dart';
 import '../core/app_theme.dart';
-import '../features/chat/chat_overlay.dart';
 import '../models/app_user.dart';
 import '../state/app_state.dart';
 import 'admin/admin_screen.dart';
@@ -27,18 +25,11 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
   bool _loaded = false;
-  bool _showChat = false;
 
   @override
   void initState() {
     super.initState();
     _loadIndex();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final chat = context.read<ChatController>();
-      if (!chat.isInitialized) {
-        chat.init(isAdmin: widget.user.isAdmin, userName: widget.user.name);
-      }
-    });
   }
 
   Future<void> _loadIndex() async {
@@ -126,43 +117,7 @@ class _HomeShellState extends State<HomeShell> {
                 ),
               ],
             ),
-      body: Stack(
-        children: [
-          IndexedStack(index: _index, children: pages),
-          if (_showChat)
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: Stack(
-                children: [
-                  const AiChatOverlay(),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () => setState(() => _showChat = false),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), shape: BoxShape.circle),
-                        child: const Icon(Icons.close_rounded, color: Colors.white, size: 14),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-      floatingActionButton: _index == 0
-          ? null
-          : FloatingActionButton(
-              onPressed: () => setState(() => _showChat = !_showChat),
-              backgroundColor: _showChat ? AppColors.warning : Colors.white,
-              tooltip: _showChat ? 'إغلاق' : 'Tamer AI',
-              child: _showChat
-                  ? const Icon(Icons.close_rounded, color: Colors.white)
-                  : ClipOval(child: Image.asset('assets/ai_robot.jpg', width: 56, height: 56, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.smart_toy_rounded, color: AppColors.tealPrimary))),
-            ),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _goTo,
