@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/access_request.dart';
+import '../models/app_notification.dart';
 import '../models/app_user.dart';
 import '../models/course.dart';
 import '../models/exercise_submission.dart';
@@ -25,6 +26,8 @@ class DatabaseService {
       _db.collection('homeworkSubmissions');
   CollectionReference<Map<String, dynamic>> get _exerciseSubs =>
       _db.collection('exerciseSubmissions');
+  CollectionReference<Map<String, dynamic>> get _notifications =>
+      _db.collection('notifications');
 
   // ---------- Users ----------
 
@@ -276,18 +279,36 @@ class DatabaseService {
         );
   }
 
-  Future<void> createAccessRequest(AccessRequest req) {
-    return _requests.doc(req.id).set(req.toMap());
+  Future<void> createAccessRequest(AccessRequest req) async {
+    await _requests.doc(req.id).set(req.toMap());
+    await notifyAdmins(
+      title: 'طلب وصول جديد',
+      body: '${req.userName} طلب الوصول إلى ${req.courseTitle}',
+      type: 'request_created',
+      referenceId: req.id,
+      courseId: req.courseId,
+    );
   }
 
   Future<void> updateRequestStatus(String requestId, String status) async {
     await _requests.doc(requestId).update({'status': status});
+    final reqDoc = await _requests.doc(requestId).get();
+    if (!reqDoc.exists) return;
+    final req = AccessRequest.fromMap(reqDoc.id, reqDoc.data()!);
     if (status == 'approved') {
-      final reqDoc = await _requests.doc(requestId).get();
-      if (!reqDoc.exists) return;
-      final req = AccessRequest.fromMap(reqDoc.id, reqDoc.data()!);
       await toggleUserCourseAccess(req.userId, req.courseId, true);
     }
+    final isApproved = status == 'approved';
+    await createNotification(AppNotification(
+      id: '${req.userId}_${DateTime.now().microsecondsSinceEpoch}_request_${status}',
+      userId: req.userId,
+      title: isApproved ? 'تم قبول طلبك' : 'تم رفض طلبك',
+      body: isApproved ? 'تم منحك الوصول إلى ${req.courseTitle}' : 'تم رفض طلب الوصول إلى ${req.courseTitle}',
+      type: isApproved ? 'request_approved' : 'request_rejected',
+      referenceId: requestId,
+      courseId: req.courseId,
+      createdAt: DateTime.now(),
+    ));
   }
 
   Future<void> deleteRequest(String id) => _requests.doc(id).delete();
@@ -300,7 +321,15 @@ class DatabaseService {
         await _supa.submitHomework(sub);
       } catch (_) {}
     }
-    return _homeworkSubs.doc(sub.id).set(sub.toMap());
+    await _homeworkSubs.doc(sub.id).set(sub.toMap());
+    await notifyAdmins(
+      title: 'واجب جديد',
+      body: '${sub.userName} أرسل واجباً في ${sub.lessonTitle}',
+      type: 'homework_submitted',
+      referenceId: sub.id,
+      courseId: sub.courseId,
+      lessonId: sub.lessonId,
+    );
   }
 
   Stream<List<HomeworkSubmission>> homeworkSubmissionsStream({
@@ -364,7 +393,24 @@ class DatabaseService {
         await _supa.reviewHomework(submissionId, grade: grade, feedback: feedback, reviewedBy: reviewedBy);
       } catch (_) {}
     }
-    return _homeworkSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    await _homeworkSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    try {
+      final doc = await _homeworkSubs.doc(submissionId).get();
+      final userId = doc.data()?['userId'] as String?;
+      if (userId != null) {
+        await createNotification(AppNotification(
+          id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_homework_reviewed',
+          userId: userId,
+          title: 'تم تصحيح واجبك',
+          body: 'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
+          type: 'homework_reviewed',
+          referenceId: submissionId,
+          courseId: doc.data()?['courseId'] as String?,
+          lessonId: doc.data()?['lessonId'] as String?,
+          createdAt: DateTime.now(),
+        ));
+      }
+    } catch (_) {}
   }
 
   Future<void> deleteHomeworkSubmission(String id) async {
@@ -390,7 +436,15 @@ class DatabaseService {
         await _supa.submitExercise(sub);
       } catch (_) {}
     }
-    return _exerciseSubs.doc(sub.id).set(sub.toMap());
+    await _exerciseSubs.doc(sub.id).set(sub.toMap());
+    await notifyAdmins(
+      title: 'تمرين محلول',
+      body: '${sub.userName} أرسل حل تمرين في ${sub.lessonTitle}',
+      type: 'exercise_submitted',
+      referenceId: sub.id,
+      courseId: sub.courseId,
+      lessonId: sub.lessonId,
+    );
   }
 
   Stream<List<ExerciseSubmission>> allExerciseSubmissionsStream() {
@@ -454,7 +508,24 @@ class DatabaseService {
         await _supa.reviewExercise(submissionId, grade: grade, feedback: feedback, reviewedBy: reviewedBy);
       } catch (_) {}
     }
-    return _exerciseSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    await _exerciseSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    try {
+      final doc = await _exerciseSubs.doc(submissionId).get();
+      final userId = doc.data()?['userId'] as String?;
+      if (userId != null) {
+        await createNotification(AppNotification(
+          id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_exercise_reviewed',
+          userId: userId,
+          title: 'تم تصحيح تمرينك',
+          body: 'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
+          type: 'exercise_reviewed',
+          referenceId: submissionId,
+          courseId: doc.data()?['courseId'] as String?,
+          lessonId: doc.data()?['lessonId'] as String?,
+          createdAt: DateTime.now(),
+        ));
+      }
+    } catch (_) {}
   }
 
   Future<void> deleteExerciseSubmission(String id) async {
@@ -492,5 +563,62 @@ class DatabaseService {
           Map<String, dynamic>.from(data['randomSeen'] as Map? ?? {});
       return (randomSeen[lessonId] as List?)?.cast<int>() ?? [];
     });
+  }
+
+  // ---------- Notifications ----------
+  Future<void> createNotification(AppNotification n) =>
+      _notifications.doc(n.id).set(n.toMap());
+
+  Stream<List<AppNotification>> notificationsStream(String userId) {
+    return _notifications
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => AppNotification.fromMap(d.id, d.data())).toList());
+  }
+
+  Stream<int> unreadCountStream(String userId) {
+    return _notifications
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .map((snap) => snap.docs.length);
+  }
+
+  Future<void> markNotificationRead(String id) =>
+      _notifications.doc(id).update({'isRead': true});
+
+  Future<void> markAllNotificationsRead(String userId) async {
+    final snap = await _notifications.where('userId', isEqualTo: userId).where('isRead', isEqualTo: false).get();
+    for (final d in snap.docs) {
+      await d.reference.update({'isRead': true});
+    }
+  }
+
+  Future<void> notifyAdmins({
+    required String title,
+    required String body,
+    required String type,
+    String? referenceId,
+    String? courseId,
+    String? lessonId,
+  }) async {
+    try {
+      final admins = await _users.where('role', isEqualTo: 'admin').get();
+      for (final doc in admins.docs) {
+        final n = AppNotification(
+          id: '${doc.id}_${DateTime.now().microsecondsSinceEpoch}_${type}',
+          userId: doc.id,
+          title: title,
+          body: body,
+          type: type,
+          referenceId: referenceId,
+          courseId: courseId,
+          lessonId: lessonId,
+          createdAt: DateTime.now(),
+        );
+        await createNotification(n);
+      }
+    } catch (_) {}
   }
 }

@@ -6,6 +6,7 @@ import '../core/app_localizations.dart';
 import '../core/app_theme.dart';
 import '../models/app_user.dart';
 import '../state/app_state.dart';
+import '../widgets/notification_bell.dart';
 import 'admin/admin_screen.dart';
 import 'home/home_screen.dart';
 import 'homeworks/my_homeworks_screen.dart';
@@ -98,6 +99,7 @@ class _HomeShellState extends State<HomeShell> {
                 ],
               ),
               actions: [
+                const NotificationBell(),
                 Consumer<AppState>(
                   builder: (context, state, _) => IconButton(
                     tooltip: t('theme'),
