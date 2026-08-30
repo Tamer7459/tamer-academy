@@ -89,9 +89,9 @@ class _StatsGrid extends StatelessWidget {
         crossAxisCount: count,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 4.4,
+        mainAxisSpacing: 6,
+        crossAxisSpacing: 6,
+        childAspectRatio: 5.2,
         children: [
           _StatStreamCard(icon: Icons.menu_book_rounded, color: AppColors.tealPrimary, label: 'الكورسات', stream: db.coursesStream().map((l) => l.length)),
           _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'المسارات', stream: db.tracksStream().map((l) => l.length)),
@@ -119,12 +119,12 @@ class _StatStreamCard extends StatelessWidget {
       builder: (context, snap) {
         final count = snap.data ?? 0;
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))),
           child: Row(children: [
-            Container(padding: const EdgeInsets.all(5), decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: Icon(icon, size: 14, color: color)),
-            const SizedBox(width: 8),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text('$count', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)), Text(label, style: TextStyle(fontSize: 10, color: AppColors.grayMedium, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)])),
+            Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(7)), child: Icon(icon, size: 12, color: color)),
+            const SizedBox(width: 6),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text('$count', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)), Text(label, style: TextStyle(fontSize: 9, color: AppColors.grayMedium, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)])),
           ]),
         );
       },
