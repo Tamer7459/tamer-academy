@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +20,17 @@ import 'state/app_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint('dotenv loaded from .env: ${dotenv.env['GEMINI_API_KEY']?.substring(0, 8)}...');
+  } catch (_) {
+    try {
+      await dotenv.load(fileName: "assets/.env");
+      debugPrint('dotenv loaded from assets/.env: ${dotenv.env['GEMINI_API_KEY']?.substring(0, 8)}...');
+    } catch (e) {
+      debugPrint('dotenv load failed: $e');
+    }
+  }
   if (kIsWeb) {
     await Firebase.initializeApp(options: AppConstants.firebaseWebOptions);
   } else {
