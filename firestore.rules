@@ -64,7 +64,7 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid
         && lessonReadable(request.resource.data.courseId);
       allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow update: if isAdmin();
+      allow update: if isAdmin() && request.resource.data.grade >= 0 && request.resource.data.grade <= 10;
       allow delete: if isAdmin();
     }
 
@@ -73,7 +73,7 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid
         && lessonReadable(request.resource.data.courseId);
       allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow update: if isAdmin();
+      allow update: if isAdmin() && request.resource.data.grade >= 0 && request.resource.data.grade <= 10;
       allow delete: if isAdmin();
     }
 

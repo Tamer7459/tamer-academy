@@ -269,7 +269,7 @@ class LessonContentRenderer extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection: lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
           child: Table(
             border: TableBorder(
               horizontalInside: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),

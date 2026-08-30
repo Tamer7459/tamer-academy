@@ -186,7 +186,7 @@ class DatabaseService {
     if (!completed.contains(lessonId)) completed.add(lessonId);
     course['completed'] = completed;
     courses[courseId] = course;
-    await doc.set({'courses': courses});
+    await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
   Future<void> unmarkLessonCompleted(String uid, String courseId, String lessonId) async {
@@ -198,7 +198,7 @@ class DatabaseService {
     completed.remove(lessonId);
     course['completed'] = completed;
     courses[courseId] = course;
-    await doc.set({'courses': courses});
+    await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
   Future<void> toggleLessonCompleted(String uid, String courseId, String lessonId, bool isCompleted) async {
@@ -218,7 +218,7 @@ class DatabaseService {
     if (!answered.contains(lessonId)) answered.add(lessonId);
     course['answered'] = answered;
     courses[courseId] = course;
-    await doc.set({'courses': courses});
+    await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
   Future<bool> isLessonCompleted(String uid, String courseId, String lessonId) async {
@@ -590,9 +590,12 @@ class DatabaseService {
 
   Future<void> markAllNotificationsRead(String userId) async {
     final snap = await _notifications.where('userId', isEqualTo: userId).where('isRead', isEqualTo: false).get();
+    if (snap.docs.isEmpty) return;
+    final batch = _db.batch();
     for (final d in snap.docs) {
-      await d.reference.update({'isRead': true});
+      batch.update(d.reference, {'isRead': true});
     }
+    await batch.commit();
   }
 
   Future<void> notifyAdmins({
@@ -605,9 +608,13 @@ class DatabaseService {
   }) async {
     try {
       final admins = await _users.where('role', isEqualTo: 'admin').get();
-      for (final doc in admins.docs) {
+      if (admins.docs.isEmpty) return;
+      final batch = _db.batch();
+      final now = DateTime.now().microsecondsSinceEpoch;
+      for (int i = 0; i < admins.docs.length; i++) {
+        final doc = admins.docs[i];
         final n = AppNotification(
-          id: '${doc.id}_${DateTime.now().microsecondsSinceEpoch}_${type}',
+          id: '${doc.id}_${now + i}_$type',
           userId: doc.id,
           title: title,
           body: body,
@@ -617,8 +624,9 @@ class DatabaseService {
           lessonId: lessonId,
           createdAt: DateTime.now(),
         );
-        await createNotification(n);
+        batch.set(_notifications.doc(n.id), n.toMap());
       }
+      await batch.commit();
     } catch (_) {}
   }
 }
