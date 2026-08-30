@@ -197,49 +197,41 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        // Solution toggle
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.lightbulb_rounded, size: 18, color: AppColors.warning),
-                    const SizedBox(width: 8),
-                    Text(t('solution'), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.warning)),
-                    const Spacer(),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        if (!widget.isAdmin && !widget.alreadyAnswered) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('answerFirst'))));
-                          return;
-                        }
-                        setState(() => _showSolution = !_showSolution);
-                      },
-                      icon: Icon(_showSolution ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16),
-                      label: Text(_showSolution ? t('hideSolution') : t('showSolution')),
+        if (widget.isAdmin) ...[
+          const SizedBox(height: 12),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.lightbulb_rounded, size: 18, color: AppColors.warning),
+                      const SizedBox(width: 8),
+                      Text(t('solution'), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.warning)),
+                      const Spacer(),
+                      OutlinedButton.icon(
+                        onPressed: () => setState(() => _showSolution = !_showSolution),
+                        icon: Icon(_showSolution ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16),
+                        label: Text(_showSolution ? t('hideSolution') : t('showSolution')),
+                      ),
+                    ],
+                  ),
+                  if (_showSolution) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(10)),
+                      child: LessonContentRenderer(content: exercise.solution.getWithFallback(lang), lang: lang),
                     ),
                   ],
-                ),
-                if (_showSolution && (widget.isAdmin || widget.alreadyAnswered)) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(10)),
-                    child: LessonContentRenderer(content: exercise.solution.getWithFallback(lang), lang: lang),
-                  ),
-                ] else if (!widget.isAdmin && !widget.alreadyAnswered) ...[
-                  const SizedBox(height: 8),
-                  Text(t('answerFirst'), style: TextStyle(fontSize: 12, color: AppColors.grayMedium, fontStyle: FontStyle.italic)),
                 ],
-              ],
+              ),
             ),
           ),
-        ),
+        ],
         const SizedBox(height: 20),
         _SectionHeader(icon: Icons.history_rounded, title: 'إرسالاتي'),
         const SizedBox(height: 12),
