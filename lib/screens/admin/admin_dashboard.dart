@@ -216,7 +216,7 @@ class _CoursesPreview extends StatelessWidget {
           builder: (context, snap) {
             final courses = snap.data ?? [];
             if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات'));
-            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length > 5 ? 5 : courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
+            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final c = courses[i];
               return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))));
             });
@@ -243,7 +243,7 @@ class _TracksPreview extends StatelessWidget {
           builder: (context, snap) {
             final tracks = snap.data ?? [];
             if (tracks.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد مسارات'));
-            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: tracks.length > 5 ? 5 : tracks.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
+            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: tracks.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final tr = tracks[i];
               return ListTile(dense: true, title: Text(tr.name.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), trailing: IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr)))));
             });
