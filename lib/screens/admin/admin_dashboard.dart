@@ -135,24 +135,12 @@ class _StatStreamCard extends StatelessWidget {
 class _PendingHomeworkPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<DatabaseService>();
     return Container(
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.assignment_rounded, size: 16, color: AppColors.warning)), const SizedBox(width: 8), const Text('واجبات بانتظار التصحيح', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HomeworkSubmissionsScreen())), child: const Text('عرض الكل'))])),
         const Divider(height: 1),
-        StreamBuilder<List<HomeworkSubmission>>(
-          stream: db.homeworkSubmissionsStream(status: 'pending'),
-          builder: (context, snap) {
-            final list = (snap.data ?? []).take(5).toList();
-            if (snap.connectionState == ConnectionState.waiting) return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
-            if (list.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد واجبات معلقة', style: TextStyle(color: AppColors.grayMedium)));
-            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: list.length, separatorBuilder: (_, _) => const Divider(height: 1), itemBuilder: (context, i) {
-              final s = list[i];
-              return ListTile(dense: true, title: Text(s.lessonTitle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)), subtitle: Text('${s.userName} • ${s.courseTitle}', style: TextStyle(fontSize: 11, color: AppColors.grayMedium)), trailing: Text('${s.createdAt.day}/${s.createdAt.month}', style: TextStyle(fontSize: 11, color: AppColors.grayLight)));
-            });
-          },
-        ),
+        SizedBox(height: 380, child: const HomeworkSubmissionsScreen()),
       ]),
     );
   }
@@ -161,24 +149,12 @@ class _PendingHomeworkPreview extends StatelessWidget {
 class _PendingExercisePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<DatabaseService>();
     return Container(
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.edit_note_rounded, size: 16, color: AppColors.success)), const SizedBox(width: 8), const Text('تمارين بانتظار التصحيح', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ExerciseSubmissionsScreen())), child: const Text('عرض الكل'))])),
         const Divider(height: 1),
-        StreamBuilder<List<ExerciseSubmission>>(
-          stream: db.exerciseSubmissionsStream(status: 'pending'),
-          builder: (context, snap) {
-            final list = (snap.data ?? []).take(5).toList();
-            if (snap.connectionState == ConnectionState.waiting) return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
-            if (list.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد تمارين معلقة', style: TextStyle(color: AppColors.grayMedium)));
-            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: list.length, separatorBuilder: (_, _) => const Divider(height: 1), itemBuilder: (context, i) {
-              final s = list[i];
-              return ListTile(dense: true, title: Text(s.lessonTitle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)), subtitle: Text('${s.userName} • ${s.courseTitle}', style: TextStyle(fontSize: 11, color: AppColors.grayMedium)), trailing: Text('${s.createdAt.day}/${s.createdAt.month}', style: TextStyle(fontSize: 11, color: AppColors.grayLight)));
-            });
-          },
-        ),
+        SizedBox(height: 380, child: const ExerciseSubmissionsScreen()),
       ]),
     );
   }
@@ -187,21 +163,12 @@ class _PendingExercisePreview extends StatelessWidget {
 class _RequestsPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<DatabaseService>();
     return Container(
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.danger.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.mark_email_read_rounded, size: 16, color: AppColors.danger)), const SizedBox(width: 8), const Text('طلبات الوصول', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RequestsScreen())), child: const Text('إدارة'))])),
         const Divider(height: 1),
-        StreamBuilder(stream: db.accessRequestsStream(), builder: (context, snap) {
-          final list = (snap.data ?? []).where((r) => r.status == 'pending').take(5).toList();
-          if (snap.connectionState == ConnectionState.waiting) return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
-          if (list.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد طلبات معلقة', style: TextStyle(color: AppColors.grayMedium)));
-          return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: list.length, separatorBuilder: (_, _) => const Divider(height: 1), itemBuilder: (context, i) {
-            final r = list[i];
-            return ListTile(dense: true, title: Text(r.userName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)), subtitle: Text(r.courseTitle, style: TextStyle(fontSize: 11, color: AppColors.grayMedium)), trailing: const Icon(Icons.hourglass_top_rounded, size: 16, color: AppColors.warning));
-          });
-        }),
+        SizedBox(height: 320, child: const RequestsScreen()),
       ]),
     );
   }
@@ -212,21 +179,12 @@ class _UsersPreview extends StatelessWidget {
   const _UsersPreview({required this.user});
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<DatabaseService>();
     return Container(
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.navyText.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.group_rounded, size: 16, color: AppColors.navyText)), const SizedBox(width: 8), const Text('المستخدمون', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => UsersScreen(user: user))), child: const Text('إدارة'))])),
         const Divider(height: 1),
-        StreamBuilder(stream: db.allUsersStream(), builder: (context, snap) {
-          final list = (snap.data ?? []).take(5).toList();
-          if (snap.connectionState == ConnectionState.waiting) return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
-          if (list.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا يوجد مستخدمون', style: TextStyle(color: AppColors.grayMedium)));
-          return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: list.length, separatorBuilder: (_, _) => const Divider(height: 1), itemBuilder: (context, i) {
-            final u = list[i];
-            return ListTile(dense: true, leading: CircleAvatar(radius: 14, child: Text(u.name.isEmpty ? '?' : u.name[0].toUpperCase(), style: const TextStyle(fontSize: 12))), title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)), subtitle: Text(u.email, style: TextStyle(fontSize: 11, color: AppColors.grayMedium)), trailing: Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (u.isAdmin ? AppColors.warning : AppColors.tealPrimary).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)), child: Text(u.isAdmin ? 'أدمن' : 'طالب', style: TextStyle(fontSize: 10, color: u.isAdmin ? AppColors.warning : AppColors.tealPrimary, fontWeight: FontWeight.w700))));
-          });
-        }),
+        SizedBox(height: 380, child: UsersScreen(user: user)),
       ]),
     );
   }
