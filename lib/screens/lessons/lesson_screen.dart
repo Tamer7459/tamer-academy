@@ -248,45 +248,23 @@ class _LessonScreenState extends State<LessonScreen> {
                             ),
                           ),
                         ] else if (currentType == 'exercise') ...[
-                          _isAdmin
-                              ? Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Row(children: [
-                                      Icon(Icons.admin_panel_settings_rounded, color: AppColors.warning),
-                                      SizedBox(width: 10),
-                                      Expanded(child: Text('التصحيح يتم عبر لوحة التحكم — هنا يعرض الطلاب حلولهم فقط', style: TextStyle(color: AppColors.grayMedium))),
-                                    ]),
-                                  ),
-                                )
-                              : ExerciseWidget(
-                                  lesson: lesson,
-                                  course: widget.course,
-                                  user: widget.user,
-                                  isAdmin: _isAdmin,
-                                  alreadyAnswered: _answered,
-                                  onAnswered: () async {
-                                    await db.markLessonAnswered(widget.user.uid, widget.course.id, lesson.id);
-                                    if (mounted) setState(() => _answered = true);
-                                  },
-                                ),
+                          ExerciseWidget(
+                            lesson: lesson,
+                            course: widget.course,
+                            user: widget.user,
+                            isAdmin: _isAdmin,
+                            alreadyAnswered: _answered,
+                            onAnswered: () async {
+                              await db.markLessonAnswered(widget.user.uid, widget.course.id, lesson.id);
+                              if (mounted) setState(() => _answered = true);
+                            },
+                          ),
                         ] else if (currentType == 'oral') ...[
                           QuestionsWidget(lesson: lesson, userId: widget.user.uid),
                         ] else if (currentType == 'homework') ...[
-                          _isAdmin
-                              ? Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Row(children: [
-                                      Icon(Icons.admin_panel_settings_rounded, color: AppColors.warning),
-                                      SizedBox(width: 10),
-                                      Expanded(child: Text('الواجبات تُصحح عبر لوحة التحكم — انتقل إلى تبويب الإدارة', style: TextStyle(color: AppColors.grayMedium))),
-                                    ]),
-                                  ),
-                                )
-                              : HomeworkWidget(
-                                  lesson: lesson,
-                                  course: widget.course,
+                          HomeworkWidget(
+                            lesson: lesson,
+                            course: widget.course,
                                   userId: widget.user.uid,
                                   userName: widget.user.name,
                                   userEmail: widget.user.email,
