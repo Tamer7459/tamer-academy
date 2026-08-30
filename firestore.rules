@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function userData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function courseAccess(courseId) {
+      let u = userData();
+      return u.role == 'admin' || courseId in u.accessCourses;
+    }
+    function courseIsFree(courseId) {
+      return get(/databases/$(database)/documents/courses/$(courseId)).data.price == 0;
+    }
+    function lessonReadable(courseId) {
+      return courseAccess(courseId) || courseIsFree(courseId);
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth.uid == uid
+        && request.resource.data.role == 'student'
+        && request.resource.data.accessCourses.size() == 0;
+      allow update: if isAdmin()
+        || (request.auth.uid == uid
+          && request.resource.data.role == 'student'
+          && request.resource.data.accessCourses == resource.data.accessCourses);
+      allow delete: if isAdmin();
+    }
+
+    match /courses/{courseId} {
+      allow read: if signedIn() && (isAdmin() || resource.data.published == true);
+      allow write: if isAdmin();
+    }
+
+    match /lessons/{lessonId} {
+      allow read: if signedIn() && lessonReadable(resource.data.courseId);
+      allow write: if isAdmin();
+    }
+
+    match /progress/{uid} {
+      allow read, write: if request.auth.uid == uid || isAdmin();
+    }
+
+    match /tracks/{trackId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /accessRequests/{reqId} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /homeworkSubmissions/{subId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && lessonReadable(request.resource.data.courseId);
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /exerciseSubmissions/{subId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && lessonReadable(request.resource.data.courseId);
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,39 @@
+﻿{
+  "project_info": {
+    "project_number": "873541306285",
+    "project_id": "tamer-academy",
+    "storage_bucket": "tamer-academy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873541306285:android:e38c558713a5674d898324",
+        "android_client_info": {
+          "package_name": "com.tameracademy.tamer_academy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "873541306285-2f79u5plbr91mgk6u2eia9vfg9gcpgsl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2BfXKLqLdANyTQI1jAn4CpGPH-LiaRaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "873541306285-2f79u5plbr91mgk6u2eia9vfg9gcpgsl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
