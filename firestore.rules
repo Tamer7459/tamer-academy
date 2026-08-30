@@ -23,7 +23,7 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || resource.data.role == 'admin');
       allow create: if request.auth.uid == uid
         && request.resource.data.role == 'student'
         && request.resource.data.accessCourses.size() == 0;
