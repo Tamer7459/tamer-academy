@@ -5,6 +5,7 @@ import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
 import '../../data/track1_seed.dart';
 import '../../data/track2_seed.dart';
+import '../../data/track3_seed.dart';
 import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/lesson.dart';
@@ -40,6 +41,7 @@ class LessonsManageScreen extends StatelessWidget {
           }
           final hasT1 = lessons.any((l) => l.id.contains('_t1_'));
           final hasT2 = lessons.any((l) => l.id.contains('_t2_'));
+          final hasT3 = lessons.any((l) => l.id.contains('_t3_'));
           final isFlutterCourse = course.title.ar.contains('موبايل') || course.title.en.toLowerCase().contains('mobile') || course.title.en.toLowerCase().contains('flutter') || course.track.toLowerCase().contains('mobile');
           if (lessons.isEmpty) {
             return Center(
@@ -67,6 +69,13 @@ class LessonsManageScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
                     ),
                     const SizedBox(height: 10),
+                    FilledButton.icon(
+                      onPressed: () => _seedTrack3(context),
+                      icon: const Icon(Icons.rocket_launch_rounded),
+                      label: const Text('تثبيت Track 3: Advanced Flutter (7 دروس)'),
+                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       'اختر المسار المطلوب. يمكنك تثبيت كليهما بالتتابع.',
                       textAlign: TextAlign.center,
@@ -78,6 +87,7 @@ class LessonsManageScreen extends StatelessWidget {
             );
           }
           final showTrack2Banner = hasT1 && !hasT2 && isFlutterCourse;
+          final showTrack3Banner = hasT2 && !hasT3 && isFlutterCourse;
           return Column(
             children: [
               if (showTrack2Banner)
@@ -93,6 +103,24 @@ class LessonsManageScreen extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(child: Text('Track 1 مثبت. هل تريد إضافة Track 2 (Flutter UI)؟', style: TextStyle(fontWeight: FontWeight.w700))),
                           FilledButton(onPressed: () => _seedTrack2(context), child: const Text('تثبيت Track 2')),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              if (showTrack3Banner)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.08),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.rocket_launch_rounded, color: Theme.of(context).colorScheme.tertiary),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text('Track 2 مثبت. هل تريد إضافة Track 3 (Advanced Flutter)؟', style: TextStyle(fontWeight: FontWeight.w700))),
+                          FilledButton(onPressed: () => _seedTrack3(context), child: const Text('تثبيت Track 3')),
                         ],
                       ),
                     ),
@@ -242,6 +270,40 @@ class LessonsManageScreen extends StatelessWidget {
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة 7 دروس Track 2 بنجاح ✓'), behavior: SnackBarBehavior.floating));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t('unknownError')}: $e'), behavior: SnackBarBehavior.floating));
+      }
+    }
+  }
+
+  Future<void> _seedTrack3(BuildContext context) async {
+    final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final t = l10n.t;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Text('تثبيت Track 3؟'),
+        content: const Text('سيتم إنشاء 7 دروس: Navigation & Routing, State Administration, Animations, Adaptive & Responsive UI, Caching & Local Storage, REST & HTTP APIs, Native & Platform Features. هل أنت متأكد؟'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(d).pop(false), child: Text(t('cancel'))),
+          FilledButton(onPressed: () => Navigator.of(d).pop(true), child: Text(t('confirm'))),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري تثبيت دروس Track 3...'), behavior: SnackBarBehavior.floating));
+    try {
+      final db = context.read<DatabaseService>();
+      final lessons = buildTrack3Lessons(course.id);
+      for (final l in lessons) {
+        // ignore: use_build_context_synchronously
+        await db.saveLesson(l);
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة 7 دروس Track 3 بنجاح ✓'), behavior: SnackBarBehavior.floating));
       }
     } catch (e) {
       if (context.mounted) {
