@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
 import '../../core/breakpoints.dart';
-import '../../data/web_courses_seed.dart';
 import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/track.dart';
@@ -46,17 +45,6 @@ class AdminDashboard extends StatelessWidget {
                 Text(l10n.isRtl ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة' : 'Full-screen dashboard — all in one page', style: TextStyle(fontSize: 12, color: AppColors.grayMedium)),
               ]),
               const Spacer(),
-              OutlinedButton.icon(onPressed: () async {
-                final db = context.read<DatabaseService>();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري استيراد دورات Web...')));
-                try {
-                  await seedWebCourses(db);
-                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم استيراد 4 دورات Web بنجاح'), backgroundColor: AppColors.success));
-                } catch (e) {
-                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
-                }
-              }, icon: const Icon(Icons.download_rounded, size: 18), label: const Text('استيراد Web')),
-              const SizedBox(width: 8),
               FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 18), label: Text(t('addCourse'))),
             ]),
           ),
