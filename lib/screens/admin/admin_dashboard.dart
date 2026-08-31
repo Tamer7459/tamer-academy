@@ -218,7 +218,7 @@ class _CoursesPreview extends StatelessWidget {
             if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات'));
             return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final c = courses[i];
-              return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))));
+              return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteCourse(context, db, c))]));
             });
           },
         ),
@@ -245,7 +245,7 @@ class _TracksPreview extends StatelessWidget {
             if (tracks.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد مسارات'));
             return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: tracks.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final tr = tracks[i];
-              return ListTile(dense: true, title: Text(tr.name.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), trailing: IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr)))));
+              return ListTile(dense: true, title: Text(tr.name.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteTrack(context, db, tr))]));
             });
           },
         ),
@@ -254,3 +254,38 @@ class _TracksPreview extends StatelessWidget {
   }
 }
 
+Future<void> _confirmDeleteCourse(BuildContext context, DatabaseService db, Course course) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('حذف الكورس'),
+      content: Text('هل تريد حذف "${course.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode)}"؟ لا يمكن التراجع.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('إلغاء')),
+        FilledButton(style: FilledButton.styleFrom(backgroundColor: AppColors.danger), onPressed: () => Navigator.pop(ctx, true), child: Text('حذف')),
+      ],
+    ),
+  );
+  if (confirmed == true && context.mounted) {
+    await db.deleteCourse(course.id);
+    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف الكورس')));
+  }
+}
+
+Future<void> _confirmDeleteTrack(BuildContext context, DatabaseService db, Track track) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('حذف المسار'),
+      content: Text('هل تريد حذف "${track.name.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode)}"؟ لا يمكن التراجع.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('إلغاء')),
+        FilledButton(style: FilledButton.styleFrom(backgroundColor: AppColors.danger), onPressed: () => Navigator.pop(ctx, true), child: Text('حذف')),
+      ],
+    ),
+  );
+  if (confirmed == true && context.mounted) {
+    await db.deleteTrack(track.id);
+    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف المسار')));
+  }
+}
