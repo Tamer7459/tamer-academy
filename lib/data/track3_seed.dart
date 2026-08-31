@@ -429,6 +429,44 @@ class DetailScreen extends StatelessWidget {
         fr: 'Utilisez Navigator.push + pop + arguments',
       ),
     ),
+    questions: const [
+      LessonQuestion(
+        question: LocalizedText(ar: '🟢 ما الدالتان الأساسيتان للانتقال إلى شاشة والعودة منها في Navigator 1.0؟', en: '🟢 What are the two basic functions for navigation in Navigator 1.0?', fr: '🟢 Quelles sont les deux fonctions de base de Navigator 1.0?'),
+        solution: LocalizedText(ar: 'Navigator.push() للانتقال إلى شاشة، وNavigator.pop() للعودة إلى الشاشة السابقة.', en: 'Navigator.push() to go to a screen, Navigator.pop() to go back.', fr: 'Navigator.push() pour aller à un écran, Navigator.pop() pour revenir.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟢 ما الفرق بين Navigator.push وNavigator.pop؟', en: '🟢 What is the difference between Navigator.push and Navigator.pop?', fr: '🟢 Quelle est la différence entre push et pop?'),
+        solution: LocalizedText(ar: 'push يضيف شاشة جديدة فوق الحالية، pop يزيل الشاشة الحالية ويعود إلى السابقة.', en: 'push adds a new screen on top, pop removes the current screen and goes back.', fr: 'push ajoute un écran, pop supprime et revient.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟡 في go_router، ماذا يعني المسار path: "/details/:id"؟', en: '🟡 In go_router, what does the route path: "/details/:id" mean?', fr: '🟡 Dans go_router, que signifie "/details/:id"?'),
+        solution: LocalizedText(ar: ':id يمثل Parameter متغيراً داخل المسار، يمكن الحصول عليه باستخدام state.pathParameters["id"].', en: ':id is a dynamic parameter in the route, accessed via state.pathParameters["id"].', fr: ':id est un paramètre dynamique, accessible via state.pathParameters["id"].'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟡 ما الفرق بين context.go و context.push في go_router؟', en: '🟡 What is the difference between context.go and context.push in go_router?', fr: '🟡 Quelle est la différence entre context.go et context.push?'),
+        solution: LocalizedText(ar: 'push يضيف المسار إلى navigation stack، go ينقل المستخدم إلى المسار مباشرة دون تكرار في الـ stack.', en: 'push adds to the navigation stack, go navigates directly without duplicating the stack.', fr: 'push empile, go remplace sans dupliquer.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟡 كيف نمرر كائناً كاملاً مثل User باستخدام go_router؟', en: '🟡 How to pass a full object like User using go_router?', fr: '🟡 Comment passer un objet complet avec go_router?'),
+        solution: LocalizedText(ar: 'نستخدم extra عند الانتقال: context.push("/profile", extra: myUserObject) ثم نستقبله عبر state.extra.', en: 'Use extra when navigating: context.push("/profile", extra: myUserObject) then receive via state.extra.', fr: 'Utilisez extra: context.push("/profile", extra: obj) puis state.extra.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟠 ما وظيفة redirect في GoRouter؟ أعطِ مثالاً.', en: '🟠 What does redirect do in GoRouter? Give an example.', fr: '🟠 Que fait redirect dans GoRouter?'),
+        solution: LocalizedText(ar: 'تُستخدم للتوجيه الشرطي. مثلاً: إذا لم يكن المستخدم مسجلاً للدخول، يُحوّل تلقائياً من / إلى /login.', en: 'It handles conditional routing. E.g.: redirect unauthenticated users from / to /login.', fr: 'Elle gère le routage conditionnel. Ex: rediriger les non-connectés vers /login.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🟠 لماذا نستخدم MaterialApp.router بدلا من MaterialApp مع go_router؟', en: '🟠 Why use MaterialApp.router instead of MaterialApp with go_router?', fr: '🟠 Pourquoi MaterialApp.router avec go_router?'),
+        solution: LocalizedText(ar: 'لأن MaterialApp.router يسمح بربط إعدادات GoRouter بالتطبيق باستخدام routerConfig.', en: 'Because MaterialApp.router allows linking GoRouter config via routerConfig.', fr: 'Parce qu\'il permet de lier la config GoRouter via routerConfig.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🔴 ما هو Deep Linking؟ أعطِ مثالاً عملياً.', en: '🔴 What is Deep Linking? Give a practical example.', fr: '🔴 Qu\'est-ce que le Deep Linking?'),
+        solution: LocalizedText(ar: 'فتح التطبيق مباشرة على شاشة محددة من رابط خارجي، مثل فتح myapp.com/details/123 والوصول مباشرة إلى تفاصيل العنصر 123.', en: 'Opening the app directly on a specific screen from an external link, e.g. myapp.com/details/123 goes straight to item 123 details.', fr: 'Ouvrir l\'app directement sur un écran spécifique via un lien externe.'),
+      ),
+      LessonQuestion(
+        question: LocalizedText(ar: '🔴 لديك: final id = state.pathParameters["id"] ?? ""; إذا انتقل المستخدم إلى /details/25، ما قيمة id؟', en: '🔴 Given: final id = state.pathParameters["id"] ?? ""; if user goes to /details/25, what is id?', fr: '🔴 Si l\'utilisateur va à /details/25, quelle est la valeur de id?'),
+        solution: LocalizedText(ar: 'ستكون قيمة id هي "25" (String)، لأن 25 مأخوذة من الـ URL كـ String من pathParameters.', en: 'id will be "25" (String), because 25 is taken from the URL as a String from pathParameters.', fr: 'id sera "25" (String), car 25 est extrait de l\'URL en String.'),
+      ),
+    ],
     homeworkPrompt: const LocalizedText(
       ar: 'تطبيق مدونة بتنقل كامل مع go_router',
       en: 'Blog app with full go_router navigation',
