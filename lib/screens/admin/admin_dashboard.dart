@@ -11,6 +11,7 @@ import '../../services/database_service.dart';
 import 'course_edit_screen.dart';
 import 'exercise_submissions_screen.dart';
 import 'homework_submissions_screen.dart';
+import 'lessons_manage_screen.dart';
 import 'requests_screen.dart';
 import 'track_edit_screen.dart';
 import 'users_screen.dart';
@@ -206,7 +207,7 @@ class _CoursesPreview extends StatelessWidget {
             if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات'));
             return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final c = courses[i];
-              return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteCourse(context, db, c))]));
+              return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.playlist_play_rounded, size: 18), tooltip: 'إدارة الدروس', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => LessonsManageScreen(user: user, course: c)))), IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteCourse(context, db, c))]));
             });
           },
         ),
