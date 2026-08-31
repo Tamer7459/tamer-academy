@@ -159,7 +159,7 @@ class DatabaseService {
         await _supa.saveLesson(lesson);
       } catch (_) {}
     }
-    return _lessons.doc(lesson.id).set(lesson.toMap());
+    return _lessons.doc(lesson.id).set(lesson.toMap(), SetOptions(merge: true));
   }
 
   Future<void> deleteLesson(String id) async {

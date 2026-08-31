@@ -90,6 +90,24 @@ class LessonsManageScreen extends StatelessWidget {
           final showTrack3Banner = !hasT3;
           return Column(
             children: [
+              if (lessons.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Card(
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.08),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.update_rounded, color: Theme.of(context).colorScheme.secondary),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text('تحديث الدروس: سيقوم بدمج أي محتوى جديد (أسئلة، تمارين) دون حذف البيانات الموجودة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13))),
+                          FilledButton.tonal(onPressed: () => _refreshLessons(context), child: const Text('تحديث')),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               if (showTrack2Banner)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -304,6 +322,45 @@ class LessonsManageScreen extends StatelessWidget {
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة 7 دروس Track 3 بنجاح ✓'), behavior: SnackBarBehavior.floating));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t('unknownError')}: $e'), behavior: SnackBarBehavior.floating));
+      }
+    }
+  }
+
+  Future<void> _refreshLessons(BuildContext context) async {
+    final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final t = l10n.t;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Text('تحديث الدروس؟'),
+        content: const Text('سيتم إعادة حفظ جميع الدروس من الملفات المحدثة. لن تُحذف أي بيانات موجودة، فقط يتم دمج المحتوى الجديد (أسئلة، تمارين، تعديلات).'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(d).pop(false), child: Text(t('cancel'))),
+          FilledButton(onPressed: () => Navigator.of(d).pop(true), child: Text(t('confirm'))),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري تحديث الدروس...'), behavior: SnackBarBehavior.floating));
+    try {
+      final db = context.read<DatabaseService>();
+      final allLessons = <Lesson>[
+        ...buildTrack1Lessons(course.id),
+        ...buildTrack2Lessons(course.id),
+        ...buildTrack3Lessons(course.id),
+      ];
+      int updated = 0;
+      for (final l in allLessons) {
+        await db.saveLesson(l);
+        updated++;
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تم تحديث $updated درس بنجاح ✓'), behavior: SnackBarBehavior.floating));
       }
     } catch (e) {
       if (context.mounted) {
