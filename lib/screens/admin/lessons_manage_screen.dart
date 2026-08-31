@@ -87,7 +87,7 @@ class LessonsManageScreen extends StatelessWidget {
             );
           }
           final showTrack2Banner = hasT1 && !hasT2 && isFlutterCourse;
-          final showTrack3Banner = hasT2 && !hasT3 && isFlutterCourse;
+          final showTrack3Banner = !hasT3;
           return Column(
             children: [
               if (showTrack2Banner)
@@ -119,7 +119,7 @@ class LessonsManageScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.rocket_launch_rounded, color: Theme.of(context).colorScheme.tertiary),
                           const SizedBox(width: 10),
-                          Expanded(child: Text('Track 2 مثبت. هل تريد إضافة Track 3 (Advanced Flutter)؟', style: TextStyle(fontWeight: FontWeight.w700))),
+                          Expanded(child: Text('Track 3: Advanced Flutter — 7 دروس متقدمة (Navigation, State, Animations, Responsive, Storage, APIs, Native)', style: TextStyle(fontWeight: FontWeight.w700))),
                           FilledButton(onPressed: () => _seedTrack3(context), child: const Text('تثبيت Track 3')),
                         ],
                       ),
