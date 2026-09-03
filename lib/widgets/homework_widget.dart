@@ -15,6 +15,7 @@ class HomeworkWidget extends StatefulWidget {
   final String userId;
   final String userName;
   final String userEmail;
+  final bool isAdmin;
   const HomeworkWidget({
     super.key,
     required this.lesson,
@@ -22,6 +23,7 @@ class HomeworkWidget extends StatefulWidget {
     required this.userId,
     required this.userName,
     required this.userEmail,
+    this.isAdmin = false,
   });
 
   @override
@@ -88,11 +90,86 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
     return s.replaceAll('.', ',');
   }
 
+  Future<void> _openReviewDialog(BuildContext context, HomeworkSubmission sub) async {
+    final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final t = l10n.t;
+    final db = context.read<DatabaseService>();
+    double grade = sub.grade ?? 5.0;
+    final feedbackCtrl = TextEditingController(text: sub.feedback);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (d) => StatefulBuilder(
+        builder: (d, setDialogState) => AlertDialog(
+          title: Text('تقييم واجب ${sub.userName}'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                Text('الدرس: ${sub.lessonTitle}', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.grayMedium)),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(10)),
+                  child: SelectableText(sub.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6)),
+                ),
+                const SizedBox(height: 16),
+                Row(children: [
+                  const Text('التقدير: ', style: TextStyle(fontWeight: FontWeight.w700)),
+                  Expanded(
+                    child: Slider(
+                      value: grade,
+                      min: 0,
+                      max: 10,
+                      divisions: 20,
+                      label: grade.toStringAsFixed(1),
+                      onChanged: (v) => setDialogState(() => grade = v),
+                    ),
+                  ),
+                  Container(
+                    width: 50,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: _gradeColor(grade).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+                    child: Text(grade.toStringAsFixed(1), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w800, color: _gradeColor(grade))),
+                  ),
+                ]),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: feedbackCtrl,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: 'ملاحظات للمتدرب',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(d).pop(false), child: Text(t('cancel'))),
+            FilledButton(onPressed: () => Navigator.of(d).pop(true), child: const Text('حفظ التقييم')),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await db.reviewHomework(sub.id, grade: grade, feedback: feedbackCtrl.text.trim(), reviewedBy: 'admin');
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التقييم ✓'), backgroundColor: AppColors.success));
+      } catch (e) {
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+      }
+    }
+    feedbackCtrl.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
     final t = l10n.t;
-    final lang = l10n.languageCode;
     final theme = Theme.of(context);
     final db = context.watch<DatabaseService>();
 
@@ -112,6 +189,137 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
         ),
       );
     }
+
+    if (widget.isAdmin) return _buildAdminView(context, db, l10n, theme);
+    return _buildStudentView(context, db, l10n, theme);
+  }
+
+  Widget _buildAdminView(BuildContext context, DatabaseService db, AppLocalizations l10n, ThemeData theme) {
+    final t = l10n.t;
+    final lang = l10n.languageCode;
+    final solution = widget.lesson.exercise?.solution.getWithFallback(lang) ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(icon: Icons.assignment_rounded, title: 'واجب الدرس'),
+        const SizedBox(height: 12),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: LessonContentRenderer(content: widget.lesson.homeworkPrompt.getWithFallback(lang), lang: lang),
+          ),
+        ),
+        if (solution.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            color: AppColors.success.withValues(alpha: 0.06),
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Icon(Icons.lightbulb_rounded, size: 18, color: AppColors.success),
+                  const SizedBox(width: 8),
+                  Text('الحل', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.success)),
+                ]),
+                const SizedBox(height: 8),
+                SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+              ]),
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
+        _SectionHeader(icon: Icons.people_rounded, title: 'واجبات المرسلة'),
+        const SizedBox(height: 12),
+        StreamBuilder<List<HomeworkSubmission>>(
+          stream: db.homeworkSubmissionsStream(lessonId: widget.lesson.id),
+          builder: (context, snap) {
+            if (snap.hasError) return Text('${t('error')}: ${snap.error}');
+            if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+            final subs = snap.data!;
+            if (subs.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppColors.grayLight.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+                child: Row(children: [Icon(Icons.inbox_rounded, color: AppColors.grayMedium), const SizedBox(width: 10), Text('لا توجد واجبات مرسلة بعد', style: TextStyle(color: AppColors.grayMedium, fontWeight: FontWeight.w600))]),
+              );
+            }
+            return Column(
+              children: subs.map((s) {
+                final isReviewed = s.isReviewed;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        CircleAvatar(radius: 14, child: Text(s.userName.isNotEmpty ? s.userName[0] : '?', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800))),
+                        const SizedBox(width: 8),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(s.userName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                          Text(s.userEmail, style: TextStyle(fontSize: 11, color: AppColors.grayMedium)),
+                        ])),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: (isReviewed ? AppColors.success : AppColors.warning).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Icon(isReviewed ? Icons.check_circle_rounded : Icons.hourglass_top_rounded, size: 14, color: isReviewed ? AppColors.success : AppColors.warning),
+                            const SizedBox(width: 4),
+                            Text(isReviewed ? t('homeworkReviewed') : t('homeworkPending'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isReviewed ? AppColors.success : AppColors.warning)),
+                          ]),
+                        ),
+                      ]),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
+                        child: SelectableText(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                      ),
+                      if (isReviewed && s.grade != null) ...[
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: _gradeColor(s.grade).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(Icons.star_rounded, size: 16, color: _gradeColor(s.grade)),
+                              const SizedBox(width: 4),
+                              Text('${t('grade')}: ${_formatGrade(s.grade)}/10', style: TextStyle(fontWeight: FontWeight.w800, color: _gradeColor(s.grade))),
+                            ]),
+                          ),
+                          const SizedBox(width: 8),
+                          if (s.feedback.isNotEmpty)
+                            Expanded(child: Text(s.feedback, style: TextStyle(fontSize: 12, color: AppColors.grayMedium), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                        ]),
+                      ],
+                      const SizedBox(height: 8),
+                      Row(children: [
+                        Text('${s.createdAt.day}/${s.createdAt.month} ${s.createdAt.hour}:${s.createdAt.minute.toString().padLeft(2, '0')}', style: TextStyle(fontSize: 11, color: AppColors.grayMedium)),
+                        const Spacer(),
+                        FilledButton.tonalIcon(
+                          onPressed: () => _openReviewDialog(context, s),
+                          icon: const Icon(Icons.rate_review_rounded, size: 16),
+                          label: Text(isReviewed ? 'تعديل التقييم' : 'تقييم'),
+                        ),
+                      ]),
+                    ]),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStudentView(BuildContext context, DatabaseService db, AppLocalizations l10n, ThemeData theme) {
+    final t = l10n.t;
+    final lang = l10n.languageCode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

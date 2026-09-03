@@ -268,6 +268,7 @@ class _LessonScreenState extends State<LessonScreen> {
                                   userId: widget.user.uid,
                                   userName: widget.user.name,
                                   userEmail: widget.user.email,
+                                  isAdmin: _isAdmin,
                                 ),
                         ],
                     const SizedBox(height: 24),
