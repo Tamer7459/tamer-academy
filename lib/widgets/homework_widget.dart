@@ -33,6 +33,7 @@ class HomeworkWidget extends StatefulWidget {
 class _HomeworkWidgetState extends State<HomeworkWidget> {
   final _ctrl = TextEditingController();
   bool _sending = false;
+  bool _showSolution = false;
 
   @override
   void dispose() {
@@ -223,9 +224,24 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                   Icon(Icons.lightbulb_rounded, size: 18, color: AppColors.success),
                   const SizedBox(width: 8),
                   Text('الحل', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.success)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => setState(() => _showSolution = !_showSolution),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(color: _showSolution ? AppColors.success.withValues(alpha: 0.15) : AppColors.warning.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(_showSolution ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16, color: _showSolution ? AppColors.success : AppColors.warning),
+                        const SizedBox(width: 6),
+                        Text(_showSolution ? 'إخفاء' : 'إظهار', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _showSolution ? AppColors.success : AppColors.warning)),
+                      ]),
+                    ),
+                  ),
                 ]),
-                const SizedBox(height: 8),
-                SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                if (_showSolution) ...[
+                  const SizedBox(height: 8),
+                  SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                ],
               ]),
             ),
           ),
