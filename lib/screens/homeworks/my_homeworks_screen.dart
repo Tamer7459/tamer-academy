@@ -116,12 +116,7 @@ class MyHomeworksScreen extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(color: isDark ? const Color(0xFF0D1424) : const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10), border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15))),
-                            child: SelectableText.rich(
-                              TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-                                text: '$line\n',
-                                style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6, color: Colors.white),
-                              )).toList()),
-                            ),
+                            child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))),
                           ),
                           if (isReviewed) ...[
                             const SizedBox(height: 10),

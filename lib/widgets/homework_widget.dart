@@ -113,7 +113,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(10)),
-                  child: SelectableText(sub.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6)),
+                  child: SelectionArea(child: Text(sub.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))),
                 ),
                 const SizedBox(height: 16),
                 Row(children: [
@@ -240,12 +240,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                 ]),
                 if (_showSolution) ...[
                   const SizedBox(height: 8),
-                  SelectableText.rich(
-                    TextSpan(children: solution.split('\n').map((line) => TextSpan(
-                      text: '$line\n',
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
-                    )).toList()),
-                  ),
+                  SelectionArea(child: Text(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
                 ],
               ]),
             ),
@@ -298,12 +293,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectableText.rich(
-                          TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-                            text: '$line\n',
-                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
-                          )).toList()),
-                        ),
+                        child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
                       ),
                       if (solution.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -323,12 +313,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                               ]),
                               if (_showSolution) ...[
                                 const SizedBox(height: 8),
-                                SelectableText.rich(
-                                  TextSpan(children: solution.split('\n').map((line) => TextSpan(
-                                    text: '$line\n',
-                                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7, color: Colors.white),
-                                  )).toList()),
-                                ),
+                                SelectionArea(child: Text(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7))),
                               ],
                             ]),
                           ),
@@ -468,12 +453,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectableText.rich(
-                          TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-                            text: '$line\n',
-                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
-                          )).toList()),
-                        ),
+                        child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
                       ),
                       if (isReviewed && s.feedback.isNotEmpty) ...[
                         const SizedBox(height: 10),

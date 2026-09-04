@@ -171,12 +171,7 @@ class _HomeworkSubmissionsScreenState extends State<HomeworkSubmissionsScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)), borderRadius: BorderRadius.circular(12)),
-                          child: SelectableText.rich(
-                            TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-                              text: '$line\n',
-                              style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6, color: Colors.white),
-                            )).toList()),
-                          ),
+                          child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))),
                         ),
                         if (isReviewed) ...[
                           const SizedBox(height: 8),
@@ -225,12 +220,7 @@ class _HomeworkSubmissionsScreenState extends State<HomeworkSubmissionsScreen> {
       context: context,
       builder: (d) => AlertDialog(
         title: Text(s.lessonTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-        content: SizedBox(width: 600, child: SingleChildScrollView(child: SelectableText.rich(
-          TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-            text: '$line\n',
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6, color: Colors.white),
-          )).toList()),
-        ))),
+        content: SizedBox(width: 600, child: SingleChildScrollView(child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))))),
         actions: [TextButton(onPressed: () => Navigator.pop(d), child: Text(Localizations.of<AppLocalizations>(context, AppLocalizations)!.t('cancel')))],
       ),
     );
@@ -290,12 +280,7 @@ class _HomeworkSubmissionsScreenState extends State<HomeworkSubmissionsScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(10)),
-                      child: SelectableText.rich(
-                        TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
-                          text: '$line\n',
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6, color: Colors.white),
-                        )).toList()),
-                      ),
+                      child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))),
                     ),
                     const SizedBox(height: 12),
                     TextField(controller: feedbackCtrl, maxLines: 5, decoration: InputDecoration(labelText: t('feedback'), hintText: t('feedback'), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
