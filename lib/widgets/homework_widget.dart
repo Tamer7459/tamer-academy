@@ -295,6 +295,30 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
                         child: SelectableText(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
                       ),
+                      if (solution.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () => setState(() => _showSolution = !_showSolution),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.06), border: Border.all(color: AppColors.success.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              Row(children: [
+                                Icon(Icons.lightbulb_rounded, size: 16, color: AppColors.success),
+                                const SizedBox(width: 6),
+                                Text('الحل', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.success)),
+                                const Spacer(),
+                                Icon(_showSolution ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 16, color: AppColors.success),
+                              ]),
+                              if (_showSolution) ...[
+                                const SizedBox(height: 8),
+                                SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7)),
+                              ],
+                            ]),
+                          ),
+                        ),
+                      ],
                       if (isReviewed && s.grade != null) ...[
                         const SizedBox(height: 8),
                         Row(children: [
