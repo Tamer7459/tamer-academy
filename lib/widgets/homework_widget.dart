@@ -240,7 +240,12 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                 ]),
                 if (_showSolution) ...[
                   const SizedBox(height: 8),
-                  SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                  SelectableText.rich(
+                    TextSpan(children: solution.split('\n').map((line) => TextSpan(
+                      text: '$line\n',
+                      style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
+                    )).toList()),
+                  ),
                 ],
               ]),
             ),
@@ -293,7 +298,12 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectableText(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                        child: SelectableText.rich(
+                          TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
+                            text: '$line\n',
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
+                          )).toList()),
+                        ),
                       ),
                       if (solution.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -313,7 +323,12 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                               ]),
                               if (_showSolution) ...[
                                 const SizedBox(height: 8),
-                                SelectableText(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7)),
+                                SelectableText.rich(
+                                  TextSpan(children: solution.split('\n').map((line) => TextSpan(
+                                    text: '$line\n',
+                                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7, color: Colors.white),
+                                  )).toList()),
+                                ),
                               ],
                             ]),
                           ),
@@ -453,7 +468,12 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectableText(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
+                        child: SelectableText.rich(
+                          TextSpan(children: s.codeAnswer.split('\n').map((line) => TextSpan(
+                            text: '$line\n',
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white),
+                          )).toList()),
+                        ),
                       ),
                       if (isReviewed && s.feedback.isNotEmpty) ...[
                         const SizedBox(height: 10),
