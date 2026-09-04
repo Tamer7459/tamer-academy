@@ -283,7 +283,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectionArea(child: Text(s.answerText, style: const TextStyle(fontSize: 13, height: 1.7))),
+                        child: Text(s.answerText, style: const TextStyle(fontSize: 13, height: 1.7)),
                       ),
                       if (isReviewed && s.selectedOptionIndex != null) ...[
                         const SizedBox(height: 6),

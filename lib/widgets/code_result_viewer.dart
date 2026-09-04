@@ -221,7 +221,7 @@ class _CodeResultViewerState extends State<CodeResultViewer> {
         ),
         padding: const EdgeInsets.all(12),
         child: SingleChildScrollView(
-          child: SelectionArea(child: Text(raw.isNotEmpty ? raw : t('noPreview'), style: TextStyle(fontFamily: 'monospace', fontSize: 13))),
+          child: Text(raw.isNotEmpty ? raw : t('noPreview'), style: TextStyle(fontFamily: 'monospace', fontSize: 13)),
         ),
       );
     }

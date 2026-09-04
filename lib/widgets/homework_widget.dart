@@ -113,7 +113,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(10)),
-                  child: SelectionArea(child: Text(sub.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6))),
+                                    child: RichText(text: TextSpan(text: sub.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.6, color: Colors.white))),
                 ),
                 const SizedBox(height: 16),
                 Row(children: [
@@ -240,7 +240,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                 ]),
                 if (_showSolution) ...[
                   const SizedBox(height: 8),
-                  SelectionArea(child: Text(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
+                  RichText(text: TextSpan(text: solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7, color: Colors.white))),
                 ],
               ]),
             ),
@@ -293,7 +293,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
+                        child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
                       ),
                       if (solution.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -313,7 +313,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                               ]),
                               if (_showSolution) ...[
                                 const SizedBox(height: 8),
-                                SelectionArea(child: Text(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7))),
+                                Text(solution, style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.7)),
                               ],
                             ]),
                           ),
@@ -453,7 +453,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border.all(color: theme.dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(12)),
-                        child: SelectionArea(child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7))),
+                        child: Text(s.codeAnswer, style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.7)),
                       ),
                       if (isReviewed && s.feedback.isNotEmpty) ...[
                         const SizedBox(height: 10),

@@ -354,18 +354,16 @@ class LessonContentRenderer extends StatelessWidget {
               ],
             ),
           ),
-          SelectionArea(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.all(14),
-              child: HighlightView(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.all(14),
+            child: HighlightView(
                 code,
                 language: highlightLang,
                 theme: _highlightTheme(langTheme),
                 padding: EdgeInsets.zero,
                 textStyle: const TextStyle(fontFamily: 'monospace', fontSize: 14, height: 1.6),
               ),
-            ),
           ),
         ],
       ),

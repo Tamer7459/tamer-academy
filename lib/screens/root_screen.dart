@@ -85,15 +85,15 @@ class _RootScreenState extends State<RootScreen> {
     }
     // Web test route: https://tamer-academy.web.app/#/test
     if (kIsWeb && web_utils.isTestRoute()) {
-      return const SelectionArea(child: TestViewerScreen());
+      return const TestViewerScreen();
     }
     if (_loading) {
-      return const SelectionArea(child: Scaffold(body: _SplashScreen()));
+      return const Scaffold(body: _SplashScreen());
     }
     if (_appUser == null) {
-      return const SelectionArea(child: LandingScreen());
+      return const LandingScreen();
     }
-    return SelectionArea(child: HomeShell(user: _appUser!));
+    return HomeShell(user: _appUser!);
   }
 }
 
