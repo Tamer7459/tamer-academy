@@ -25,16 +25,15 @@
       background: #0B1120;
       overflow: hidden;
     }
-    /* Kill browser auto-link styling inside Flutter web */
     flt-glass-pane a,
-    flt-glass-paneflt-semantics-host a {
+    flt-semantics-host a {
       color: inherit !important;
       text-decoration: none !important;
+      pointer-events: none !important;
     }
     * { -webkit-tap-highlight-color: transparent; }
     ::-webkit-scrollbar { display: none; }
     flt-glass-pane { -webkit-font-smoothing: antialiased; }
-  </style>
     #loading {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -95,7 +94,6 @@
     var _splashHidden = false;
     var _splashReady = false;
 
-    // Continuously force flt-glass-pane hidden until app is ready
     var _guard = setInterval(function() {
       if (_splashReady) { clearInterval(_guard); return; }
       var gp = document.querySelector('flt-glass-pane');
@@ -105,7 +103,6 @@
       }
     }, 5);
 
-    // MutationObserver: catch flt-glass-pane as soon as it's created
     var _obs = new MutationObserver(function(mutations) {
       if (_splashReady) return;
       for (var i = 0; i < mutations.length; i++) {
@@ -128,7 +125,6 @@
     });
     _obs.observe(document.documentElement, { childList: true, subtree: true });
 
-    // When Flutter first frame is ready, show the app and remove our splash
     window.addEventListener('flutter-first-frame', function () {
       _splashReady = true;
       clearInterval(_guard);
@@ -147,7 +143,6 @@
       }
     });
 
-    // Safety fallback after 12 seconds
     setTimeout(function() {
       if (!_splashReady) {
         _splashReady = true;
@@ -165,22 +160,6 @@
         }
       }
     }, 12000);
-  </script>
-  <script>
-    // Strip browser auto-detected links (red+underline) from Flutter web
-    var _stripLinks = function() {
-      var host = document.querySelector('flt-semantics-host');
-      if (!host) return;
-      var links = host.querySelectorAll('a');
-      for (var i = 0; i < links.length; i++) {
-        var a = links[i];
-        a.style.color = 'inherit';
-        a.style.textDecoration = 'none';
-        a.style.pointerEvents = 'none';
-      }
-    };
-    var _linkObs = new MutationObserver(_stripLinks);
-    _linkObs.observe(document.documentElement, { childList: true, subtree: true });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
