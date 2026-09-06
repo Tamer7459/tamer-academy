@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
@@ -51,7 +52,13 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
     final db = context.watch<DatabaseService>();
     final lang = l10n.languageCode;
 
-    return Column(
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded), tooltip: 'رجوع', onPressed: () => Navigator.of(context).maybePop()),
+        title: const Text('كل التمارين'),
+        centerTitle: true,
+      ),
+      body: Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -153,12 +160,12 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                       padding: const EdgeInsets.all(14),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
-                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(s.userName.isEmpty ? s.userEmail : s.userName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)), Text(s.userEmail, style: TextStyle(fontSize: 11, color: AppColors.grayMedium))])),
+                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(s.userName.isEmpty ? s.userEmail : s.userName, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Theme.of(context).colorScheme.onSurface, decoration: TextDecoration.none)), Text(s.userEmail, style: TextStyle(fontSize: 11, color: AppColors.grayMedium, decoration: TextDecoration.none))])),
                           Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: (isReviewed ? AppColors.success : AppColors.warning).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)), child: Text(isReviewed ? t('homeworkReviewed') : t('homeworkPending'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isReviewed ? AppColors.success : AppColors.warning))),
                         ]),
                         const SizedBox(height: 6),
-                        Text('${s.courseTitle} • ${s.lessonTitle}', style: TextStyle(fontSize: 12, color: AppColors.grayMedium)),
-                        Text('${s.createdAt.day}/${s.createdAt.month}/${s.createdAt.year} ${s.createdAt.hour}:${s.createdAt.minute.toString().padLeft(2,'0')}', style: TextStyle(fontSize: 11, color: AppColors.grayLight)),
+                        Text('${s.courseTitle} • ${s.lessonTitle}', style: TextStyle(fontSize: 12, color: AppColors.grayMedium, decoration: TextDecoration.none)),
+                        Text('${s.createdAt.day}/${s.createdAt.month}/${s.createdAt.year} ${s.createdAt.hour}:${s.createdAt.minute.toString().padLeft(2,'0')}', style: TextStyle(fontSize: 11, color: AppColors.grayLight, decoration: TextDecoration.none)),
                         const SizedBox(height: 10),
                         if (s.selectedOptionIndex != null)
                           Container(
@@ -170,7 +177,19 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)), borderRadius: BorderRadius.circular(12)),
-                          child: Text(s.answerText, style: const TextStyle(fontSize: 13, height: 1.6)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: IconButton(icon: const Icon(Icons.copy_rounded, size: 16), tooltip: 'نسخ الكود', onPressed: () async { await Clipboard.setData(ClipboardData(text: s.answerText)); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ الكود'), behavior: SnackBarBehavior.floating)); }),
+                              ),
+                              Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Text(s.answerText, textDirection: TextDirection.ltr, textAlign: TextAlign.left, style: TextStyle(fontSize: 13, height: 1.6, color: Theme.of(context).colorScheme.onSurface, decoration: TextDecoration.none)),
+                              ),
+                            ],
+                          ),
                         ),
                         if (isReviewed) ...[
                           const SizedBox(height: 8),
@@ -178,7 +197,7 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                             Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: _gradeColor(s.grade).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star_rounded, size: 16, color: _gradeColor(s.grade)), const SizedBox(width: 4), Text('${t('grade')}: ${_formatGrade(s.grade)}/10', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: _gradeColor(s.grade)))])),
                           if (s.feedback.isNotEmpty) ...[
                             const SizedBox(height: 6),
-                            Text('${t('feedback')}: ${s.feedback}', style: const TextStyle(fontSize: 12, height: 1.5)),
+                            Text('${t('feedback')}: ${s.feedback}', style: const TextStyle(fontSize: 12, height: 1.5, decoration: TextDecoration.none)),
                           ],
                         ],
                         const SizedBox(height: 10),
@@ -198,11 +217,12 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
           ),
         ),
       ],
+      ),
     );
   }
 
   void _showFull(ExerciseSubmission s) {
-    showDialog(context: context, builder: (d) => AlertDialog(title: Text(s.lessonTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)), content: SizedBox(width: 600, child: SingleChildScrollView(child: Text(s.answerText, style: const TextStyle(fontSize: 12, height: 1.6)))), actions: [TextButton(onPressed: () => Navigator.pop(d), child: Text(Localizations.of<AppLocalizations>(context, AppLocalizations)!.t('cancel')))]));
+    showDialog(context: context, builder: (d) => AlertDialog(title: Text(s.lessonTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)), content: SizedBox(width: 600, child: SingleChildScrollView(child: Directionality(textDirection: TextDirection.ltr, child: Text(s.answerText, textDirection: TextDirection.ltr, textAlign: TextAlign.left, style: const TextStyle(fontSize: 12, height: 1.6, decoration: TextDecoration.none))))), actions: [TextButton(onPressed: () => Navigator.pop(d), child: Text(Localizations.of<AppLocalizations>(context, AppLocalizations)!.t('cancel')))]));
   }
 
   Future<void> _openReviewDialog(ExerciseSubmission s) async {
@@ -249,7 +269,7 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)), borderRadius: BorderRadius.circular(10)),
-                        child: Text(s.answerText, style: const TextStyle(fontSize: 12, height: 1.6)),
+                        child: Directionality(textDirection: TextDirection.ltr, child: Text(s.answerText, textDirection: TextDirection.ltr, textAlign: TextAlign.left, style: const TextStyle(fontSize: 12, height: 1.6, decoration: TextDecoration.none))),
                       ),
                       const SizedBox(height: 12),
                       TextField(controller: feedbackCtrl, maxLines: 5, decoration: InputDecoration(labelText: t('feedback'), border: const OutlineInputBorder())),

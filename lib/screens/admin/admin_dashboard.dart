@@ -207,11 +207,52 @@ class _CoursesPreview extends StatelessWidget {
             if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات'));
             return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final c = courses[i];
-              return ListTile(dense: true, title: Text(c.title.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(c.track), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.playlist_play_rounded, size: 18), tooltip: 'إدارة الدروس', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => LessonsManageScreen(user: user, course: c)))), IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteCourse(context, db, c))]));
+              final loc = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+              final lang = loc.languageCode;
+              final tr = loc.t;
+              final priceLabel = c.isFree ? tr('free') : '${c.price}';
+              return ListTile(
+                dense: true,
+                title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _CourseChip(label: c.track),
+                      _CourseChip(label: tr(c.level)),
+                      _CourseChip(label: priceLabel),
+                      _CourseChip(label: c.published ? tr('published') : tr('draft'), color: c.published ? AppColors.success : AppColors.warning),
+                    ],
+                  ),
+                ),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  IconButton(icon: Icon(c.published ? Icons.visibility_rounded : Icons.visibility_off_rounded, size: 18, color: c.published ? AppColors.success : AppColors.grayMedium), tooltip: c.published ? tr('published') : tr('draft'), onPressed: () => db.saveCourse(c.copyWith(published: !c.published))),
+                  IconButton(icon: const Icon(Icons.playlist_play_rounded, size: 18), tooltip: 'إدارة الدروس', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => LessonsManageScreen(user: user, course: c)))),
+                  IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CourseEditScreen(course: c)))),
+                  IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteCourse(context, db, c)),
+                ]),
+              );
             });
           },
         ),
       ]),
+    );
+  }
+}
+
+class _CourseChip extends StatelessWidget {
+  final String label;
+  final Color? color;
+  const _CourseChip({required this.label, this.color});
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? AppColors.grayMedium;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)),
+      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: c)),
     );
   }
 }
