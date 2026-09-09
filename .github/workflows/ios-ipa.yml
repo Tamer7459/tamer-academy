@@ -1,0 +1,46 @@
+name: iOS IPA (unsigned)
+
+# Builds an unsigned .ipa on a macOS runner (Windows cannot build iOS apps).
+# Download the IPA from the workflow run page under "Artifacts".
+# NOTE: Firebase will NOT work on iOS until ios/Runner/GoogleService-Info.plist
+# is added (download it from Firebase Console > Project Settings > iOS app).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'ios/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/ios-ipa.yml'
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+
+      - name: Install Dart dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: cd ios && pod install --repo-update
+
+      - name: Build unsigned IPA
+        run: flutter build ipa --no-codesign
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TamerAcademy-ios-unsigned
+          path: build/ios/ipa/*.ipa
+          retention-days: 30
