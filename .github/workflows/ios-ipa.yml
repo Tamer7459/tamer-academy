@@ -35,8 +35,17 @@ jobs:
       - name: Install CocoaPods dependencies
         run: cd ios && pod install --repo-update
 
-      - name: Build unsigned IPA
-        run: flutter build ipa --no-codesign
+      - name: Build iOS app (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p build/ios/ipa
+          cd build/ios/iphoneos
+          rm -rf Payload && mkdir Payload
+          cp -R Runner.app Payload/
+          zip -qry ../ipa/TamerAcademy-unsigned.ipa Payload
+          ls -lh ../ipa/
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
