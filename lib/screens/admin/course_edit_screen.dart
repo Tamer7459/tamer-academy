@@ -13,7 +13,6 @@ import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
 import '../../data/lesson_templates.dart';
 import '../../models/course.dart';
-import '../../models/track.dart';
 import '../../services/database_service.dart';
 
 class CourseEditScreen extends StatefulWidget {
@@ -565,22 +564,14 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
             Row(
               children: [
                 Expanded(
-                  child: StreamBuilder<List<Track>>(
-                    stream: context.read<DatabaseService>().tracksStream(),
-                    builder: (context, snapshot) {
-                      final tracks = snapshot.data ?? [];
-                      return DropdownButtonFormField<String>(
-                        value: _track,
-                        decoration: InputDecoration(labelText: t('track')),
-                        items: tracks.isEmpty
-                            ? [const DropdownMenuItem(value: 'web', child: Text('Web'))]
-                            : tracks.map((tr) => DropdownMenuItem(
-                              value: tr.id,
-                              child: Text(tr.name.get(l10n.languageCode)),
-                            )).toList(),
-                        onChanged: (v) => setState(() => _track = v ?? 'web'),
-                      );
-                    },
+                  child: DropdownButtonFormField<String>(
+                    value: _track == 'mobile' ? 'mobile' : 'web',
+                    decoration: InputDecoration(labelText: t('track')),
+                    items: [
+                      DropdownMenuItem(value: 'web', child: Text(t('webDevelopment'))),
+                      DropdownMenuItem(value: 'mobile', child: Text(t('mobileDevelopment'))),
+                    ],
+                    onChanged: (v) => setState(() => _track = v ?? 'web'),
                   ),
                 ),
                 const SizedBox(width: 12),

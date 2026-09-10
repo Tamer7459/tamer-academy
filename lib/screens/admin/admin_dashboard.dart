@@ -211,6 +211,7 @@ class _CoursesPreview extends StatelessWidget {
               final lang = loc.languageCode;
               final tr = loc.t;
               final priceLabel = c.isFree ? tr('free') : '${c.price}';
+              final trackLabel = c.track == 'mobile' ? tr('mobileDevelopment') : c.track == 'web' ? tr('webDevelopment') : c.track;
               return ListTile(
                 dense: true,
                 title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -220,7 +221,7 @@ class _CoursesPreview extends StatelessWidget {
                     spacing: 6,
                     runSpacing: 6,
                     children: [
-                      _CourseChip(label: c.track),
+                      _CourseChip(label: trackLabel),
                       _CourseChip(label: tr(c.level)),
                       _CourseChip(label: priceLabel),
                       _CourseChip(label: c.published ? tr('published') : tr('draft'), color: c.published ? AppColors.success : AppColors.warning),
