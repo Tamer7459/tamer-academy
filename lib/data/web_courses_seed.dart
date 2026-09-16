@@ -57,7 +57,7 @@ List<Course> buildWebCourses() {
     Course(
       id: 'cours_js_2025',
       title: LocalizedText(ar: 'دورة JavaScript', en: 'JavaScript Course', fr: 'Cours JavaScript'),
-      description: LocalizedText(ar: 'لغة البرمجة الأساسية للويب — 12 درساً من المتغيرات إلى Async/Await.', en: 'Core web language — 12 lessons from variables to async/await.', fr: 'Langage principal du web — 12 leçons.'),
+      description: LocalizedText(ar: 'لغة البرمجة الأساسية للويب — 17 درساً من المتغيرات إلى الوحدات والكلاسات وحفظ الحالة.', en: 'Core web language — 17 lessons from variables to modules, classes and persistence.', fr: 'Langage principal du web — 17 leçons.'),
       track: 'web',
       level: 'beginner',
       price: 0,
@@ -122,6 +122,11 @@ List<Lesson> buildJsLessons(String courseId) => [
       _js10(courseId),
       _js11(courseId),
       _js12(courseId),
+      _js13(courseId),
+      _js14(courseId),
+      _js15(courseId),
+      _js16(courseId),
+      _js17(courseId),
     ];
 
 List<Lesson> buildGitLessons(String courseId) => [
@@ -853,6 +858,354 @@ let { address: { city } } = user; // nested
       exercise: Exercise(question: LocalizedText(ar: 'أنشئ counter باستخدام closure', en: 'Counter with closure', fr: 'Compteur avec closure'), options: [], answerIndex: 0, solution: LocalizedText(ar: 'Closure pattern', en: 'Closure pattern', fr: 'Closure')),
       questions: [],
       homeworkPrompt: LocalizedText(ar: 'ملخص شامل لدورة JS — مشروع بسيط يستخدم كل ما تعلمته', en: 'JS final project', fr: 'Projet final JS'), hasHomework: true, order: 12,
+    );
+
+Lesson _js13(String c) => Lesson(
+      id: '${c}_l13', courseId: c,
+      title: LocalizedText(ar: 'الدرس 13: الوحدات — import و export', en: 'Lesson 13: ES Modules', fr: 'Leçon 13: Modules ES'),
+      content: LocalizedText(ar: r'''
+## 🎯 الهدف
+تقسيم الكود إلى ملفات (وحدات) قابلة لإعادة الاستخدام عبر `import` و `export`.
+
+## 📖 الشرح
+### التصدير المسمّى (Named)
+```js
+// math.js
+export const PI = 3.14;
+export function add(a, b) { return a + b; }
+export function sub(a, b) { return a - b; }
+```
+
+### التصدير الافتراضي (Default)
+- واحد فقط في كل ملف، ويُستورد بأي اسم.
+```js
+// user.js
+export default class User {
+  constructor(name) { this.name = name; }
+}
+```
+
+### الاستيراد
+```js
+// main.js
+import User from "./user.js";
+import { PI, add } from "./math.js";
+import * as MathAll from "./math.js";
+
+console.log(add(2, 3)); // 5
+console.log(MathAll.PI); // 3.14
+```
+
+### ⚠️ قواعد هامة
+- ملف الاستيراد يُكتب بامتداد `.js` كاملاً: `"./math.js"` وليس `"./math"`.
+- في المتصفح يجب: `<script type="module" src="main.js"></script>`.
+- الوحدات **مؤجلة تلقائياً** (deferred) — تعمل بعد تحميل الصفحة.
+- لا تعمل عبر `file://` مباشرة (CORS) — استخدم خادماً محلياً مثل VS Code Live Server.
+
+### الاستيراد الديناميكي
+```js
+button.onclick = async () => {
+  const { add } = await import("./math.js");
+  console.log(add(1, 2));
+};
+```
+
+## 📝 ملاحظات
+- `export default` واحد فقط، و `export` المسمّاة بلا حد.
+- إعادة التصدير: `export { add } from "./math.js";`
+''',
+        en: 'Named vs default exports, import syntax, type=module, dynamic import().',
+        fr: 'Exports nommés vs défaut, import, type=module, import dynamique.',
+      ),
+      videoUrl: '',
+      codeHtml: '<script type="module">\n  import { add } from "./math.js";\n  import User from "./user.js";\n  console.log(add(2, 3));\n  console.log(new User("Ahmed").name);\n</script>',
+      codeDart: '',
+      exercise: Exercise(question: LocalizedText(ar: 'قسّم كودك إلى ملفي utils.js و main.js', en: 'Split code into two modules', fr: 'Divisez en deux modules'), options: [], answerIndex: 0, solution: LocalizedText(ar: 'export في utils + import في main', en: 'export + import', fr: 'export + import')),
+      questions: [
+        LessonQuestion(question: LocalizedText(ar: 'ما الفرق بين التصدير المسمّى والافتراضي؟', en: 'Named vs default export?', fr: 'Export nommé vs défaut?'), solution: LocalizedText(ar: 'المسمّى متعدد ويُستورد بنفس الاسم بين {}، والافتراضي واحد ويُستورد بأي اسم', en: 'Named: many, same name in {}. Default: one, any name', fr: 'Nommé: plusieurs, même nom. Défaut: un seul, nom libre')),
+        LessonQuestion(question: LocalizedText(ar: 'لماذا نحتاج type="module" في المتصفح؟', en: 'Why type=module?', fr: 'Pourquoi type=module?'), solution: LocalizedText(ar: 'بدونه يعتبر المتصفح import خطأ لغوياً، والوحدات تعمل بنطاق خاص ومؤجلة', en: 'Without it import is a syntax error; modules are scoped and deferred', fr: 'Sans lui import est une erreur; modules isolés et différés')),
+      ],
+      homeworkPrompt: LocalizedText(ar: 'مكتبة أدوات utils.js (جمع، طرح، متوسط) تُستخدم من main.js', en: 'Utils library used from main.js', fr: 'Bibliothèque utils utilisée par main.js'), hasHomework: true, order: 13,
+    );
+
+Lesson _js14(String c) => Lesson(
+      id: '${c}_l14', courseId: c,
+      title: LocalizedText(ar: 'الدرس 14: الكلاسات والوراثة', en: 'Lesson 14: Classes & Prototypes', fr: 'Leçon 14: Classes & Prototypes'),
+      content: LocalizedText(ar: r'''
+## 🎯 الهدف
+فهم الأصناف (Classes) وأن JavaScript مبنية على الوراثة الاحتجاجية (Prototypal).
+
+## 📖 الشرح
+### تعريف صنف
+```js
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  greet() {
+    return `مرحبا، أنا ${this.name}`;
+  }
+}
+const u = new User("أحمد", 25);
+console.log(u.greet());
+```
+
+### الوراثة: extends و super
+```js
+class Admin extends User {
+  constructor(name, age, level) {
+    super(name, age); // استدعاء باني الأب أولاً
+    this.level = level;
+  }
+  greet() {
+    return super.greet() + " (مدير)";
+  }
+}
+```
+
+### الحقول الخاصة (#)
+```js
+class Bank {
+  #balance = 0; // خاص — لا يُقرأ من الخارج
+  deposit(x) { this.#balance += x; }
+  getBalance() { return this.#balance; }
+}
+```
+
+### السلسلة الاحتجاجية (Prototype Chain)
+- كل كائن يرث من **prototype** — الكلاس مجرد سكّر لغوي فوقها.
+```js
+console.log(u.__proto__ === User.prototype); // true
+Array.prototype.last = function() { return this[this.length - 1]; };
+console.log([1, 2, 3].last()); // 3
+```
+
+## 📝 ملاحظات
+- `super()` إلزامي في الباني قبل استخدام `this`.
+- الدوال داخل الكلاس **ليست** arrow functions عادة (حتى يعمل `this`).
+- تجنّب تعديل prototypes المدمجة في مشاريع حقيقية.
+''',
+        en: 'class syntax, constructor, extends/super, private #fields, prototype chain.',
+        fr: 'Classes, constructeur, extends/super, champs privés, prototypes.',
+      ),
+      videoUrl: '',
+      codeHtml: '<script>\n  class User {\n    constructor(name) { this.name = name; }\n    greet() { return "Hi " + this.name; }\n  }\n  class Admin extends User {\n    greet() { return super.greet() + " (admin)"; }\n  }\n  console.log(new Admin("Sara").greet());\n</script>',
+      codeDart: '',
+      exercise: Exercise(question: LocalizedText(ar: 'أنشئ صنف Student يرث من User', en: 'Student extends User', fr: 'Student hérite de User'), options: [], answerIndex: 0, solution: LocalizedText(ar: 'class Student extends User + super()', en: 'extends + super()', fr: 'extends + super()')),
+      questions: [
+        LessonQuestion(question: LocalizedText(ar: 'ماذا يحدث إذا استخدمت this قبل super()؟', en: 'this before super()?', fr: 'this avant super()?'), solution: LocalizedText(ar: 'خطأ ReferenceError — يجب استدعاء super() أولاً', en: 'ReferenceError — super() must come first', fr: 'ReferenceError — super() d\'abord')),
+        LessonQuestion(question: LocalizedText(ar: 'ما العلاقة بين الكلاس والـ prototype؟', en: 'Class vs prototype?', fr: 'Classe vs prototype?'), solution: LocalizedText(ar: 'الكلاس صياغة مختصرة فوق نفس نظام الاحتجاج', en: 'Class is syntax sugar over prototypes', fr: 'La classe est du sucre syntaxique')),
+      ],
+      homeworkPrompt: LocalizedText(ar: 'نظام موظفين: صنف Employee وأصناف ترث منه مع حقول خاصة للراتب', en: 'Employee hierarchy with private salary', fr: 'Hiérarchie employés avec salaire privé'), hasHomework: true, order: 14,
+    );
+
+Lesson _js15(String c) => Lesson(
+      id: '${c}_l15', courseId: c,
+      title: LocalizedText(ar: 'الدرس 15: النشر والبقية والسلسلة الاختيارية', en: 'Lesson 15: Spread, Rest & Optional Chaining', fr: 'Leçon 15: Spread, Rest & Chaînage Optionnel'),
+      content: LocalizedText(ar: r'''
+## 🎯 الهدف
+إتقان `...` بمعنييه (نشر وجمع) ومعامل السلسلة الاختيارية `?.`.
+
+## 📖 الشرح
+### النشر (Spread) — يفكّك
+```js
+const a = [1, 2];
+const b = [...a, 3, 4]; // [1, 2, 3, 4]
+const user = { name: "أحمد", age: 25 };
+const copy = { ...user, age: 26 }; // نسخ مع تعديل
+console.log(Math.max(...[5, 9, 2])); // 9
+```
+
+### البقية (Rest) — يجمع
+```js
+function sum(...nums) { // كل الوسائط في مصفوفة
+  return nums.reduce((t, n) => t + n, 0);
+}
+const [first, ...others] = [1, 2, 3, 4];
+const { name, ...rest } = user;
+```
+
+### السلسلة الاختيارية (?.) — وصول آمن
+```js
+const data = { user: { address: { city: "الجزائر" } } };
+console.log(data?.user?.address?.city); // الجزائر
+console.log(data?.admin?.name); // undefined بدون خطأ
+user?.login?.(); // استدعاء آمن لدالة قد لا توجد
+```
+
+### مع ?? للقيم الافتراضية
+```js
+const city = data?.user?.address?.city ?? "غير معروف";
+```
+
+## 📝 ملاحظات
+- النشر يعمل نسخة **سطحية** (shallow) — الكائنات المتداخلة تُشارك بالمرجع.
+- `?.` يوقف التقييم عند `null` أو `undefined` فقط.
+- لا تُفرط في `?.` — إخفاء الأخطاء الحقيقية سيئ.
+''',
+        en: 'Spread vs rest ..., optional chaining ?., combining with ??.',
+        fr: 'Spread vs rest ..., chaînage optionnel ?., combinaison avec ??.',
+      ),
+      videoUrl: '',
+      codeHtml: '<script>\n  const user = { name: "Ahmed" };\n  const updated = { ...user, age: 25 };\n  console.log(updated.age);\n  console.log(user?.address?.city ?? "unknown");\n</script>',
+      codeDart: '',
+      exercise: Exercise(question: LocalizedText(ar: 'ادمج مصفوفتين واقرأ خاصية متداخلة بأمان', en: 'Merge arrays + safe nested read', fr: 'Fusionner + lecture sécurisée'), options: [], answerIndex: 0, solution: LocalizedText(ar: '[...a, ...b] + obj?.x?.y', en: 'spread + ?.', fr: 'spread + ?.')),
+      questions: [
+        LessonQuestion(question: LocalizedText(ar: 'ما الفرق بين Spread و Rest؟', en: 'Spread vs rest?', fr: 'Spread vs rest?'), solution: LocalizedText(ar: 'نفس الرمز ... : النشر يفكك، والبقية تجمع', en: 'Same ... symbol: spread unpacks, rest collects', fr: 'Même symbole: spread déballe, rest regroupe')),
+        LessonQuestion(question: LocalizedText(ar: 'متى يتوقف ?. عن التقييم؟', en: 'When does ?. stop?', fr: 'Quand ?. s\'arrête?'), solution: LocalizedText(ar: 'عند null أو undefined فقط، ويعيد undefined', en: 'Only on null/undefined, returns undefined', fr: 'Seulement sur null/undefined')),
+      ],
+      homeworkPrompt: LocalizedText(ar: 'دالة تحديث إعدادات تدمج الافتراضي مع خيارات المستخدم وتقرأ بأمان', en: 'Settings merge with safe read', fr: 'Fusion de paramètres avec lecture sûre'), hasHomework: true, order: 15,
+    );
+
+Lesson _js16(String c) => Lesson(
+      id: '${c}_l16', courseId: c,
+      title: LocalizedText(ar: 'الدرس 16: Map و Set و Symbol', en: 'Lesson 16: Map, Set, Symbol & Iterators', fr: 'Leçon 16: Map, Set, Symbol'),
+      content: LocalizedText(ar: r'''
+## 🎯 الهدف
+هياكل بيانات حديثة: `Map` و `Set` و `Symbol` وبروتوكول التكرار.
+
+## 📖 الشرح
+### Map — مفاتيح بأي نوع
+```js
+const scores = new Map();
+scores.set("أحمد", 90);
+scores.set({ id: 1 }, "كائن كمفتاح!"); // مستحيل مع Object
+console.log(scores.get("أحمد")); // 90
+console.log(scores.size); // 2
+console.log(scores.has("أحمد")); // true
+for (const [k, v] of scores) console.log(k, v);
+```
+
+### Map مقابل Object
+| | Map | Object |
+|---|---|---|
+| نوع المفتاح | أي شيء | نص/رمز فقط |
+| الحجم | `size` | يدوي |
+| الترتيب | ترتيب الإدخال | غير مضمون للأرقام |
+
+### Set — قيم فريدة
+```js
+const tags = new Set(["js", "css", "js"]);
+console.log(tags.size); // 2 — التكرار حُذف
+tags.add("html").delete("css");
+console.log([...tags]); // تحويل لمصفوفة
+// إزالة التكرار من مصفوفة:
+const unique = [...new Set([1, 2, 2, 3])]; // [1, 2, 3]
+```
+
+### Symbol — معرّف فريد
+```js
+const id1 = Symbol("id");
+const id2 = Symbol("id");
+console.log(id1 === id2); // false — دائماً فريد
+```
+
+### التكرار: for...of والبروتوكول
+```js
+for (const ch of "مرحبا") console.log(ch);
+const it = [10, 20][Symbol.iterator]();
+console.log(it.next()); // { value: 10, done: false }
+```
+
+## 📝 ملاحظات
+- `Map` أفضل للقواميس الديناميكية، و `Object` للسجلات الثابتة.
+- `Set` مثالي لمنع التكرار وفحص العضوية السريع.
+''',
+        en: 'Map vs Object, Set uniqueness, Symbol, for...of and iterator protocol.',
+        fr: 'Map vs Object, unicité de Set, Symbol, protocole itérateur.',
+      ),
+      videoUrl: '',
+      codeHtml: '<script>\n  const m = new Map([["a", 1], ["b", 2]]);\n  const s = new Set([1, 2, 2, 3]);\n  console.log(m.get("a"), s.size);\n  for (const v of s) console.log(v);\n</script>',
+      codeDart: '',
+      exercise: Exercise(question: LocalizedText(ar: 'احسب تكرار الكلمات باستخدام Map وأزل التكرار بـ Set', en: 'Word count with Map, dedupe with Set', fr: 'Compter avec Map, dédupliquer avec Set'), options: [], answerIndex: 0, solution: LocalizedText(ar: 'Map للعد + [...new Set()]', en: 'Map count + Set dedupe', fr: 'Map + Set')),
+      questions: [
+        LessonQuestion(question: LocalizedText(ar: 'متى تختار Map بدل Object؟', en: 'Map over Object when?', fr: 'Map plutôt qu\'Object?'), solution: LocalizedText(ar: 'مفاتيح غير نصية، إضافة/حذف متكرر، أو حجم كبير', en: 'Non-string keys, frequent add/delete, big size', fr: 'Clés non-chaînes, ajouts fréquents')),
+        LessonQuestion(question: LocalizedText(ar: 'لماذا Symbol() !== Symbol() دائماً؟', en: 'Why unique Symbols?', fr: 'Pourquoi Symbol unique?'), solution: LocalizedText(ar: 'كل رمز معرّف فريد جديد حتى بنفس الوصف', en: 'Each Symbol is a brand-new unique id', fr: 'Chaque Symbol est un identifiant unique')),
+      ],
+      homeworkPrompt: LocalizedText(ar: 'سلة تسوق بـ Map (منتج → كمية) مع منع تكرار الأكواد بـ Set', en: 'Cart with Map + Set codes', fr: 'Panier avec Map + codes Set'), hasHomework: true, order: 16,
+    );
+
+Lesson _js17(String c) => Lesson(
+      id: '${c}_l17', courseId: c,
+      title: LocalizedText(ar: 'الدرس 17: حفظ الحالة في المتصفح', en: 'Lesson 17: State Persistence with Web Storage', fr: 'Leçon 17: Persistance avec Web Storage'),
+      content: LocalizedText(ar: r'''
+## 🎯 الهدف
+حفظ حالة التطبيق (الثيم، المسودات، التقدم) لتبقى بعد إغلاق الصفحة.
+
+## 📖 الشرح
+### تذكير سريع
+- `localStorage` — يبقى للأبد (حتى الحذف اليدوي).
+- `sessionStorage` — يُمسح بإغلاق التبويب. نفس الواجهة تماماً.
+
+### نمط الحفظ الآمن (الأهم!)
+```js
+function saveState(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn("التخزين ممتلئ أو محظور", e);
+  }
+}
+function loadState(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback; // بيانات تالفة → القيمة الافتراضية
+  }
+}
+```
+
+### مفاتيح مُسمّاة ومُصدَرة
+```js
+const KEYS = { THEME: "academy:v1:theme", DRAFT: "academy:v1:draft" };
+saveState(KEYS.THEME, "dark");
+```
+
+### مثال: حفظ مسودة نموذج تلقائياً
+```js
+const input = document.querySelector("#note");
+input.value = loadState(KEYS.DRAFT, "");
+input.addEventListener("input", () => saveState(KEYS.DRAFT, input.value));
+```
+
+### انتهاء الصلاحية (TTL)
+```js
+function saveWithExpiry(key, value, minutes) {
+  saveState(key, { value, exp: Date.now() + minutes * 60000 });
+}
+function loadWithExpiry(key, fallback) {
+  const item = loadState(key, null);
+  if (!item || Date.now() > item.exp) return fallback;
+  return item.value;
+}
+```
+
+### المزامنة بين التبويبات
+```js
+window.addEventListener("storage", (e) => {
+  if (e.key === KEYS.THEME) applyTheme(e.newValue);
+});
+```
+
+## 📝 ملاحظات
+- لا تخزن كلمات المرور أو توكنات حساسة — التخزين المحلي يُقرأ بأي سكربت (XSS).
+- حد ~5MB — الصور الكبيرة مكانها الخادم لا المتصفح.
+- `sessionStorage` مناسب لبيانات مؤقتة كخطوات نموذج متعدد الصفحات.
+''',
+        en: 'Safe JSON persistence helpers, namespaced keys, TTL expiry, cross-tab sync.',
+        fr: 'Persistance JSON sûre, clés nommées, expiration TTL, synchro onglets.',
+      ),
+      videoUrl: '',
+      codeHtml: '<script>\n  const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));\n  const load = (k, f) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : f; } catch { return f; } };\n  save("academy:theme", "dark");\n  console.log(load("academy:theme", "light"));\n</script>',
+      codeDart: '',
+      exercise: Exercise(question: LocalizedText(ar: 'احفظ ثيم الموقع واسترجعه عند التحميل', en: 'Persist theme across reloads', fr: 'Persister le thème'), options: [], answerIndex: 0, solution: LocalizedText(ar: 'saveState/loadState + تطبيق عند التحميل', en: 'save + load on start', fr: 'sauver + charger')),
+      questions: [
+        LessonQuestion(question: LocalizedText(ar: 'لماذا نلف JSON.parse بـ try/catch؟', en: 'Why try/catch JSON.parse?', fr: 'Pourquoi try/catch?'), solution: LocalizedText(ar: 'البيانات المخزنة قد تكون تالفة أو يدوية فتُسقط التطبيق', en: 'Stored data may be corrupt and crash the app', fr: 'Les données peuvent être corrompues')),
+        LessonQuestion(question: LocalizedText(ar: 'متى تختار sessionStorage بدل localStorage؟', en: 'sessionStorage vs localStorage?', fr: 'sessionStorage vs localStorage?'), solution: LocalizedText(ar: 'بيانات مؤقتة يجب أن تختفي بإغلاق التبويب', en: 'Temporary data tied to the tab session', fr: 'Données temporaires liées à l\'onglet')),
+      ],
+      homeworkPrompt: LocalizedText(ar: 'لوحة إعدادات (ثيم + لغة + ملاحظة) تُحفظ تلقائياً وتُسترجع', en: 'Auto-saving settings panel', fr: 'Panneau de paramètres auto-sauvegardé'), hasHomework: true, order: 17,
     );
 
 // ————————————————————————————————————————————————————————————————————

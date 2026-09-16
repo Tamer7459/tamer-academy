@@ -6,6 +6,7 @@ import '../../core/app_theme.dart';
 import '../../data/track1_seed.dart';
 import '../../data/track2_seed.dart';
 import '../../data/track3_seed.dart';
+import '../../data/web_courses_seed.dart';
 import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/lesson.dart';
@@ -349,11 +350,23 @@ class LessonsManageScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري تحديث الدروس...'), behavior: SnackBarBehavior.floating));
     try {
       final db = context.read<DatabaseService>();
+      final webLessons = _seedWebLessonsFor(course.id);
+      // كورس ويب معروف → حدّث دروس الويب فقط (حتى لا تتلوث بدروس الموبايل).
+      // كورس ويب مخصص بلا بذور → لا شيء نحدّثه (نحميه من دروس الموبايل).
+      // غير ذلك → دروس المسارات كما قبل.
+      final isWebCourse = webLessons.isNotEmpty || course.track == 'web';
       final allLessons = <Lesson>[
-        ...buildTrack1Lessons(course.id),
-        ...buildTrack2Lessons(course.id),
-        ...buildTrack3Lessons(course.id),
+        if (!isWebCourse) ...buildTrack1Lessons(course.id),
+        if (!isWebCourse) ...buildTrack2Lessons(course.id),
+        if (!isWebCourse) ...buildTrack3Lessons(course.id),
+        ...webLessons,
       ];
+      if (allLessons.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يوجد محتوى جاهز لهذه الدورة — أضف الدروس يدوياً'), behavior: SnackBarBehavior.floating));
+        }
+        return;
+      }
       int updated = 0;
       for (final l in allLessons) {
         await db.saveLesson(l);
@@ -366,6 +379,28 @@ class LessonsManageScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${t('unknownError')}: $e'), behavior: SnackBarBehavior.floating));
       }
+    }
+  }
+
+  /// دروس البذور الجاهزة لكورسات الويب حسب معرف الكورس.
+  List<Lesson> _seedWebLessonsFor(String courseId) {
+    switch (courseId) {
+      case 'cours_html_2025':
+        return buildHtmlLessons(courseId);
+      case 'cours_css_2025':
+        return buildCssLessons(courseId);
+      case 'cours_bootstrap_2025':
+        return buildBootstrapLessons(courseId);
+      case 'cours_tailwind_2025':
+        return buildTailwindLessons(courseId);
+      case 'cours_js_2025':
+        return buildJsLessons(courseId);
+      case 'cours_git_2025':
+        return buildGitLessons(courseId);
+      case 'cours_react_2025':
+        return buildReactLessons(courseId);
+      default:
+        return [];
     }
   }
 
