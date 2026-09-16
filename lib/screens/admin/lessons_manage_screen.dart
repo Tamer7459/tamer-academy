@@ -77,6 +77,17 @@ class LessonsManageScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
                     ),
                     const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => LessonEditScreen(course: course, order: 0),
+                        ),
+                      ),
+                      icon: const Icon(Icons.edit_note_rounded),
+                      label: const Text('إضافة درس يدوي'),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       'اختر المسار المطلوب. يمكنك تثبيت كليهما بالتتابع.',
                       textAlign: TextAlign.center,
@@ -145,6 +156,22 @@ class LessonsManageScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => LessonEditScreen(course: course, order: lessons.length),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add_rounded),
+                    label: const Text('إضافة درس يدوي'),
+                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  ),
+                ),
+              ),
               Expanded(
                 child: ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
