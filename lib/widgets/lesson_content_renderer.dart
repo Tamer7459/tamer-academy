@@ -1,6 +1,8 @@
 // ignore_for_file: unused_import
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:highlight/languages/xml.dart';
 import 'package:highlight/languages/dart.dart';
@@ -59,6 +61,31 @@ class LessonContentRenderer extends StatelessWidget {
       blocks.add(CodeBlock(lang, m.group(2) ?? ''));
     }
     return blocks;
+  }
+
+  static bool isImageUrl(String text) {
+    final clean = text.replaceAll('\u200B', '').trim();
+    return RegExp(r'^https?:\/\/\S+\.(png|jpe?g|gif|webp|bmp|svg)(\?\S*)?$', caseSensitive: false).hasMatch(clean);
+  }
+
+  Future<void> _openLink(BuildContext context, String rawUrl) async {
+    final url = rawUrl.replaceAll('\u200B', '').trim();
+    final uri = Uri.tryParse(url);
+    if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) return;
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(url), behavior: SnackBarBehavior.floating),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(url), behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
   }
 
   @override
@@ -145,6 +172,7 @@ class LessonContentRenderer extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16, bottom: 8),
           child: _RichText(
             text: text,
+            onLinkTap: (url) => _openLink(context, url),
             style: theme.textTheme.titleLarge!.copyWith(
               fontWeight: FontWeight.w800,
               fontSize: level <= 2 ? 22 : 18,
@@ -172,6 +200,7 @@ class LessonContentRenderer extends StatelessWidget {
           ),
           child: _RichText(
             text: text,
+            onLinkTap: (url) => _openLink(context, url),
             style: TextStyle(fontSize: fontSize, height: 1.7),
           ),
         ));
@@ -195,6 +224,18 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Images: ![alt](url) or a bare image URL on its own line
+      final noBreak = clean(line).trim();
+      final imgMd = RegExp(r'^!\[([^\]]*)\]\(([^)\s]+)\)').firstMatch(noBreak);
+      if (imgMd != null || isImageUrl(noBreak)) {
+        flushLists();
+        final imgUrl = (imgMd != null ? imgMd.group(2)! : noBreak).trim();
+        final alt = (imgMd?.group(1) ?? '').trim();
+        children.add(_buildImage(context, imgUrl, alt));
+        i++;
+        continue;
+      }
+
       if (line.trim().isEmpty) {
         flushLists();
         children.add(const SizedBox(height: 8));
@@ -205,7 +246,11 @@ class LessonContentRenderer extends StatelessWidget {
       flushLists();
       children.add(Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: _RichText(text: line, style: TextStyle(fontSize: fontSize, height: 1.8)),
+        child: _RichText(
+          text: line,
+          style: TextStyle(fontSize: fontSize, height: 1.8),
+          onLinkTap: (url) => _openLink(context, url),
+        ),
       ));
       i++;
     }
@@ -238,7 +283,12 @@ class LessonContentRenderer extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(child: _RichText(text: items[idx], style: TextStyle(fontSize: fontSize, height: 1.7))),
+                Expanded(
+                    child: _RichText(
+                      text: items[idx],
+                      style: TextStyle(fontSize: fontSize, height: 1.7),
+                      onLinkTap: (url) => _openLink(context, url),
+                    )),
               ],
             ),
           );
@@ -286,6 +336,7 @@ class LessonContentRenderer extends StatelessWidget {
                   child: _RichText(
                     text: cell,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white, height: 1.6),
+                    onLinkTap: (url) => _openLink(context, url),
                   ),
                 )).toList(),
               ),
@@ -296,11 +347,112 @@ class LessonContentRenderer extends StatelessWidget {
                   child: _RichText(
                     text: cell,
                     style: TextStyle(fontSize: fontSize, height: 1.7, color: theme.colorScheme.onSurface),
+                    onLinkTap: (url) => _openLink(context, url),
                   ),
                 )).toList(),
               )),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context, String url, String alt) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4)),
+        color: theme.colorScheme.surface,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: () => _showFullImage(context, url),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 380),
+              child: Image.network(
+                url,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                loadingBuilder: (ctx, child, progress) {
+                  if (progress == null) return child;
+                  return SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        value: progress.expectedTotalBytes != null
+                            ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                            : null,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (ctx, err, stack) => Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.broken_image_outlined, size: 40, color: theme.colorScheme.error),
+                      const SizedBox(height: 8),
+                      Text(
+                        url,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: theme.colorScheme.error),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (alt.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+              child: Text(
+                alt,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showFullImage(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                child: Image.network(
+                  url,
+                  fit: BoxFit.contain,
+                  errorBuilder: (ctx, err, stack) =>
+                      const Icon(Icons.broken_image_outlined, size: 48, color: Colors.white),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close_rounded, color: Colors.white),
+                style: IconButton.styleFrom(backgroundColor: Colors.black54),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -389,26 +541,69 @@ class LessonContentRenderer extends StatelessWidget {
   }
 }
 
-class _RichText extends StatelessWidget {
+class _RichText extends StatefulWidget {
   final String text;
   final TextStyle style;
-  const _RichText({required this.text, required this.style});
+  final void Function(String url)? onLinkTap;
+  const _RichText({required this.text, required this.style, this.onLinkTap});
+
+  @override
+  State<_RichText> createState() => _RichTextState();
+}
+
+class _RichTextState extends State<_RichText> {
+  final _recognizers = <TapGestureRecognizer>[];
+
+  @override
+  void dispose() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
     final spans = <TextSpan>[];
 
-    var remaining = text;
-    final combined = RegExp(r'(`[^`]+`|\*\*[^*]+\*\*|(?<!\*)\*[^*]+\*(?!\*))');
-    final matches = combined.allMatches(remaining).toList();
+    final text = widget.text;
+    final style = widget.style;
+    final combined = RegExp(r'(\[[^\]]+\]\([^)]+\)|`[^`]+`|\*\*[^*]+\*\*|(?<!\*)\*[^*]+\*(?!\*))');
+    final matches = combined.allMatches(text).toList();
     var lastEnd = 0;
 
     for (final m in matches) {
       if (m.start > lastEnd) {
-        spans.add(TextSpan(text: remaining.substring(lastEnd, m.start)));
+        spans.add(TextSpan(text: text.substring(lastEnd, m.start)));
       }
       final token = m.group(0)!;
-      if (token.startsWith('`')) {
+      if (token.startsWith('[')) {
+        final link = RegExp(r'^\[([^\]]+)\]\(([^)]+)\)$').firstMatch(token);
+        if (link != null) {
+          if (widget.onLinkTap != null) {
+            final url = link.group(2)!;
+            final recognizer = TapGestureRecognizer()..onTap = () => widget.onLinkTap!(url);
+            _recognizers.add(recognizer);
+            spans.add(TextSpan(
+              text: link.group(1),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w600,
+              ),
+              recognizer: recognizer,
+            ));
+          } else {
+            spans.add(TextSpan(text: link.group(1)));
+          }
+        } else {
+          spans.add(TextSpan(text: token));
+        }
+      } else if (token.startsWith('`')) {
         final code = token.substring(1, token.length - 1);
         spans.add(TextSpan(
           text: code,
@@ -427,8 +622,8 @@ class _RichText extends StatelessWidget {
       }
       lastEnd = m.end;
     }
-    if (lastEnd < remaining.length) {
-      spans.add(TextSpan(text: remaining.substring(lastEnd)));
+    if (lastEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastEnd)));
     }
 
     return Text.rich(
