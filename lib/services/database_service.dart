@@ -263,6 +263,25 @@ class DatabaseService {
     return _tracks.doc(track.id).set(track.toMap());
   }
 
+  Future<void> ensureAITrackExists() async {
+    try {
+      final doc = await _tracks.doc('ai_automation').get();
+      if (!doc.exists) {
+        final aiTrack = Track(
+          id: 'ai_automation',
+          name: const LocalizedText(ar: 'أتمتة الذكاء الاصطناعي', en: 'AI Automation', fr: 'Automatisation IA'),
+          description: const LocalizedText(ar: 'تعلم بناء وكلاء الذكاء الاصطناعي والأتمتة', en: 'Build AI agents and automation workflows', fr: 'Créer des agents IA'),
+          tags: const LocalizedText(ar: 'AI, Python, LLMs, Automation', en: 'AI, Python, LLMs, Automation', fr: 'IA, Python, LLMs, Automation'),
+          icon: 'memory_rounded',
+          color: 0xFF8B5CF6,
+          order: 3,
+          published: true,
+        );
+        await saveTrack(aiTrack);
+      }
+    } catch (_) {}
+  }
+
   Future<void> deleteTrack(String id) => _tracks.doc(id).delete();
 
   // ---------- Access Requests ----------

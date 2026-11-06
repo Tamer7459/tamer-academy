@@ -29,6 +29,11 @@ class _RootScreenState extends State<RootScreen> {
   void initState() {
     super.initState();
     _listenAuth();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        context.read<DatabaseService>().ensureAITrackExists();
+      } catch (_) {}
+    });
     if (kIsWeb) {
       web_utils.setupWebHashListener(() {
         if (mounted) setState(() {});
