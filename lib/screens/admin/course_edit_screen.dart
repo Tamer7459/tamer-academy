@@ -569,6 +569,27 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
                     stream: context.read<DatabaseService>().tracksStream(),
                     builder: (context, snapshot) {
                       final tracks = snapshot.data ?? [];
+                      
+                      WidgetsBinding.instance.addPostFrameCallback((_) async {
+                        final db = context.read<DatabaseService>();
+                        final hasAi = tracks.any((tr) => tr.id == 'ai_automation' || tr.name.ar.contains('أتمتة'));
+                        if (!hasAi && tracks.isNotEmpty) {
+                          try {
+                            final aiTrack = Track(
+                              id: 'ai_automation',
+                              name: const LocalizedText(ar: 'أتمتة الذكاء الاصطناعي', en: 'AI Automation', fr: 'Automatisation IA'),
+                              description: const LocalizedText(ar: 'تعلم بناء وكلاء الذكاء الاصطناعي والأتمتة', en: 'Build AI agents and automation workflows', fr: 'Créer des agents IA'),
+                              tags: const LocalizedText(ar: 'AI, Python, LLMs, Automation', en: 'AI, Python, LLMs, Automation', fr: 'IA, Python, LLMs, Automation'),
+                              icon: 'memory_rounded',
+                              color: 0xFF8B5CF6,
+                              order: 3,
+                              published: true,
+                            );
+                            await db.saveTrack(aiTrack);
+                          } catch (_) {}
+                        }
+                      });
+
                       final defaultTracks = [
                         Track(
                           id: 'web',
