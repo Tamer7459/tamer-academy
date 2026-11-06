@@ -48,14 +48,24 @@ class AdminDashboard extends StatelessWidget {
               const Spacer(),
               OutlinedButton.icon(onPressed: () async {
                 final db = context.read<DatabaseService>();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري استيراد دورات Web...')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري إضافة تخصص AI Automation...')));
                 try {
-                  await seedWebCourses(db);
-                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم استيراد 4 دورات Web بنجاح'), backgroundColor: AppColors.success));
+                  final aiTrack = Track(
+                    id: 'ai_automation',
+                    name: const LocalizedText(ar: 'أتمتة الذكاء الاصطناعي', en: 'AI Automation', fr: 'Automatisation IA'),
+                    description: const LocalizedText(ar: 'تعلم بناء وكلاء الذكاء الاصطناعي والأتمتة', en: 'Build AI agents and automation workflows', fr: 'Créer des agents IA'),
+                    tags: const LocalizedText(ar: 'AI, Python, LLMs, Automation', en: 'AI, Python, LLMs, Automation', fr: 'IA, Python, LLMs, Automation'),
+                    icon: 'memory_rounded',
+                    color: 0xFF8B5CF6,
+                    order: 3,
+                    published: true,
+                  );
+                  await db.saveTrack(aiTrack);
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة تخصص AI Automation بنجاح ✓'), backgroundColor: AppColors.success));
                 } catch (e) {
                   if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
                 }
-              }, icon: const Icon(Icons.download_rounded, size: 18), label: const Text('استيراد Web')),
+              }, icon: const Icon(Icons.auto_awesome_rounded, size: 18), label: const Text('إضافة AI Track')),
               const SizedBox(width: 8),
               FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 18), label: Text(t('addCourse'))),
             ]),
