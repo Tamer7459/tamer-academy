@@ -600,10 +600,15 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
 
                       return DropdownButtonFormField<String>(
                         value: _track,
+                        isExpanded: true,
+                        menuMaxHeight: 300,
                         decoration: InputDecoration(labelText: t('track')),
                         items: allTracks.map((tr) => DropdownMenuItem(
                           value: tr.id,
-                          child: Text(tr.name.get(l10n.languageCode)),
+                          child: Text(
+                            tr.name.get(l10n.languageCode),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         )).toList(),
                         onChanged: (v) => setState(() => _track = v ?? 'web'),
                       );
