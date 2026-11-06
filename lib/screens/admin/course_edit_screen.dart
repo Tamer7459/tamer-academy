@@ -569,15 +569,42 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
                     stream: context.read<DatabaseService>().tracksStream(),
                     builder: (context, snapshot) {
                       final tracks = snapshot.data ?? [];
+                      final defaultTracks = [
+                        Track(
+                          id: 'web',
+                          name: const LocalizedText(ar: 'تطوير الويب', en: 'Web Development', fr: 'Développement Web'),
+                          description: const LocalizedText(ar: '', en: '', fr: ''),
+                          tags: const LocalizedText(ar: '', en: '', fr: ''),
+                        ),
+                        Track(
+                          id: 'mobile',
+                          name: const LocalizedText(ar: 'تطوير الموبايل', en: 'Mobile Development', fr: 'Développement Mobile'),
+                          description: const LocalizedText(ar: '', en: '', fr: ''),
+                          tags: const LocalizedText(ar: '', en: '', fr: ''),
+                        ),
+                        Track(
+                          id: 'ai_automation',
+                          name: const LocalizedText(ar: 'أتمتة الذكاء الاصطناعي', en: 'AI Automation', fr: 'Automatisation IA'),
+                          description: const LocalizedText(ar: '', en: '', fr: ''),
+                          tags: const LocalizedText(ar: '', en: '', fr: ''),
+                        ),
+                      ];
+                      final map = <String, Track>{};
+                      for (final dt in defaultTracks) {
+                        map[dt.id] = dt;
+                      }
+                      for (final tr in tracks) {
+                        map[tr.id] = tr;
+                      }
+                      final allTracks = map.values.toList();
+
                       return DropdownButtonFormField<String>(
                         value: _track,
                         decoration: InputDecoration(labelText: t('track')),
-                        items: tracks.isEmpty
-                            ? [const DropdownMenuItem(value: 'web', child: Text('Web'))]
-                            : tracks.map((tr) => DropdownMenuItem(
-                              value: tr.id,
-                              child: Text(tr.name.get(l10n.languageCode)),
-                            )).toList(),
+                        items: allTracks.map((tr) => DropdownMenuItem(
+                          value: tr.id,
+                          child: Text(tr.name.get(l10n.languageCode)),
+                        )).toList(),
                         onChanged: (v) => setState(() => _track = v ?? 'web'),
                       );
                     },
