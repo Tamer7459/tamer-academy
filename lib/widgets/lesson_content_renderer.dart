@@ -28,14 +28,23 @@ class LessonContentRenderer extends StatelessWidget {
     r'https://images\.openai\.com/static-rsc-4/([A-Za-z0-9_-]+)-!?\[((?:\\.|[^\]])*)\]\(\s*([A-Za-z0-9_-]+(?:\?[^)\s]*)?)\s*\)',
     caseSensitive: false,
   );
+  static final RegExp _urlThenImageAltRegex = RegExp(
+    r'\((https?://[^\s)]+)\)\[((?:\\.|[^\]])*)\]',
+    caseSensitive: false,
+  );
 
   @visibleForTesting
   static String normalizeOpenAiImageMarkup(String content) {
-    return content.replaceAllMapped(_splitOpenAiImageRegex, (match) {
+    final splitReferencesNormalized = content.replaceAllMapped(_splitOpenAiImageRegex, (match) {
       final alt = match.group(2) ?? '';
       final imageIdSuffix = match.group(3) ?? '';
       final imageUrl = 'https://images.openai.com/static-rsc-4/${match.group(1)}-$imageIdSuffix';
       return '![$alt]($imageUrl)';
+    });
+    return splitReferencesNormalized.replaceAllMapped(_urlThenImageAltRegex, (match) {
+      final url = match.group(1)!;
+      if (!_isDirectImageUrl(url)) return match.group(0)!;
+      return '![${match.group(2) ?? ''}]($url)';
     });
   }
 

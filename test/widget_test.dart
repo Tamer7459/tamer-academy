@@ -14,6 +14,17 @@ void main() {
     );
   });
 
+  test('normalizes parenthesized URL followed by its image caption', () {
+    const raw = '(https://images.openai.com/static-rsc-4/image-id?purpose=inline)'
+        '[Best + Free React Certificate Online Courses \\[2025\\] 25]';
+
+    expect(
+      LessonContentRenderer.normalizeOpenAiImageMarkup(raw),
+      '![Best + Free React Certificate Online Courses \\[2025\\] 25]('
+      'https://images.openai.com/static-rsc-4/image-id?purpose=inline)',
+    );
+  });
+
   testWidgets('keeps consecutive numbered lesson steps in one sequence', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
