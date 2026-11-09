@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
@@ -211,7 +211,13 @@ class _CoursesPreview extends StatelessWidget {
               final lang = loc.languageCode;
               final tr = loc.t;
               final priceLabel = c.isFree ? tr('free') : '${c.price}';
-              final trackLabel = c.track == 'mobile' ? tr('mobileDevelopment') : c.track == 'web' ? tr('webDevelopment') : c.track;
+              final trackLabel = (c.track == 'mobile' || c.track == '1787327901334000')
+                  ? tr('mobileDevelopment')
+                  : (c.track == 'web' || c.track == '1787326651194000')
+                      ? tr('webDevelopment')
+                      : (c.track == 'ai_automation' || c.track == '1794165775204000')
+                          ? tr('aiAutomation')
+                          : c.track;
               return ListTile(
                 dense: true,
                 title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700)),

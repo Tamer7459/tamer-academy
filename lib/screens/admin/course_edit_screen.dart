@@ -13,6 +13,7 @@ import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
 import '../../data/lesson_templates.dart';
 import '../../models/course.dart';
+import '../../models/track.dart';
 import '../../services/database_service.dart';
 
 class CourseEditScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
   late final _imageWidthCtrl = TextEditingController(text: widget.course?.imageWidth != null && widget.course!.imageWidth > 0 ? widget.course!.imageWidth.toStringAsFixed(0) : '');
   late final _imageHeightCtrl = TextEditingController(text: widget.course?.imageHeight != null && widget.course!.imageHeight > 0 ? widget.course!.imageHeight.toStringAsFixed(0) : '');
 
-  late String _track = widget.course?.track ?? 'web';
+  late String _track;
   late String _level = widget.course?.level ?? 'beginner';
   late bool _published = widget.course?.published ?? true;
   late int _colorSeed = widget.course?.colorSeed ?? 0;
@@ -62,6 +63,16 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
   @override
   void initState() {
     super.initState();
+    final rawTrack = widget.course?.track ?? 'web';
+    if (rawTrack == '1787326651194000') {
+      _track = 'web';
+    } else if (rawTrack == '1787327901334000') {
+      _track = 'mobile';
+    } else if (rawTrack == '1794165775204000') {
+      _track = 'ai_automation';
+    } else {
+      _track = rawTrack;
+    }
     _imageUrl = widget.course?.imageUrl ?? '';
     _imageFit = widget.course?.imageFit ?? 'cover';
     _previewW = widget.course?.imageWidth ?? 0;
@@ -564,14 +575,39 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _track == 'mobile' ? 'mobile' : 'web',
-                    decoration: InputDecoration(labelText: t('track')),
-                    items: [
-                      DropdownMenuItem(value: 'web', child: Text(t('webDevelopment'))),
-                      DropdownMenuItem(value: 'mobile', child: Text(t('mobileDevelopment'))),
-                    ],
-                    onChanged: (v) => setState(() => _track = v ?? 'web'),
+                  child: StreamBuilder<List<Track>>(
+                    stream: context.read<DatabaseService>().tracksStream(),
+                    builder: (context, snap) {
+                      final lang = Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode;
+                      final dbTracks = snap.data ?? [];
+
+                      final items = <DropdownMenuItem<String>>[
+                        DropdownMenuItem(value: 'web', child: Text(t('webDevelopment'))),
+                        DropdownMenuItem(value: 'mobile', child: Text(t('mobileDevelopment'))),
+                        DropdownMenuItem(value: 'ai_automation', child: Text(t('aiAutomation'))),
+                      ];
+                      final knownValues = {'web', 'mobile', 'ai_automation'};
+
+                      for (final tr in dbTracks) {
+                        if (tr.id == '1787326651194000' || tr.id == '1787327901334000' || tr.id == '1794165775204000') {
+                          continue;
+                        }
+                        if (!knownValues.contains(tr.id)) {
+                          knownValues.add(tr.id);
+                          final title = tr.name.getWithFallback(lang);
+                          items.add(DropdownMenuItem(value: tr.id, child: Text(title.isNotEmpty ? title : tr.id)));
+                        }
+                      }
+
+                      final effectiveValue = knownValues.contains(_track) ? _track : 'web';
+
+                      return DropdownButtonFormField<String>(
+                        value: effectiveValue,
+                        decoration: InputDecoration(labelText: t('track')),
+                        items: items,
+                        onChanged: (v) => setState(() => _track = v ?? 'web'),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -14,7 +14,7 @@ class AppConstants {
     storageBucket: 'tamer-academy.firebasestorage.app',
   );
 
-  static const tracks = ['web', 'mobile'];
+  static const tracks = ['web', 'mobile', 'ai_automation'];
 
   // Supabase — لتخفيف ضغط Firebase (القراءات/كتابات/تخزين)
   static const supabaseUrl = 'https://kwsgolulpswnknbxkkdf.supabase.co';

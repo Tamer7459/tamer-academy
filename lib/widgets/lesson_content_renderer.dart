@@ -1,4 +1,5 @@
 // ignore_for_file: unused_import
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_highlight/flutter_highlight.dart';
@@ -61,12 +62,60 @@ class LessonContentRenderer extends StatelessWidget {
     return blocks;
   }
 
+  static bool _isDirectImageUrl(String raw) {
+    final s = raw.trim().replaceAll('\u200B', '');
+    if (!s.startsWith('http://') && !s.startsWith('https://') && !s.startsWith('data:image/')) {
+      return false;
+    }
+    if (s.contains(' ') || s.contains('\n') || s.contains('\t')) {
+      return false;
+    }
+    if (s.startsWith('data:image/')) return true;
+
+    final lower = s.toLowerCase();
+    final uri = Uri.tryParse(s);
+    final path = (uri != null && uri.path.isNotEmpty) ? uri.path.toLowerCase() : lower;
+
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.ico', '.avif'];
+    for (final ext in imageExtensions) {
+      if (path.endsWith(ext) || lower.contains('$ext?') || lower.contains('$ext#')) {
+        return true;
+      }
+    }
+
+    if (lower.contains('cloudinary.com') ||
+        // OpenAI-hosted lesson illustrations use signed URLs without a file extension.
+        lower.contains('images.openai.com') ||
+        lower.contains('images.unsplash.com') ||
+        lower.contains('imgur.com') ||
+        lower.contains('postimg.cc') ||
+        lower.contains('postimages.org') ||
+        lower.contains('gyazo.com') ||
+        lower.contains('prnt.sc') ||
+        lower.contains('/image/upload/') ||
+        lower.contains('/images/') ||
+        lower.contains('/img/') ||
+        lower.contains('/photos/')) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Break very long words (no spaces) to prevent overflow — e.g. "dddd..." test content
+    // Break very long words (no spaces) to prevent overflow — but DO NOT break URLs or image tags!
     final brokenContent = content.replaceAllMapped(RegExp(r'\S{30,}'), (m) {
       final word = m.group(0)!;
+      if (word.startsWith('http://') ||
+          word.startsWith('https://') ||
+          word.startsWith('data:') ||
+          word.contains('://') ||
+          word.contains('http') ||
+          word.startsWith('![') ||
+          word.startsWith('<img')) {
+        return word;
+      }
       final buffer = StringBuffer();
       for (int i = 0; i < word.length; i++) {
         buffer.write(word[i]);
@@ -74,6 +123,7 @@ class LessonContentRenderer extends StatelessWidget {
       }
       return buffer.toString();
     });
+
     final lines = brokenContent.split('\n');
     final children = <Widget>[];
     var i = 0;
@@ -97,11 +147,14 @@ class LessonContentRenderer extends StatelessWidget {
 
     while (i < lines.length) {
       final line = lines[i];
+      final trimmed = line.trim();
+      final cleanLine = trimmed.replaceAll('\u200B', '');
 
-      final codeMatch = RegExp(r'^```').hasMatch(line.trim());
+      // ── Code Block: ```lang ... ``` ──
+      final codeMatch = RegExp(r'^```').hasMatch(trimmed);
       if (codeMatch) {
         flushLists();
-        final langMatch = RegExp(r'^```([\w+#-]*)').firstMatch(line.trim());
+        final langMatch = RegExp(r'^```([\w+#-]*)').firstMatch(trimmed);
         final lang = (langMatch?.group(1) ?? '').trim().isEmpty ? 'text' : langMatch!.group(1)!.trim();
         final codeLines = <String>[];
         i++;
@@ -114,7 +167,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
-      // ── Markdown Table: | a | b | + |---|---|
+      // ── Markdown Table: | a | b | + |---|---| ──
       String clean(String s) => s.replaceAll('\u200B', '');
       if (clean(line).trim().startsWith('|') && i + 1 < lines.length && RegExp(r'^\s*\|?(\s*:?-+:?\s*\|)+\s*$').hasMatch(clean(lines[i + 1]))) {
         flushLists();
@@ -137,6 +190,49 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Direct Image URL on its own line ──
+      if (_isDirectImageUrl(cleanLine)) {
+        flushLists();
+        children.add(_buildImage(context, cleanLine));
+        i++;
+        continue;
+      }
+
+      // ── Standalone HTML <img> tag ──
+      final htmlImgMatch = RegExp(r'^\s*<img\s+([^>]+)>\s*$', caseSensitive: false).firstMatch(cleanLine);
+      if (htmlImgMatch != null) {
+        flushLists();
+        final attrs = htmlImgMatch.group(1)!;
+        final srcMatch = RegExp(r'src=["\x27]([^"\x27]+)["\x27]', caseSensitive: false).firstMatch(attrs);
+        final altMatch = RegExp(r'alt=["\x27]([^"\x27]*)["\x27]', caseSensitive: false).firstMatch(attrs);
+        if (srcMatch != null) {
+          children.add(_buildImage(context, srcMatch.group(1)!, alt: altMatch?.group(1)));
+          i++;
+          continue;
+        }
+      }
+
+      // ── Standalone Markdown Image: ![alt](url "title") ──
+      final mdImgStandaloneMatch = RegExp(r'^\s*!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)\s*$').firstMatch(cleanLine);
+      if (mdImgStandaloneMatch != null) {
+        flushLists();
+        final alt = mdImgStandaloneMatch.group(1);
+        final url = mdImgStandaloneMatch.group(2)!;
+        children.add(_buildImage(context, url, alt: alt));
+        i++;
+        continue;
+      }
+
+      // ── Inline Markdown Image(s) mixed with text ──
+      final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
+      if (mdImgInlineRegex.hasMatch(line)) {
+        flushLists();
+        children.addAll(_buildMixedLineWithImages(context, line));
+        i++;
+        continue;
+      }
+
+      // ── Headings: #, ##, ###, ... ──
       if (RegExp(r'^#{1,6}\s').hasMatch(line)) {
         flushLists();
         final level = RegExp(r'^#+').firstMatch(line)!.group(0)!.length;
@@ -156,6 +252,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Blockquote: > text ──
       if (RegExp(r'^>\s').hasMatch(line)) {
         flushLists();
         final text = line.replaceFirst(RegExp(r'^>\s*'), '');
@@ -179,6 +276,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Bullet List: - item, * item, + item ──
       if (RegExp(r'^[-*+]\s').hasMatch(line)) {
         flushLists();
         inList = true;
@@ -187,6 +285,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Numbered List: 1. item, 1) item ──
       if (RegExp(r'^\d+[.)]\s').hasMatch(line)) {
         flushLists();
         inNumberedList = true;
@@ -195,6 +294,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Empty Line ──
       if (line.trim().isEmpty) {
         flushLists();
         children.add(const SizedBox(height: 8));
@@ -202,6 +302,7 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      // ── Standard Paragraph ──
       flushLists();
       children.add(Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -215,6 +316,40 @@ class LessonContentRenderer extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: children,
     );
+  }
+
+  List<Widget> _buildMixedLineWithImages(BuildContext context, String line) {
+    final widgets = <Widget>[];
+    final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
+    final matches = mdImgInlineRegex.allMatches(line).toList();
+    var lastEnd = 0;
+
+    for (final m in matches) {
+      if (m.start > lastEnd) {
+        final text = line.substring(lastEnd, m.start).trim();
+        if (text.isNotEmpty) {
+          widgets.add(Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: _RichText(text: text, style: TextStyle(fontSize: fontSize, height: 1.8)),
+          ));
+        }
+      }
+      final alt = m.group(1);
+      final url = m.group(2)!;
+      widgets.add(_buildImage(context, url, alt: alt));
+      lastEnd = m.end;
+    }
+
+    if (lastEnd < line.length) {
+      final text = line.substring(lastEnd).trim();
+      if (text.isNotEmpty) {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 6),
+          child: _RichText(text: text, style: TextStyle(fontSize: fontSize, height: 1.8)),
+        ));
+      }
+    }
+    return widgets;
   }
 
   Widget _buildList(BuildContext context, List<String> items, {required bool numbered}) {
@@ -238,12 +373,274 @@ class LessonContentRenderer extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(child: _RichText(text: items[idx], style: TextStyle(fontSize: fontSize, height: 1.7))),
+                Expanded(child: _buildListItemContent(context, items[idx])),
               ],
             ),
           );
         }),
       ),
+    );
+  }
+
+  Widget _buildListItemContent(BuildContext context, String rawText) {
+    final trimmed = rawText.trim();
+    final clean = trimmed.replaceAll('\u200B', '');
+    if (_isDirectImageUrl(clean)) {
+      return _buildImage(context, clean);
+    }
+    final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
+    if (mdImgInlineRegex.hasMatch(rawText)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _buildMixedLineWithImages(context, rawText),
+      );
+    }
+    return _RichText(text: rawText, style: TextStyle(fontSize: fontSize, height: 1.7));
+  }
+
+  Widget _buildImage(BuildContext context, String rawUrl, {String? alt}) {
+    final cleanUrl = rawUrl.replaceAll('\u200B', '').trim();
+    if (cleanUrl.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cleanAlt = (alt != null && alt.trim().isNotEmpty) ? alt.trim() : null;
+
+    Widget imageWidget;
+    if (cleanUrl.startsWith('data:image/')) {
+      try {
+        final commaIdx = cleanUrl.indexOf(',');
+        final base64Str = commaIdx != -1 ? cleanUrl.substring(commaIdx + 1) : cleanUrl;
+        final bytes = base64Decode(base64Str);
+        imageWidget = Image.memory(
+          bytes,
+          fit: BoxFit.contain,
+          errorBuilder: (ctx, err, stack) => _buildImageError(context, cleanUrl, cleanAlt),
+        );
+      } catch (_) {
+        imageWidget = _buildImageError(context, cleanUrl, cleanAlt);
+      }
+    } else {
+      imageWidget = Image.network(
+        cleanUrl,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          final total = loadingProgress.expectedTotalBytes;
+          final loaded = loadingProgress.cumulativeBytesLoaded;
+          final progress = (total != null && total > 0) ? loaded / total : null;
+          return Container(
+            height: 180,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 2.5,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'جاري تحميل الصورة...',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return _buildImageError(context, cleanUrl, cleanAlt);
+        },
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _showFullScreenImage(context, cleanUrl, cleanAlt),
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 520),
+                    child: Center(child: imageWidget),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.zoom_in_rounded, size: 14, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'تكبير',
+                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (cleanAlt != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEEF2F6),
+                border: Border(
+                  top: BorderSide(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.image_outlined,
+                    size: 14,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      cleanAlt,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageError(BuildContext context, String url, String? alt) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.broken_image_rounded, size: 40, color: theme.colorScheme.error.withValues(alpha: 0.7)),
+          const SizedBox(height: 8),
+          Text(
+            'تعذر تحميل الصورة',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: theme.colorScheme.error),
+          ),
+          if (alt != null && alt.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              alt,
+              style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+          const SizedBox(height: 8),
+          InkWell(
+            onTap: () => _copy(context, url),
+            borderRadius: BorderRadius.circular(6),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.copy_rounded, size: 14, color: theme.colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    'نسخ رابط الصورة',
+                    style: TextStyle(fontSize: 11, color: theme.colorScheme.primary, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFullScreenImage(BuildContext context, String url, String? alt) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.9),
+      builder: (dialogCtx) {
+        Widget imgWidget;
+        if (url.startsWith('data:image/')) {
+          final commaIdx = url.indexOf(',');
+          final base64Str = commaIdx != -1 ? url.substring(commaIdx + 1) : url;
+          imgWidget = Image.memory(base64Decode(base64Str), fit: BoxFit.contain);
+        } else {
+          imgWidget = Image.network(url, fit: BoxFit.contain);
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.black.withValues(alpha: 0.6),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            title: Text(alt ?? 'عرض الصورة', style: const TextStyle(fontSize: 16, color: Colors.white)),
+            leading: IconButton(
+              icon: const Icon(Icons.close_rounded, color: Colors.white),
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+            ),
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 5.0,
+              child: imgWidget,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -378,9 +775,9 @@ class LessonContentRenderer extends StatelessWidget {
   void _copy(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Copied'),
-        duration: const Duration(seconds: 1),
+      const SnackBar(
+        content: Text('Copied'),
+        duration: Duration(seconds: 1),
         behavior: SnackBarBehavior.floating,
       ),
     );

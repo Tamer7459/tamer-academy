@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard;
 import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
@@ -331,6 +332,159 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق كل القوالب ✓')));
   }
 
+  // ── Image insertion dialog & helpers ──
+  Future<void> _showInsertImageDialog() async {
+    final urlCtrl = TextEditingController();
+    final altCtrl = TextEditingController();
+    String selectedLang = 'ar';
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final url = urlCtrl.text.trim();
+          final hasUrl = url.isNotEmpty;
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Row(
+              children: [
+                Icon(Icons.add_photo_alternate_rounded, color: AppColors.tealPrimary),
+                SizedBox(width: 8),
+                Text('إدراج صورة في الدرس', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: 440,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'الصق رابط الصورة (Cloudinary أو أي رابط مباشر):',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: urlCtrl,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        labelText: 'رابط الصورة (URL)',
+                        hintText: 'https://res.cloudinary.com/.../image.png',
+                        prefixIcon: const Icon(Icons.link_rounded),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.paste_rounded),
+                          tooltip: 'لصق من الحافظة',
+                          onPressed: () async {
+                            final data = await Clipboard.getData('text/plain');
+                            if (data?.text != null) {
+                              setDialogState(() {
+                                urlCtrl.text = data!.text!.trim();
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      onChanged: (_) => setDialogState(() {}),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: altCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'وصف الصورة / نص بديل (اختياري)',
+                        hintText: 'مثال: مخطط بنية الكود',
+                        prefixIcon: Icon(Icons.subtitles_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        const Text('الإدراج في: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('العربية'),
+                          selected: selectedLang == 'ar',
+                          onSelected: (s) => setDialogState(() => selectedLang = 'ar'),
+                        ),
+                        const SizedBox(width: 6),
+                        ChoiceChip(
+                          label: const Text('الإنجليزية'),
+                          selected: selectedLang == 'en',
+                          onSelected: (s) => setDialogState(() => selectedLang = 'en'),
+                        ),
+                        const SizedBox(width: 6),
+                        ChoiceChip(
+                          label: const Text('الفرنسية'),
+                          selected: selectedLang == 'fr',
+                          onSelected: (s) => setDialogState(() => selectedLang = 'fr'),
+                        ),
+                      ],
+                    ),
+                    if (hasUrl) ...[
+                      const SizedBox(height: 16),
+                      const Text('معاينة سريعة:', style: TextStyle(fontSize: 11, color: AppColors.grayMedium)),
+                      const SizedBox(height: 6),
+                      Container(
+                        height: 140,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.tealPrimary.withValues(alpha: 0.3)),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.network(
+                          url,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Text('الرابط لا يظهر صورة صالحة حالياً', style: TextStyle(fontSize: 11, color: Colors.red)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('إلغاء'),
+              ),
+              FilledButton.icon(
+                onPressed: !hasUrl
+                    ? null
+                    : () {
+                        final alt = altCtrl.text.trim();
+                        final mdImage = '\n\n![${alt.isEmpty ? 'صورة' : alt}]($url)\n\n';
+                        TextEditingController targetCtrl = _contentAr;
+                        if (selectedLang == 'en') targetCtrl = _contentEn;
+                        if (selectedLang == 'fr') targetCtrl = _contentFr;
+
+                        final text = targetCtrl.text;
+                        final sel = targetCtrl.selection;
+                        final offset = sel.isValid ? sel.baseOffset : text.length;
+                        final newText = text.substring(0, offset) + mdImage + text.substring(offset);
+                        targetCtrl.value = TextEditingValue(
+                          text: newText,
+                          selection: TextSelection.collapsed(offset: offset + mdImage.length),
+                        );
+                        setState(() {});
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('تم إدراج رابط الصورة في المحتوى بنجاح ✓')),
+                        );
+                      },
+                icon: const Icon(Icons.check_rounded, size: 18),
+                label: const Text('إدراج'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   // ── Table template & helpers ──
   static const _tableTemplate = '| الكلمة | المعنى | تُستخدم |\n|---|---|---|\n| `final` | قيمة تُحدد مرة واحدة فقط | عند التشغيل (Runtime) |\n| `const` | قيمة ثابتة ومعروفة مسبقاً | عند الترجمة (Compile-time) |';
 
@@ -547,7 +701,7 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
             const Divider(height: 32),
             Text(t('lessonContent'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            _LangSection(title: '${t('content')} (${_langs[0]})', controller: _contentAr, maxLines: 10, hint: '## عنوان\nنص الدرس...\n```html\n<code>\n```\n> ملاحظة'),
+            _LangSection(title: '${t('content')} (${_langs[0]})', controller: _contentAr, maxLines: 10, hint: '## عنوان\nنص الدرس...\n![وصف الصورة](https://res.cloudinary.com/.../img.png)\n```dart\n<code>\n```\n> ملاحظة'),
             _LangSection(title: '${t('content')} (${_langs[1]})', controller: _contentEn, maxLines: 10),
             _LangSection(title: '${t('content')} (${_langs[2]})', controller: _contentFr, maxLines: 10),
             const SizedBox(height: 12),
@@ -557,17 +711,23 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [Icon(Icons.table_chart_rounded, size: 18, color: Theme.of(context).colorScheme.primary), const SizedBox(width: 8), Text('قالب جدول', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)), const Spacer(), Text('نفس ستايل الصورة', style: TextStyle(fontSize: 11, color: AppColors.grayMedium))]),
+                  Row(children: [Icon(Icons.auto_fix_normal_rounded, size: 18, color: Theme.of(context).colorScheme.primary), const SizedBox(width: 8), Text('أدوات التنسيق (صور وجداول)', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)), const Spacer(), Text('إدراج سريع بنقرة', style: TextStyle(fontSize: 11, color: AppColors.grayMedium))]),
                   const SizedBox(height: 10),
                   Wrap(spacing: 8, runSpacing: 8, children: [
-                    FilledButton.icon(onPressed: _insertTableTemplate, icon: const Icon(Icons.add_box_rounded, size: 18), label: const Text('إدراج قالب جدول'), style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10))),
+                    FilledButton.icon(
+                      onPressed: _showInsertImageDialog,
+                      icon: const Icon(Icons.add_photo_alternate_rounded, size: 18),
+                      label: const Text('إدراج صورة'),
+                      style: FilledButton.styleFrom(backgroundColor: AppColors.tealPrimary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
+                    ),
+                    FilledButton.icon(onPressed: _insertTableTemplate, icon: const Icon(Icons.table_chart_rounded, size: 18), label: const Text('إدراج قالب جدول'), style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10))),
                     OutlinedButton.icon(onPressed: _addRow, icon: const Icon(Icons.table_rows_rounded, size: 18), label: const Text('+ صف')),
                     OutlinedButton.icon(onPressed: _addColumn, icon: const Icon(Icons.view_column_rounded, size: 18), label: const Text('+ عمود')),
                     OutlinedButton.icon(onPressed: _removeRow, icon: const Icon(Icons.remove_rounded, size: 18), label: const Text('- صف')),
                     OutlinedButton.icon(onPressed: _removeColumn, icon: const Icon(Icons.view_column_outlined, size: 18), label: const Text('- عمود')),
                   ]),
                   const SizedBox(height: 8),
-                  Text('الصق القالب في حقل المحتوى (عربي) ثم استخدم الأزرار لإضافة/حذف. الجدول يُكتب بـ Markdown: | a | b |', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, height: 1.5)),
+                  Text('الصور: يمكنك النقر على "إدراج صورة" أو لصق رابط الصورة مباشرة في سطر منفصل أو بصيغة Markdown: ![وصف](رابط).\nالجداول: الصق القالب واستخدم أزرار الصفوف والأعمدة للتحكم بها.', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, height: 1.5)),
                 ],
               ),
             ),

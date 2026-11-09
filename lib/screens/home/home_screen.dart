@@ -396,7 +396,11 @@ class _CourseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      course.track == 'web' ? Icons.language_rounded : Icons.smartphone_rounded,
+                      course.track == 'web' || course.track == '1787326651194000'
+                          ? Icons.language_rounded
+                          : course.track == 'ai_automation' || course.track == '1794165775204000'
+                              ? Icons.memory_rounded
+                              : Icons.smartphone_rounded,
                       color: trackColor,
                       size: 24,
                     ),
@@ -412,7 +416,11 @@ class _CourseCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          course.track == 'web' ? t('webDevelopment') : t('mobileDevelopment'),
+                          course.track == 'web' || course.track == '1787326651194000'
+                              ? t('webDevelopment')
+                              : course.track == 'ai_automation' || course.track == '1794165775204000'
+                                  ? t('aiAutomation')
+                                  : t('mobileDevelopment'),
                           style: const TextStyle(fontSize: 13, color: AppColors.grayMedium),
                         ),
                       ],
