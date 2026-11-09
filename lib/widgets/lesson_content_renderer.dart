@@ -24,6 +24,20 @@ class LessonContentRenderer extends StatelessWidget {
   static final RegExp _markdownImageRegex = RegExp(
     r'!\[((?:\\.|[^\]])*)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)',
   );
+  static final RegExp _splitOpenAiImageRegex = RegExp(
+    r'https://images\.openai\.com/static-rsc-4/([A-Za-z0-9_-]+)-!?\[((?:\\.|[^\]])*)\]\(\s*([A-Za-z0-9_-]+(?:\?[^)\s]*)?)\s*\)',
+    caseSensitive: false,
+  );
+
+  @visibleForTesting
+  static String normalizeOpenAiImageMarkup(String content) {
+    return content.replaceAllMapped(_splitOpenAiImageRegex, (match) {
+      final alt = match.group(2) ?? '';
+      final imageIdSuffix = match.group(3) ?? '';
+      final imageUrl = 'https://images.openai.com/static-rsc-4/${match.group(1)}-$imageIdSuffix';
+      return '![$alt]($imageUrl)';
+    });
+  }
 
   final String content;
   final String lang;
@@ -108,8 +122,9 @@ class LessonContentRenderer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final normalizedContent = normalizeOpenAiImageMarkup(content);
     // Break very long words (no spaces) to prevent overflow — but DO NOT break URLs or image tags!
-    final brokenContent = content.replaceAllMapped(RegExp(r'\S{30,}'), (m) {
+    final brokenContent = normalizedContent.replaceAllMapped(RegExp(r'\S{30,}'), (m) {
       final word = m.group(0)!;
       if (word.startsWith('http://') ||
           word.startsWith('https://') ||
