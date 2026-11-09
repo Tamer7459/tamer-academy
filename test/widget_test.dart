@@ -41,4 +41,20 @@ void main() {
     expect(find.text('2.'), findsOneWidget);
     expect(find.text('3.'), findsOneWidget);
   });
+
+  testWidgets('renders a raw OpenAI image URL as an image instead of link text', (tester) async {
+    const content = '(https://images.openai.com/static-rsc-4/image-id?purpose=inline)'
+        '[Best + Free React Certificate Online Courses \\[2025\\] 25]';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: LessonContentRenderer(content: content, lang: 'en'),
+        ),
+      ),
+    );
+
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.textContaining('images.openai.com'), findsNothing);
+  });
 }

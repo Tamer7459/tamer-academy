@@ -32,6 +32,11 @@ class LessonContentRenderer extends StatelessWidget {
     r'\((https?://[^\s)]+)\)\[((?:\\.|[^\]])*)\]',
     caseSensitive: false,
   );
+  static final RegExp _openAiImageUrlRegex = RegExp(
+    r'https?://images\.openai\.com/[^\s)\]]+',
+    caseSensitive: false,
+  );
+  static final RegExp _imageCaptionRegex = RegExp(r'\[((?:\\.|[^\]])*)\]');
 
   @visibleForTesting
   static String normalizeOpenAiImageMarkup(String content) {
@@ -321,6 +326,14 @@ class LessonContentRenderer extends StatelessWidget {
         continue;
       }
 
+      final openAiImages = _buildOpenAiImageReferences(context, cleanLine);
+      if (openAiImages != null) {
+        flushLists();
+        children.addAll(openAiImages);
+        i++;
+        continue;
+      }
+
       // ── Empty Line ──
       if (line.trim().isEmpty) {
         flushLists();
@@ -382,6 +395,20 @@ class LessonContentRenderer extends StatelessWidget {
     return alt?.replaceAll(r'\[', '[').replaceAll(r'\]', ']');
   }
 
+  List<Widget>? _buildOpenAiImageReferences(BuildContext context, String rawText) {
+    final matches = _openAiImageUrlRegex.allMatches(rawText).toList();
+    if (matches.isEmpty) return null;
+
+    return matches.map((match) {
+      final afterUrl = rawText.substring(match.end);
+      final beforeUrl = rawText.substring(0, match.start);
+      final captionMatch = _imageCaptionRegex.firstMatch(afterUrl) ??
+          _imageCaptionRegex.firstMatch(beforeUrl);
+      final caption = _unescapeMarkdownAlt(captionMatch?.group(1));
+      return _buildImage(context, match.group(0)!, alt: caption);
+    }).toList();
+  }
+
   Widget _buildList(BuildContext context, List<String> items, {required bool numbered}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -423,6 +450,10 @@ class LessonContentRenderer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: _buildMixedLineWithImages(context, rawText),
       );
+    }
+    final openAiImages = _buildOpenAiImageReferences(context, rawText);
+    if (openAiImages != null) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: openAiImages);
     }
     return _RichText(text: rawText, style: TextStyle(fontSize: fontSize, height: 1.7));
   }
