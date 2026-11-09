@@ -21,6 +21,10 @@ class CodeBlock {
 }
 
 class LessonContentRenderer extends StatelessWidget {
+  static final RegExp _markdownImageRegex = RegExp(
+    r'!\[((?:\\.|[^\]])*)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)',
+  );
+
   final String content;
   final String lang;
   final double fontSize;
@@ -213,10 +217,10 @@ class LessonContentRenderer extends StatelessWidget {
       }
 
       // ── Standalone Markdown Image: ![alt](url "title") ──
-      final mdImgStandaloneMatch = RegExp(r'^\s*!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)\s*$').firstMatch(cleanLine);
+      final mdImgStandaloneMatch = RegExp(r'^\s*!\[((?:\\.|[^\]])*)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)\s*$').firstMatch(cleanLine);
       if (mdImgStandaloneMatch != null) {
         flushLists();
-        final alt = mdImgStandaloneMatch.group(1);
+        final alt = _unescapeMarkdownAlt(mdImgStandaloneMatch.group(1));
         final url = mdImgStandaloneMatch.group(2)!;
         children.add(_buildImage(context, url, alt: alt));
         i++;
@@ -224,8 +228,7 @@ class LessonContentRenderer extends StatelessWidget {
       }
 
       // ── Inline Markdown Image(s) mixed with text ──
-      final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
-      if (mdImgInlineRegex.hasMatch(line)) {
+      if (_markdownImageRegex.hasMatch(line)) {
         flushLists();
         children.addAll(_buildMixedLineWithImages(context, line));
         i++;
@@ -278,7 +281,7 @@ class LessonContentRenderer extends StatelessWidget {
 
       // ── Bullet List: - item, * item, + item ──
       if (RegExp(r'^[-*+]\s').hasMatch(line)) {
-        flushLists();
+        if (inNumberedList) flushLists();
         inList = true;
         listItems.add(line.replaceFirst(RegExp(r'^[-*+]\s*'), ''));
         i++;
@@ -287,7 +290,7 @@ class LessonContentRenderer extends StatelessWidget {
 
       // ── Numbered List: 1. item, 1) item ──
       if (RegExp(r'^\d+[.)]\s').hasMatch(line)) {
-        flushLists();
+        if (inList) flushLists();
         inNumberedList = true;
         numberedItems.add(line.replaceFirst(RegExp(r'^\d+[.)]\s*'), ''));
         i++;
@@ -320,8 +323,7 @@ class LessonContentRenderer extends StatelessWidget {
 
   List<Widget> _buildMixedLineWithImages(BuildContext context, String line) {
     final widgets = <Widget>[];
-    final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
-    final matches = mdImgInlineRegex.allMatches(line).toList();
+    final matches = _markdownImageRegex.allMatches(line).toList();
     var lastEnd = 0;
 
     for (final m in matches) {
@@ -334,7 +336,7 @@ class LessonContentRenderer extends StatelessWidget {
           ));
         }
       }
-      final alt = m.group(1);
+      final alt = _unescapeMarkdownAlt(m.group(1));
       final url = m.group(2)!;
       widgets.add(_buildImage(context, url, alt: alt));
       lastEnd = m.end;
@@ -350,6 +352,10 @@ class LessonContentRenderer extends StatelessWidget {
       }
     }
     return widgets;
+  }
+
+  String? _unescapeMarkdownAlt(String? alt) {
+    return alt?.replaceAll(r'\[', '[').replaceAll(r'\]', ']');
   }
 
   Widget _buildList(BuildContext context, List<String> items, {required bool numbered}) {
@@ -388,8 +394,7 @@ class LessonContentRenderer extends StatelessWidget {
     if (_isDirectImageUrl(clean)) {
       return _buildImage(context, clean);
     }
-    final mdImgInlineRegex = RegExp(r'!\[(.*?)\]\(\s*([^\s)]+)(?:\s+["\x27](.*?)["\x27])?\s*\)');
-    if (mdImgInlineRegex.hasMatch(rawText)) {
+    if (_markdownImageRegex.hasMatch(rawText)) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: _buildMixedLineWithImages(context, rawText),
