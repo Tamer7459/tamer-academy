@@ -14,6 +14,8 @@ import 'package:highlight/languages/java.dart';
 import 'package:highlight/languages/kotlin.dart';
 import 'package:highlight/languages/swift.dart';
 
+import 'lesson_remote_image.dart' as remote_image;
+
 class CodeBlock {
   final String language;
   final String code;
@@ -481,44 +483,10 @@ class LessonContentRenderer extends StatelessWidget {
         imageWidget = _buildImageError(context, cleanUrl, cleanAlt);
       }
     } else {
-      imageWidget = Image.network(
+      imageWidget = remote_image.buildLessonRemoteImage(
         cleanUrl,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          final total = loadingProgress.expectedTotalBytes;
-          final loaded = loadingProgress.cumulativeBytesLoaded;
-          final progress = (total != null && total > 0) ? loaded / total : null;
-          return Container(
-            height: 180,
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    value: progress,
-                    strokeWidth: 2.5,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'جاري تحميل الصورة...',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _buildImageError(context, cleanUrl, cleanAlt);
-        },
+        alt: cleanAlt,
+        errorBuilder: () => _buildImageError(context, cleanUrl, cleanAlt),
       );
     }
 
