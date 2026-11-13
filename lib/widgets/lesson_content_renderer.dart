@@ -747,50 +747,54 @@ class LessonContentRenderer extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-            child: Row(
-              children: [
-                Icon(Icons.code, size: 16, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  language.isEmpty ? 'code' : language,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.primary,
-                    fontFamily: 'monospace',
+      child: Directionality(
+        // الكود البرمجي يظهر دائمًا من اليسار لليمين (LTR) حتى في نسخة العربية
+        textDirection: TextDirection.ltr,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              child: Row(
+                children: [
+                  Icon(Icons.code, size: 16, color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    language.isEmpty ? 'code' : language,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.primary,
+                      fontFamily: 'monospace',
+                    ),
                   ),
-                ),
-                const Spacer(),
-                InkWell(
-                  onTap: () => _copy(context, code),
-                  borderRadius: BorderRadius.circular(6),
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.copy_rounded, size: 16),
+                  const Spacer(),
+                  InkWell(
+                    onTap: () => _copy(context, code),
+                    borderRadius: BorderRadius.circular(6),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(Icons.copy_rounded, size: 16),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.all(14),
-            child: HighlightView(
-                code,
-                language: highlightLang,
-                theme: _highlightTheme(langTheme),
-                padding: EdgeInsets.zero,
-                textStyle: const TextStyle(fontFamily: 'monospace', fontSize: 14, height: 1.6),
+                ],
               ),
-          ),
-        ],
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(14),
+              child: HighlightView(
+                  code,
+                  language: highlightLang,
+                  theme: _highlightTheme(langTheme),
+                  padding: EdgeInsets.zero,
+                  textStyle: const TextStyle(fontFamily: 'monospace', fontSize: 14, height: 1.6),
+                ),
+            ),
+          ],
+        ),
       ),
     );
   }

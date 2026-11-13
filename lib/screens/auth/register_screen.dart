@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
+import '../../core/auth_error_message.dart';
 import '../../services/auth_service.dart';
 import 'login_screen.dart';
 
@@ -33,19 +33,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  String _errorMessage(FirebaseAuthException e, String Function(String) translate) {
-    switch (e.code) {
-      case 'invalid-email':
-        return translate('invalidEmail');
-      case 'weak-password':
-        return translate('weakPassword');
-      case 'email-already-in-use':
-        return translate('emailInUse');
-      default:
-        return translate('unknownError');
-    }
-  }
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
@@ -55,10 +42,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final user = await context.read<AuthService>().register(_email.text, _password.text);
       await user.user!.updateDisplayName(_name.text.trim());
       if (mounted) Navigator.of(context).pop();
-    } on FirebaseAuthException catch (e) {
-      if (mounted) _showError(_errorMessage(e, t));
-    } catch (_) {
-      if (mounted) _showError(t('unknownError'));
+    } catch (e) {
+      if (mounted) _showError(authErrorMessage(e, t));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -69,10 +54,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final result = await context.read<AuthService>().loginWithGoogle();
       if (result != null && mounted) Navigator.of(context).pop();
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
-        _showError(l10n.t('unknownError'));
+        _showError(authErrorMessage(e, l10n.t));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
