@@ -180,20 +180,18 @@ class _HomeShellState extends State<HomeShell> {
           const SizedBox(width: DTokens.spaceSm),
           Flexible(
             child: Text(
-              _sidebarCollapsed ? 'Tamer Acad...' : 'Tamer Academy',
+              'Tamer Academy',
               style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: DTypography.heading, decoration: TextDecoration.none),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (!_sidebarCollapsed) ...[
-            const Spacer(),
-            IconButton(
-              icon: Icon(Icons.chevron_left, size: 18),
-              onPressed: () => setState(() => _sidebarCollapsed = true),
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.all(4),
-            ),
-          ],
+          const Spacer(),
+          IconButton(
+            icon: Icon(_sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left, size: 18),
+            onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.all(4),
+          ),
         ],
       ),
     );
@@ -276,15 +274,6 @@ class _HomeShellState extends State<HomeShell> {
           Row(
             mainAxisAlignment: _sidebarCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
-              if (_sidebarCollapsed) ...[
-                IconButton(
-                  icon: Icon(Icons.chevron_right, size: 20),
-                  onPressed: () => setState(() => _sidebarCollapsed = false),
-                  constraints: const BoxConstraints(),
-                  padding: const EdgeInsets.all(8),
-                ),
-                const SizedBox(width: DTokens.spaceMd),
-              ],
               Consumer<AppState>(
                 builder: (context, state, _) => IconButton(
                   tooltip: t('theme'),
