@@ -91,60 +91,73 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 560;
-    return Row(
-      children: [
-        // Logo
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.tealPrimary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Image.asset('assets/logo.png', width: 32, height: 32, fit: BoxFit.cover),
-        ),
-        const SizedBox(width: 10),
-        if (!compact)
-          Text(
-            t('appName'),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: AppColors.tealDeep,
+    final surface = isDark ? DColorsDark.surfaceGlass : DColorsLight.surfaceGlass;
+    final border = isDark ? DColorsDark.borderSoft : DColorsLight.borderSoft;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: DTokens.spaceSm, horizontal: DTokens.spaceMd),
+      decoration: BoxDecoration(
+        color: surface.withValues(alpha: 0.55),
+        borderRadius: DTokens.borderRadiusLg,
+        border: Border.all(color: border.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          // Logo
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              gradient: DGradients.brandGlow,
+              borderRadius: DTokens.borderRadiusMd,
             ),
+            child: Image.asset('assets/logo.png', width: 30, height: 30, fit: BoxFit.cover),
           ),
-        const Spacer(),
-        IconButton(
-          tooltip: t('theme'),
-          onPressed: () => context.read<AppState>().toggleTheme(),
-          icon: Icon(state.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
-        ),
-        PopupMenuButton<String>(
-          tooltip: t('language'),
-          icon: const Icon(Icons.language),
-          onSelected: (code) => context.read<AppState>().setLanguage(code),
-          itemBuilder: (_) => [
-            PopupMenuItem(value: 'ar', child: Text(t('arabic'))),
-            PopupMenuItem(value: 'en', child: Text(t('english'))),
-            PopupMenuItem(value: 'fr', child: Text(t('french'))),
-          ],
-        ),
-        const SizedBox(width: 4),
-        if (loggedIn)
-          FilledButton.icon(
-            onPressed: onEnter,
-            icon: Icon(isAdmin ? Icons.dashboard_rounded : Icons.rocket_launch_rounded),
-            label: Text(isAdmin ? t('enterDashboard') : t('enterApp')),
-          )
-        else
-          FilledButton.icon(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
+          const SizedBox(width: DTokens.spaceSm),
+          if (!compact)
+            Text(
+              t('appName'),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.navyText,
+                letterSpacing: -0.5,
+              ),
             ),
-            icon: const Icon(Icons.login),
-            label: Text(t('login')),
+          const Spacer(),
+          IconButton(
+            tooltip: t('theme'),
+            onPressed: () => context.read<AppState>().toggleTheme(),
+            icon: Icon(state.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
+            iconSize: 20,
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.all(8),
           ),
-      ],
+          PopupMenuButton<String>(
+            tooltip: t('language'),
+            icon: const Icon(Icons.language),
+            iconSize: 20,
+            onSelected: (code) => context.read<AppState>().setLanguage(code),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'ar', child: Text(t('arabic'))),
+              PopupMenuItem(value: 'en', child: Text(t('english'))),
+              PopupMenuItem(value: 'fr', child: Text(t('french'))),
+            ],
+          ),
+          const SizedBox(width: DTokens.spaceSm),
+          // giriş/تسجيل الدخول فقط في الهيدر؛ CTA اللوحة रहता في الهيرو لتجنب التكرار
+          if (!loggedIn)
+            FilledButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              ),
+              icon: const Icon(Icons.login, size: 18),
+              label: Text(t('login'), style: const TextStyle(fontSize: 14)),
+            ),
+        ],
+      ),
     );
   }
 }
