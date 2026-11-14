@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
-import '../../core/breakpoints.dart';
 import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/track.dart';
@@ -111,22 +110,12 @@ class AdminDashboard extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverToBoxAdapter(
-            child: LayoutBuilder(
-              builder: (context, c) {
-                final wide = c.maxWidth >= Breakpoints.medium;
-                final hw = _PendingHomeworkPreview();
-                final ex = _PendingExercisePreview();
-                if (wide)
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: hw),
-                      const SizedBox(width: 16),
-                      Expanded(child: ex),
-                    ],
-                  );
-                return Column(children: [hw, const SizedBox(height: 16), ex]);
-              },
+            child: Column(
+              children: [
+                _PendingHomeworkPreview(),
+                const SizedBox(height: 12),
+                _PendingExercisePreview(),
+              ],
             ),
           ),
         ),
