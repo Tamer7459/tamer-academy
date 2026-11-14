@@ -30,6 +30,18 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Supabase init failed (fallback to Firebase): $e');
   }
+  // Keep failed widgets inside the Animus palette instead of Flutter's default
+  // large grey error surface, which looks like a broken settings panel.
+  ErrorWidget.builder = (details) => Container(
+        color: const Color(0xFF17171A),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16),
+        child: const Text(
+          'تعذر تحميل هذا القسم',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Color(0xFFA8A39A), fontSize: 13, decoration: TextDecoration.none),
+        ),
+      );
   runApp(const TamerAcademyApp());
 }
 
