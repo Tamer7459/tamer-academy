@@ -165,30 +165,53 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Widget _sidebarHeader(BuildContext context, AppUser user, String Function(String) t, bool isDark) {
+    final logo = Container(
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        gradient: DGradients.crimsonGlow,
+        borderRadius: DTokens.borderRadiusSm,
+      ),
+      child: Image.asset('assets/logo.png', width: 20, height: 20, fit: BoxFit.cover),
+    );
+
+    if (_sidebarCollapsed) {
+      // Collapsed: logo on top, expand button below (no overlap)
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: DTokens.spaceSm),
+        child: Column(
+          children: [
+            logo,
+            const SizedBox(height: 2),
+            IconButton(
+              tooltip: 'Expand',
+              icon: const Icon(Icons.chevron_right, size: 18),
+              onPressed: () => setState(() => _sidebarCollapsed = false),
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.all(6),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.all(DTokens.spaceMd),
+      padding: const EdgeInsets.fromLTRB(DTokens.spaceMd, DTokens.spaceSm, DTokens.spaceSm, DTokens.spaceSm),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              gradient: DGradients.crimsonGlow,
-              borderRadius: DTokens.borderRadiusSm,
-            ),
-            child: Image.asset('assets/logo.png', width: 22, height: 22, fit: BoxFit.cover),
-          ),
+          logo,
           const SizedBox(width: DTokens.spaceSm),
-          Flexible(
+          Expanded(
             child: Text(
               'Tamer Academy',
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: DTypography.heading, decoration: TextDecoration.none),
+              maxLines: 1,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, fontFamily: DTypography.heading, decoration: TextDecoration.none),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
           IconButton(
-            icon: Icon(_sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left, size: 18),
-            onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+            tooltip: 'Collapse',
+            icon: const Icon(Icons.chevron_left, size: 18),
+            onPressed: () => setState(() => _sidebarCollapsed = true),
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.all(4),
           ),
@@ -217,10 +240,10 @@ class _HomeShellState extends State<HomeShell> {
         onTap: () => _goTo(i),
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: _sidebarCollapsed ? DTokens.spaceSm : DTokens.spaceMd,
-            vertical: DTokens.spaceSm + 2,
+            horizontal: _sidebarCollapsed ? DTokens.spaceSm : DTokens.spaceSm + 4,
+            vertical: _sidebarCollapsed ? DTokens.spaceSm : 6,
           ),
-          margin: const EdgeInsets.symmetric(horizontal: DTokens.spaceSm, vertical: 2),
+          margin: const EdgeInsets.symmetric(horizontal: DTokens.spaceSm, vertical: 1),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFC1232C).withValues(alpha: 0.12) : Colors.transparent,
             borderRadius: DTokens.borderRadiusSm,
@@ -228,7 +251,7 @@ class _HomeShellState extends State<HomeShell> {
           ),
           child: Row(
             children: [
-              Icon(item.icon, size: 20, color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted)),
+              Icon(item.icon, size: 18, color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted)),
               if (!_sidebarCollapsed) ...[
                 const SizedBox(width: DTokens.spaceSm),
                 Expanded(
@@ -238,22 +261,13 @@ class _HomeShellState extends State<HomeShell> {
                       Text(
                         item.label,
                         style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                          fontSize: 13,
+                          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                           color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurface : DColorsLight.onSurface),
                           decoration: TextDecoration.none,
                         ),
                       ),
-                      Text(
-                        '\$ ${item.command}',
-                        style: TextStyle(
-                          fontSize: 11,
-                                          fontFamily: 'JetBrains Mono',
-                          color: isDark ? DColorsDark.onSurfaceDim : DColorsLight.onSurfaceDim,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ],
+                      ],
                   ),
                 ),
               ],

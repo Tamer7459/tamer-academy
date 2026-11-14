@@ -42,7 +42,7 @@ class DTokens {
 
   // ── Layout dimensions ──
   static const double maxContentWidth = 1100;
-  static const double sidebarWidth = 280;
+  static const double sidebarWidth = 248;
   static const double minTouchTarget = 48;
   static const double heroMinHeight = 560;
   static const double headerHeight = 56;
