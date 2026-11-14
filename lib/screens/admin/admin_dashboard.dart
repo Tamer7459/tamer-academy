@@ -82,13 +82,13 @@ class AdminDashboard extends StatelessWidget {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _RequestsPreview())),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _UsersPreview(user: user))),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _CoursesPreview(user: user))),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
     );
@@ -290,7 +290,7 @@ class _RequestsPreview extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
-          padding: const EdgeInsets.all(14),
+           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.danger.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.mark_email_read_rounded, size: 16, color: AppColors.danger)),
             const SizedBox(width: 8),
@@ -304,7 +304,7 @@ class _RequestsPreview extends StatelessWidget {
           ]),
         ),
         const Divider(height: 1, color: Color(0xFF252426)),
-        const SizedBox(height: 320, child: RequestsScreen()),
+         const SizedBox(height: 250, child: RequestsScreen()),
       ]),
     );
   }
@@ -328,7 +328,7 @@ class _UsersPreview extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
-          padding: const EdgeInsets.all(14),
+           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.group_rounded, size: 16, color: Colors.white)),
             const SizedBox(width: 8),
@@ -342,7 +342,7 @@ class _UsersPreview extends StatelessWidget {
           ]),
         ),
         const Divider(height: 1, color: Color(0xFF252426)),
-        SizedBox(height: 380, child: UsersScreen(user: user)),
+         SizedBox(height: 280, child: UsersScreen(user: user)),
       ]),
     );
   }
@@ -367,7 +367,7 @@ class _CoursesPreview extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
-          padding: const EdgeInsets.all(14),
+           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: const Color(0xFFC1232C).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.menu_book_rounded, size: 16, color: Color(0xFFC1232C))),
             const SizedBox(width: 8),
@@ -484,7 +484,7 @@ class _TracksPreview extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
-          padding: const EdgeInsets.all(14),
+           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.category_rounded, size: 16, color: AppColors.goldPrimary)),
             const SizedBox(width: 8),
