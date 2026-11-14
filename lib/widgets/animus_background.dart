@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/design_tokens.dart';
+import 'cinematic_effects.dart';
 
 /// ═════════════════════════════════════════════════════════════════════════════
 /// Animus Background — شبكة خطوط رفيعة + vignette + توهج أحمر خفيف
@@ -35,6 +36,16 @@ class AnimusBackground extends StatelessWidget {
                   : DGradients.heroMeshLight,
             ),
           ),
+        ),
+        // Animated glow orbs (fixed to viewport, scroll with page)
+        Positioned.fill(
+          child: GradientOrb(color: const Color(0xFFC1232C).withValues(alpha: 0.10), size: 600, start: const Offset(-0.3, -0.2), end: const Offset(1.2, 0.4), duration: const Duration(seconds: 18)),
+        ),
+        Positioned.fill(
+          child: GradientOrb(color: const Color(0xFFD4A64A).withValues(alpha: 0.06), size: 500, start: const Offset(0.7, 0.6), end: const Offset(-0.1, 1.1), duration: const Duration(seconds: 20)),
+        ),
+        Positioned.fill(
+          child: GradientOrb(color: const Color(0xFF5CC8FF).withValues(alpha: 0.04), size: 400, start: const Offset(-0.1, 0.8), end: const Offset(1.1, -0.1), duration: const Duration(seconds: 16)),
         ),
         // Grid lines
         if (showGrid)
