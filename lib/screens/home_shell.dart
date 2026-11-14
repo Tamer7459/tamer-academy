@@ -89,7 +89,10 @@ class _HomeShellState extends State<HomeShell> {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(gradient: DGradients.crimsonGlow, borderRadius: DTokens.borderRadiusSm),
+            decoration: BoxDecoration(
+              gradient: DGradients.crimsonGlow,
+              borderRadius: DTokens.borderRadiusSm,
+            ),
             child: Image.asset('assets/logo.png', width: 20, height: 20, fit: BoxFit.cover),
           ),
           const SizedBox(width: 10),
@@ -127,174 +130,198 @@ class _HomeShellState extends State<HomeShell> {
 
   Widget _buildWide(BuildContext context, AppUser user, String Function(String) t, bool isDark, List<Widget> pages, List<_NavItem> navItems) {
     return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnimatedContainer(
+          duration: DTokens.durNormal,
+          curve: DTokens.curveStandard,
+          width: _sidebarCollapsed ? 64 : DTokens.sidebarWidth,
+          decoration: BoxDecoration(
+            color: isDark ? DColorsDark.surface : DColorsLight.surface,
+            border: Border(right: BorderSide(color: (isDark ? DColorsDark.border : DColorsLight.border).withValues(alpha: 0.5))),
+          ),
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: _sidebarColumn(context, user, t, isDark, navItems),
+          ),
+        ),
+        VerticalDivider(width: 1, color: isDark ? DColorsDark.border : DColorsLight.border),
+        Expanded(child: IndexedStack(index: _index, children: pages)),
+      ],
+    );
+  }
+
+  Widget _sidebarColumn(BuildContext context, AppUser user, String Function(String) t, bool isDark, List<_NavItem> navItems) {
+    return Column(
+      children: [
+        _sidebarHeader(context, user, t, isDark),
+        const Divider(height: 1),
+        Expanded(child: _navList(context, user, t, isDark)),
+        const Spacer(),
+        _sidebarFooter(context, user, t, isDark),
+      ],
+    );
+  }
+
+  Widget _sidebarHeader(BuildContext context, AppUser user, String Function(String) t, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.all(DTokens.spaceMd),
+      child: Row(
         children: [
-          // Sidebar
-          AnimatedContainer(
-            duration: DTokens.durNormal,
-            curve: DTokens.curveStandard,
-            width: _sidebarCollapsed ? 64 : DTokens.sidebarWidth,
+          Container(
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isDark ? DColorsDark.surface : DColorsLight.surface,
-              border: Border(right: BorderSide(color: (isDark ? DColorsDark.border : DColorsLight.border).withValues(alpha: 0.5))),
+              gradient: DGradients.crimsonGlow,
+              borderRadius: DTokens.borderRadiusSm,
             ),
-            child: SafeArea(
-              top: false,
-              bottom: false,
-              child: Column(
-                children: [
-                  // Header: logo + collapse toggle
-                  Padding(
-                    padding: const EdgeInsets.all(DTokens.spaceMd),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            gradient: DGradients.crimsonGlow,
-                            borderRadius: DTokens.borderRadiusSm,
-                          ),
-                          child: Image.asset('assets/logo.png', width: 22, height: 22, fit: BoxFit.cover),
-                        ),
-                        if (!_sidebarCollapsed) ...[
-                          const SizedBox(width: DTokens.spaceSm),
-                          Flexible(
-                            child: Text(
-                              'Tamer Academy',
-                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, fontFamily: DTypography.heading),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                        const Spacer(),
-                        IconButton(
-                          icon: Icon(_sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left, size: 18),
-                          onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.all(4),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  // Nav items (Terminal style)
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(vertical: DTokens.spaceSm),
-                      children: navItems.asMap().entries.map((entry) {
-                        final i = entry.key;
-                        final item = entry.value;
-                        final selected = _index == i;
-                        return Tooltip(
-                          message: _sidebarCollapsed ? item.label : '',
-                          child: InkWell(
-                            onTap: () => _goTo(i),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: _sidebarCollapsed ? DTokens.spaceSm : DTokens.spaceMd,
-                                vertical: DTokens.spaceSm + 2,
-                              ),
-                              margin: const EdgeInsets.symmetric(horizontal: DTokens.spaceSm, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: selected ? const Color(0xFFC1232C).withValues(alpha: 0.12) : Colors.transparent,
-                                borderRadius: DTokens.borderRadiusSm,
-                                border: selected ? Border.all(color: const Color(0xFFC1232C).withValues(alpha: 0.3)) : null,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(item.icon, size: 20, color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted)),
-                                  if (!_sidebarCollapsed) ...[
-                                    const SizedBox(width: DTokens.spaceSm),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.label,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                                              color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurface : DColorsLight.onSurface),
-                                            ),
-                                          ),
-                                          Text(
-                                            '\$ ${item.command}',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontFamily: 'JetBrains Mono',
-                                              color: isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  // Bottom: theme + language + logout
-                  Padding(
-                    padding: const EdgeInsets.all(DTokens.spaceMd),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (!_sidebarCollapsed) const Divider(),
-                        Row(
-                          mainAxisAlignment: _sidebarCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
-                          children: [
-                            Consumer<AppState>(
-                              builder: (context, state, _) => IconButton(
-                                tooltip: t('theme'),
-                                icon: Icon(state.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode, size: 20),
-                                onPressed: () => context.read<AppState>().toggleTheme(),
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.all(8),
-                              ),
-                            ),
-                            if (!_sidebarCollapsed) ...[
-                              PopupMenuButton<String>(
-                                tooltip: t('language'),
-                                icon: const Icon(Icons.language, size: 20),
-                                onSelected: (code) => context.read<AppState>().setLanguage(code),
-                                itemBuilder: (_) => [
-                                  PopupMenuItem(value: 'ar', child: Text(t('arabic'))),
-                                  PopupMenuItem(value: 'en', child: Text(t('english'))),
-                                  PopupMenuItem(value: 'fr', child: Text(t('french'))),
-                                ],
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                tooltip: t('logout'),
-                                icon: const Icon(Icons.logout, size: 20),
-                                onPressed: () async {
-                                  await context.read<AuthService>().logout();
-                                  if (mounted) _goTo(0);
-                                },
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.all(8),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            child: Image.asset('assets/logo.png', width: 22, height: 22, fit: BoxFit.cover),
+          ),
+          const SizedBox(width: DTokens.spaceSm),
+          Flexible(
+            child: Text(
+              _sidebarCollapsed ? 'Tamer Acad...' : 'Tamer Academy',
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: DTypography.heading, decoration: TextDecoration.none),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          VerticalDivider(width: 1, color: isDark ? DColorsDark.border : DColorsLight.border),
-          // Main content
-          Expanded(
-            child: IndexedStack(index: _index, children: pages),
+          if (!_sidebarCollapsed) ...[
+            const Spacer(),
+            IconButton(
+              icon: Icon(Icons.chevron_left, size: 18),
+              onPressed: () => setState(() => _sidebarCollapsed = true),
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.all(4),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _navList(BuildContext context, AppUser user, String Function(String) t, bool isDark) {
+    final navItems = _buildNavItems(user, t);
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: DTokens.spaceSm),
+      children: navItems.asMap().entries.map((entry) {
+        final i = entry.key;
+        final item = entry.value;
+        final selected = _index == i;
+        return _navItem(context, i, item, selected, user, t, isDark);
+      }).toList(),
+    );
+  }
+
+  Widget _navItem(BuildContext context, int i, _NavItem item, bool selected, AppUser user, String Function(String) t, bool isDark) {
+    return Tooltip(
+      message: _sidebarCollapsed ? item.label : '',
+      child: InkWell(
+        onTap: () => _goTo(i),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: _sidebarCollapsed ? DTokens.spaceSm : DTokens.spaceMd,
+            vertical: DTokens.spaceSm + 2,
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: DTokens.spaceSm, vertical: 2),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFFC1232C).withValues(alpha: 0.12) : Colors.transparent,
+            borderRadius: DTokens.borderRadiusSm,
+            border: selected ? Border.all(color: const Color(0xFFC1232C).withValues(alpha: 0.3)) : null,
+          ),
+          child: Row(
+            children: [
+              Icon(item.icon, size: 20, color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted)),
+              if (!_sidebarCollapsed) ...[
+                const SizedBox(width: DTokens.spaceSm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                          color: selected ? const Color(0xFFC1232C) : (isDark ? DColorsDark.onSurface : DColorsLight.onSurface),
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      Text(
+                        '\$ ${item.command}',
+                        style: TextStyle(
+                          fontSize: 11,
+                                          fontFamily: 'JetBrains Mono',
+                          color: isDark ? DColorsDark.onSurfaceDim : DColorsLight.onSurfaceDim,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sidebarFooter(BuildContext context, AppUser user, String Function(String) t, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.all(DTokens.spaceMd),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!_sidebarCollapsed) const Divider(),
+          Row(
+            mainAxisAlignment: _sidebarCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+            children: [
+              if (_sidebarCollapsed) ...[
+                IconButton(
+                  icon: Icon(Icons.chevron_right, size: 20),
+                  onPressed: () => setState(() => _sidebarCollapsed = false),
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(8),
+                ),
+                const SizedBox(width: DTokens.spaceMd),
+              ],
+              Consumer<AppState>(
+                builder: (context, state, _) => IconButton(
+                  tooltip: t('theme'),
+                  icon: Icon(state.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode, size: 20),
+                  onPressed: () => context.read<AppState>().toggleTheme(),
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+              if (!_sidebarCollapsed) ...[
+                PopupMenuButton<String>(
+                  tooltip: t('language'),
+                  icon: const Icon(Icons.language, size: 20),
+                  onSelected: (code) => context.read<AppState>().setLanguage(code),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'ar', child: Text(t('arabic'), textAlign: TextAlign.center)),
+                    PopupMenuItem(value: 'en', child: Text(t('english'), textAlign: TextAlign.center)),
+                    PopupMenuItem(value: 'fr', child: Text(t('french'), textAlign: TextAlign.center)),
+                  ],
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: t('logout'),
+                  icon: const Icon(Icons.logout, size: 20),
+                  onPressed: () async {
+                    await context.read<AuthService>().logout();
+                    if (mounted) _goTo(0);
+                  },
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ],
+            ],
           ),
         ],
-      );
+      ),
+    );
   }
 
   Widget _buildMobile(BuildContext context, AppUser user, String Function(String) t, bool isDark, List<Widget> pages) {
@@ -317,8 +344,8 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
   }
-
 }
+
 class _NavItem {
   final IconData icon;
   final String label;
