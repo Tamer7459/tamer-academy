@@ -3,146 +3,127 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'design_tokens.dart';
+
+/// ═════════════════════════════════════════════════════════════════════════════
+/// AppColors — backward compatibility (mapped to new palette)
+/// ═════════════════════════════════════════════════════════════════════════════
 class AppColors {
   AppColors._();
 
-  // ══════════════════════════════════════════════
-  // PRIMARY (Teal / Green-Blue — like Iqrae Kull)
-  // ══════════════════════════════════════════════
-  static const Color tealDeep     = Color(0xFF136B5E);
-  static const Color tealPrimary  = Color(0xFF1A8A7A);
-  static const Color tealLight    = Color(0xFF3BBFAE);
-  static const Color tealPale     = Color(0xFFD6F0EC);
+  // Mapped to new Crimson palette
+  static const Color tealDeep = Color(0xFFC1232C);
+  static const Color tealPrimary = Color(0xFFC1232C);
+  static const Color tealLight = Color(0xFFE5384A);
+  static const Color tealPale = Color(0xFF2A1518);
 
-  // ══════════════════════════════════════════════
-  // WARM ACCENTS (Hero gradients, cards)
-  // ══════════════════════════════════════════════
-  static const Color peachStart   = Color(0xFFF5A623);
-  static const Color peachEnd     = Color(0xFFF8C291);
-  static const Color peachLight   = Color(0xFFFDEBD3);
-  static const Color warmOrange   = Color(0xFFF09030);
-  static const Color coral        = Color(0xFFE8604C);
+  // Mapped to new Gold
+  static const Color peachStart = Color(0xFFD4A64A);
+  static const Color peachEnd = Color(0xFFB8892F);
+  static const Color peachLight = Color(0xFF2A2518);
+  static const Color warmOrange = Color(0xFFD4A64A);
+  static const Color coral = Color(0xFFFF6A3D);
 
-  // ══════════════════════════════════════════════
-  // NEUTRALS
-  // ══════════════════════════════════════════════
-  static const Color navyDark     = Color(0xFF0D2137);
-  static const Color navyText     = Color(0xFF1A2B42);
-  static const Color grayDark     = Color(0xFF374151);
-  static const Color grayMedium   = Color(0xFF6B7280);
-  static const Color grayLight    = Color(0xFF9CA3AF);
-  static const Color grayVeryLight= Color(0xFFF3F4F6);
-  static const Color offWhite     = Color(0xFFFAFBFC);
-  static const Color white        = Color(0xFFFFFFFF);
+  // Mapped to new neutrals
+  static const Color navyDark = Color(0xFF0B0B0D);
+  static const Color navyText = Color(0xFFEDE6D6);
+  static const Color grayDark = Color(0xFFA8A39A);
+  static const Color grayMedium = Color(0xFF8A8578);
+  static const Color grayLight = Color(0xFF6B6760);
+  static const Color grayVeryLight = Color(0xFF1E1E22);
+  static const Color offWhite = Color(0xFFF4F1EA);
+  static const Color white = Color(0xFFFFFFFF);
 
-  // ══════════════════════════════════════════════
-  // SEMANTIC
-  // ══════════════════════════════════════════════
-  static const Color success  = Color(0xFF22C55E);
-  static const Color danger   = Color(0xFFEF4444);
-  static const Color warning  = Color(0xFFF59E0B);
-  static const Color star     = Color(0xFFF59E0B);
-  static const Color info     = Color(0xFF3B82F6);
+  // Semantic
+  static const Color success = Color(0xFF6FBF8E);
+  static const Color danger = Color(0xFFFF6A3D);
+  static const Color warning = Color(0xFFD4A64A);
+  static const Color star = Color(0xFFD4A64A);
+  static const Color info = Color(0xFF5CC8FF);
 
-  // ══════════════════════════════════════════════
-  // BACKWARD COMPATIBILITY ALIASES
-  // ══════════════════════════════════════════════
-  static const Color primary    = tealPrimary;
-  static const Color secondary  = Color(0xFFF5A623);
-  static const Color accent     = Color(0xFF3BBFAE);
-  static const Color navyPrimary= tealDeep;
-  static const Color goldPrimary= Color(0xFFF5A623);
-  static const Color goldLight  = Color(0xFFF8C291);
-  static const Color goldDark   = Color(0xFFD4940F);
-  static const Color cyanAccent = tealLight;
+  // Backward compat aliases
+  static const Color primary = tealPrimary;
+  static const Color secondary = Color(0xFFD4A64A);
+  static const Color accent = Color(0xFF5CC8FF);
+  static const Color navyPrimary = tealDeep;
+  static const Color goldPrimary = Color(0xFFD4A64A);
+  static const Color goldLight = Color(0xFFB8892F);
+  static const Color goldDark = Color(0xFF8A5F10);
+  static const Color cyanAccent = Color(0xFF5CC8FF);
   static const Color creamWhite = offWhite;
-  static const Color navyDeep   = navyDark;
+  static const Color navyDeep = navyDark;
 
-  static const Color darkBg      = Color(0xFF0A1628);
-  static const Color darkSurface = Color(0xFF122240);
-  static const Color darkCard    = Color(0xFF1B3A5C);
-  static const Color darkElevated= Color(0xFF23456B);
-  static const Color darkTextDim = Color(0xFFB9C7DC);
+  static const Color darkBg = Color(0xFF0B0B0D);
+  static const Color darkSurface = Color(0xFF17171A);
+  static const Color darkCard = Color(0xFF1E1E22);
+  static const Color darkElevated = Color(0xFF252426);
+  static const Color darkTextDim = Color(0xFFA8A39A);
 }
 
-class AppGradients {
-  AppGradients._();
-
-  static const LinearGradient primary = LinearGradient(
-    colors: [AppColors.tealDeep, AppColors.tealPrimary],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient hero = LinearGradient(
-    colors: [AppColors.peachStart, AppColors.peachEnd, AppColors.peachLight],
-    begin: Alignment.topRight,
-    end: Alignment.bottomLeft,
-  );
-
-  static const LinearGradient tealToPeach = LinearGradient(
-    colors: [AppColors.tealPrimary, AppColors.tealLight, AppColors.peachEnd],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient warm = LinearGradient(
-    colors: [AppColors.peachLight, AppColors.offWhite],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
-  static final LinearGradient cardShadow = LinearGradient(
-    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.03)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-}
+/// ═════════════════════════════════════════════════════════════════════════════
+/// AppTheme — يُعتمد بالكامل على Design Tokens.
+/// "أكاديمية الأخوية" — Crimson + Gold + Eagle Vision
+/// ═════════════════════════════════════════════════════════════════════════════
 
 class AppTheme {
   AppTheme._();
 
-  static Color accent(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? AppColors.tealLight : AppColors.tealPrimary;
-  }
+  static ThemeData light() => _build(Brightness.light, false);
+  static ThemeData dark() => _build(Brightness.dark, true);
 
-  static Color track(BuildContext context, String track) {
-    if (track == 'web' || track == '1787326651194000') return accent(context);
-    if (track == 'ai_automation' || track == 'ai' || track == '1794165775204000') return const Color(0xFF8B5CF6);
-    return AppColors.tealLight;
-  }
-
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
-
-  // للويب: سكرول دائم + أسهم لوحة المفاتيح
   static ScrollBehavior get scrollBehavior => const _AppScrollBehavior();
 
-  static ThemeData _build(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
+  static ThemeData _build(Brightness brightness, bool isDark) {
+    // Local color variables (avoid dynamic access in minified JS)
+    final Color brand = isDark ? DColorsDark.brand : DColorsLight.brand;
+    final Color brandLight = isDark ? DColorsDark.brandLight : DColorsLight.brandLight;
+    final Color brandText = isDark ? DColorsDark.brandText : DColorsLight.brandText;
+    final Color gold = isDark ? DColorsDark.gold : DColorsLight.gold;
+    final Color eagle = isDark ? DColorsDark.eagle : DColorsLight.eagle;
+    final Color terracotta = isDark ? DColorsDark.terracotta : DColorsLight.terracotta;
+    final Color ochre = isDark ? DColorsDark.ochre : DColorsLight.ochre;
+    final Color success = isDark ? DColorsDark.success : DColorsLight.success;
+    final Color warning = isDark ? DColorsDark.warning : DColorsLight.warning;
+    final Color danger = isDark ? DColorsDark.danger : DColorsLight.danger;
+    final Color info = isDark ? DColorsDark.info : DColorsLight.info;
+    final Color surface = isDark ? DColorsDark.surface : DColorsLight.surface;
+    final Color surfaceElevated = isDark ? DColorsDark.surfaceElevated : DColorsLight.surfaceElevated;
+    final Color onSurface = isDark ? DColorsDark.onSurface : DColorsLight.onSurface;
+    final Color onSurfaceDim = isDark ? DColorsDark.onSurfaceDim : DColorsLight.onSurfaceDim;
+    final Color onSurfaceMuted = isDark ? DColorsDark.onSurfaceMuted : DColorsLight.onSurfaceMuted;
+    final Color border = isDark ? DColorsDark.border : DColorsLight.border;
+    final Color borderSoft = isDark ? DColorsDark.borderSoft : DColorsLight.borderSoft;
+    final Color background = isDark ? DColorsDark.background : DColorsLight.background;
+    final Color backgroundSecondary = isDark ? DColorsDark.backgroundSecondary : DColorsLight.backgroundSecondary;
+
     final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.tealPrimary,
+      seedColor: brand,
       brightness: brightness,
-      primary: isDark ? AppColors.tealLight : AppColors.tealPrimary,
-      onPrimary: isDark ? AppColors.navyDark : AppColors.white,
-      secondary: AppColors.peachStart,
-      onSecondary: AppColors.white,
-      tertiary: AppColors.tealLight,
-      surface: isDark ? AppColors.darkSurface : AppColors.white,
-      onSurface: isDark ? AppColors.white : AppColors.navyText,
-      onSurfaceVariant: isDark ? AppColors.darkTextDim : AppColors.grayMedium,
-      outline: isDark ? const Color(0xFF2A4164) : const Color(0xFFE5E7EB),
-      outlineVariant: isDark ? const Color(0xFF1E3352) : const Color(0xFFF3F4F6),
-      error: isDark ? const Color(0xFFFF6B5E) : AppColors.danger,
+      primary: brand,
+      onPrimary: isDark ? DColorsDark.background : DColorsLight.background,
+      secondary: gold,
+      onSecondary: isDark ? DColorsDark.background : DColorsLight.background,
+      tertiary: eagle,
+      onTertiary: isDark ? DColorsDark.background : DColorsLight.background,
+      error: danger,
+      onError: isDark ? DColorsDark.background : DColorsLight.background,
+      surface: surface,
+      onSurface: onSurface,
+      onSurfaceVariant: onSurfaceDim,
+      outline: border,
+      outlineVariant: borderSoft,
+      surfaceContainerHighest: surfaceElevated,
+      inverseSurface: onSurface,
+      onInverseSurface: surface,
+      inversePrimary: brandLight,
     );
 
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: isDark ? AppColors.darkBg : AppColors.offWhite,
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: const {
+      scaffoldBackgroundColor: background,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
           TargetPlatform.android: ZoomPageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
           TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
@@ -152,176 +133,157 @@ class AppTheme {
       ),
     );
 
+    // Typography: El Messiri (headings) + IBM Plex Sans Arabic (body) + JetBrains Mono (code)
+    final textTheme = GoogleFonts.ibmPlexSansArabicTextTheme(
+      GoogleFonts.elMessiriTextTheme(base.textTheme),
+    ).apply(
+      bodyColor: onSurface,
+      displayColor: onSurface,
+    );
+
     return base.copyWith(
-      textTheme: GoogleFonts.cairoTextTheme(base.textTheme).apply(
-        bodyColor: scheme.onSurface,
-        displayColor: scheme.onSurface,
-      ),
+      textTheme: textTheme,
       appBarTheme: AppBarTheme(
         centerTitle: false,
-        backgroundColor: isDark ? AppColors.darkBg : AppColors.white,
-        foregroundColor: isDark ? AppColors.white : AppColors.navyText,
+        backgroundColor: Colors.transparent,
+        foregroundColor: onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
       cardTheme: CardThemeData(
-        elevation: isDark ? 0 : 2,
-        shadowColor: Colors.black.withValues(alpha: 0.06),
-        color: isDark ? AppColors.darkCard : AppColors.white,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        color: surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: isDark
-              ? const BorderSide(color: Color(0xFF1E3352))
-              : BorderSide.none,
+          borderRadius: DTokens.borderRadiusSm,
+          side: BorderSide(color: border),
         ),
         margin: EdgeInsets.zero,
       ),
       chipTheme: base.chipTheme.copyWith(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        side: BorderSide(color: scheme.outlineVariant),
-        labelStyle: TextStyle(color: scheme.onSurface),
+        shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
+        side: BorderSide(color: borderSoft),
+        labelStyle: TextStyle(color: onSurface, fontSize: 13),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? AppColors.darkSurface : AppColors.grayVeryLight,
-        hintStyle: TextStyle(color: AppColors.grayLight),
-        labelStyle: TextStyle(color: AppColors.grayMedium),
-        prefixIconColor: AppColors.grayLight,
-        suffixIconColor: AppColors.grayLight,
+        fillColor: surfaceElevated,
+        hintStyle: TextStyle(color: onSurfaceMuted, fontSize: 14),
+        labelStyle: TextStyle(color: onSurfaceDim, fontSize: 14),
+        prefixIconColor: onSurfaceMuted,
+        suffixIconColor: onSurfaceMuted,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: DTokens.borderRadiusSm,
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: scheme.outlineVariant),
+          borderRadius: DTokens.borderRadiusSm,
+          borderSide: BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.tealPrimary, width: 2),
+          borderRadius: DTokens.borderRadiusSm,
+          borderSide: const BorderSide(color: Color(0xFFC1232C), width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: scheme.error),
+          borderRadius: DTokens.borderRadiusSm,
+          borderSide: BorderSide(color: danger),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: isDark ? AppColors.tealLight : AppColors.tealPrimary,
-          foregroundColor: isDark ? AppColors.navyDark : AppColors.white,
-          disabledBackgroundColor: AppColors.grayLight.withValues(alpha: 0.3),
-          disabledForegroundColor: AppColors.grayLight,
+          backgroundColor: brand,
+          foregroundColor: isDark ? DColorsDark.background : DColorsLight.background,
+          disabledBackgroundColor: borderSoft,
+          disabledForegroundColor: onSurfaceMuted,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: isDark ? AppColors.tealLight : AppColors.tealPrimary,
-          side: BorderSide(color: isDark ? AppColors.tealLight.withValues(alpha: 0.3) : AppColors.tealPrimary.withValues(alpha: 0.3)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          foregroundColor: brand,
+          side: BorderSide(color: brand.withValues(alpha: 0.5)),
+          shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDark ? AppColors.darkElevated : AppColors.tealPrimary,
-          foregroundColor: AppColors.white,
-          elevation: 2,
-          shadowColor: AppColors.tealPrimary.withValues(alpha: 0.3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          backgroundColor: surfaceElevated,
+          foregroundColor: onSurface,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: isDark ? AppColors.tealLight : AppColors.tealPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          foregroundColor: brand,
+          shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.white,
+        backgroundColor: surfaceElevated,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusMd),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.white,
+        backgroundColor: surfaceElevated,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? AppColors.darkElevated : AppColors.navyDark,
-        contentTextStyle: const TextStyle(color: AppColors.white, fontWeight: FontWeight.w600),
-        actionTextColor: AppColors.tealLight,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        backgroundColor: onSurface,
+        contentTextStyle: TextStyle(color: background, fontWeight: FontWeight.w600),
+        actionTextColor: brand,
+        shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.white,
+        backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
-        elevation: isDark ? 0 : 8,
-        shadowColor: Colors.black.withValues(alpha: 0.08),
-        indicatorColor: AppColors.tealPrimary.withValues(alpha: 0.12),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        indicatorColor: brand.withValues(alpha: 0.15),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: isDark ? AppColors.tealLight : AppColors.tealPrimary);
+            return IconThemeData(color: brand);
           }
-          return IconThemeData(color: AppColors.grayMedium);
+          return IconThemeData(color: onSurfaceMuted);
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return TextStyle(fontWeight: FontWeight.w800, color: isDark ? AppColors.tealLight : AppColors.tealPrimary);
+            return TextStyle(fontWeight: FontWeight.w800, color: brand);
           }
-          return TextStyle(fontWeight: FontWeight.w500, color: AppColors.grayMedium);
+          return TextStyle(fontWeight: FontWeight.w500, color: onSurfaceMuted);
         }),
       ),
       tabBarTheme: TabBarThemeData(
-        indicatorColor: AppColors.tealPrimary,
-        labelColor: isDark ? AppColors.tealLight : AppColors.tealPrimary,
-        unselectedLabelColor: AppColors.grayMedium,
+        indicatorColor: brand,
+        labelColor: brand,
+        unselectedLabelColor: onSurfaceMuted,
         dividerColor: Colors.transparent,
         labelStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
-      segmentedButtonTheme: SegmentedButtonThemeData(
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return isDark ? AppColors.tealLight : AppColors.tealPrimary;
-            }
-            return Colors.transparent;
-          }),
-          foregroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return isDark ? AppColors.navyDark : AppColors.white;
-            }
-            return AppColors.grayMedium;
-          }),
-          side: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return BorderSide(color: AppColors.tealPrimary.withValues(alpha: 0.3));
-            }
-            return BorderSide(color: AppColors.grayLight);
-          }),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-        ),
-      ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.white;
-          return AppColors.grayLight;
+          if (states.contains(WidgetState.selected)) return background;
+          return onSurfaceMuted;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.tealPrimary;
-          return AppColors.grayVeryLight;
+          if (states.contains(WidgetState.selected)) return brand;
+          return borderSoft;
         }),
         trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
       ),
@@ -329,41 +291,42 @@ class AppTheme {
         thumbVisibility: const WidgetStatePropertyAll(true),
         trackVisibility: const WidgetStatePropertyAll(true),
         thickness: const WidgetStatePropertyAll(8),
-        radius: const Radius.circular(10),
+        radius: const Radius.circular(4),
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered)) return AppColors.tealPrimary;
-          return AppColors.tealPrimary.withValues(alpha: 0.6);
+          if (states.contains(WidgetState.hovered)) return brand;
+          return brand.withValues(alpha: 0.6);
         }),
-        trackColor: WidgetStatePropertyAll(isDark ? const Color(0xFF1E3352) : AppColors.grayVeryLight),
+        trackColor: WidgetStatePropertyAll(border),
         trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
         interactive: true,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: AppColors.tealPrimary,
-        linearTrackColor: isDark ? const Color(0xFF1E3352) : AppColors.grayVeryLight,
+        color: brand,
+        linearTrackColor: borderSoft,
       ),
       dividerTheme: DividerThemeData(
-        color: isDark ? const Color(0xFF1E3352) : AppColors.grayVeryLight,
+        color: border,
         thickness: 1,
         space: 0,
       ),
-      listTileTheme: ListTileThemeData(iconColor: AppColors.grayMedium),
+      listTileTheme: ListTileThemeData(iconColor: onSurfaceMuted),
       expansionTileTheme: ExpansionTileThemeData(
-        iconColor: AppColors.grayMedium,
-        collapsedIconColor: AppColors.grayMedium,
+        iconColor: onSurfaceMuted,
+        collapsedIconColor: onSurfaceMuted,
         shape: const Border(),
         collapsedShape: const Border(),
+        backgroundColor: surface,
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: isDark ? AppColors.darkCard : AppColors.white,
+        color: surfaceElevated,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(isDark ? AppColors.darkCard : AppColors.white),
+          backgroundColor: WidgetStatePropertyAll(surfaceElevated),
           surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm)),
         ),
       ),
     );
@@ -383,14 +346,13 @@ class _AppScrollBehavior extends MaterialScrollBehavior {
 
   @override
   Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
-    // سكرول دائم للويب + أسهم لوحة المفاتيح
     return Scrollbar(
       controller: details.controller,
       thumbVisibility: true,
       trackVisibility: true,
       interactive: true,
       thickness: 8,
-      radius: const Radius.circular(10),
+      radius: const Radius.circular(4),
       child: child,
     );
   }
