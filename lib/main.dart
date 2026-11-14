@@ -22,18 +22,19 @@ Future<void> main() async {
   } else {
     await Firebase.initializeApp();
   }
-  // Firebase App Check (reCAPTCHA Enterprise على الويب، Play Integrity/App Attest على الموبايل)
-  try {
-    await FirebaseAppCheck.instance.activate(
-      providerWeb: kIsWeb
-          ? ReCaptchaV3Provider('6Lf...') // استبدل بمفتاح reCAPTCHA v3 من Firebase Console
-          : null,
-      providerAndroid: const AndroidPlayIntegrityProvider(),
-      providerApple: const AppleDeviceCheckProvider(),
-    );
-  } catch (e) {
-    debugPrint('Firebase App Check init failed: $e');
-  }
+  // Firebase App Check (معطل مؤقتاً حتى إعداد مفتاح reCAPTCHA v3 من Firebase Console)
+  // لتفعيله: استبدل '6Lf...' بمفتاح حقيقي وأزل التعليق
+  // try {
+  //   await FirebaseAppCheck.instance.activate(
+  //     providerWeb: kIsWeb
+  //         ? ReCaptchaV3Provider('6Lf...') // استبدل بمفتاح reCAPTCHA v3 من Firebase Console
+  //         : null,
+  //     providerAndroid: const AndroidPlayIntegrityProvider(),
+  //     providerApple: const AppleDeviceCheckProvider(),
+  //   );
+  // } catch (e) {
+  //   debugPrint('Firebase App Check init failed: $e');
+  // }
   // Supabase لتخفيف ضغط Firebase (قراءات/كتابات/تخزين) — يبقى Firebase Auth هو المصدر
   try {
     await Supabase.initialize(
