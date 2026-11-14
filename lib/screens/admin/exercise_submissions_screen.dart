@@ -72,7 +72,11 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                   suffixIcon: _search.isNotEmpty
                       ? IconButton(icon: const Icon(Icons.clear_rounded), onPressed: () => setState(() { _search = ''; _searchCtrl.clear(); }))
                       : null,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: const Color(0xFF1E1E22),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2B2B30))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2B2B30))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.tealPrimary, width: 1.5)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
                 onChanged: (v) => setState(() => _search = v.trim().toLowerCase()),
@@ -87,12 +91,13 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                         final courses = snap.data ?? [];
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)),
+                          decoration: BoxDecoration(color: const Color(0xFF1E1E22), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF2B2B30))),
                           child: DropdownButton<String?>(
                             value: _filterCourseId,
                             isExpanded: true,
                             underline: const SizedBox(),
-                            hint: Text(t('filterByCourse')),
+                            dropdownColor: const Color(0xFF1E1E22),
+                            hint: Text(t('allLevels')),
                             items: [
                               DropdownMenuItem(value: null, child: Text(t('allLevels'))),
                               ...courses.map((c) => DropdownMenuItem(value: c.id, child: Text(c.title.getWithFallback(lang), overflow: TextOverflow.ellipsis))),
@@ -106,10 +111,11 @@ class _ExerciseSubmissionsScreenState extends State<ExerciseSubmissionsScreen> {
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)),
+                    decoration: BoxDecoration(color: const Color(0xFF1E1E22), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFF2B2B30))),
                     child: DropdownButton<String>(
                       value: _filterStatus,
                       underline: const SizedBox(),
+                      dropdownColor: const Color(0xFF1E1E22),
                       items: [
                         DropdownMenuItem(value: 'all', child: Text(t('allStatus'))),
                         DropdownMenuItem(value: 'pending', child: Text(t('pendingHomeworks'))),

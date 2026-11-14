@@ -96,7 +96,7 @@ class _HomeShellState extends State<HomeShell> {
             child: Image.asset('assets/logo.png', width: 20, height: 20, fit: BoxFit.cover),
           ),
           const SizedBox(width: 10),
-          Text('Tamer Academy', style: TextStyle(fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.navyText)),
+          Text(t('appName'), style: TextStyle(fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.navyText)),
         ],
       ),
       actions: [
@@ -147,7 +147,12 @@ class _HomeShellState extends State<HomeShell> {
           ),
         ),
         VerticalDivider(width: 1, color: isDark ? DColorsDark.border : DColorsLight.border),
-        Expanded(child: IndexedStack(index: _index, children: pages)),
+        Expanded(
+          child: ColoredBox(
+            color: isDark ? const Color(0xFF0B0B0D) : const Color(0xFFF4F1EA),
+            child: IndexedStack(index: _index, children: pages),
+          ),
+        ),
       ],
     );
   }

@@ -25,34 +25,50 @@ class AdminDashboard extends StatelessWidget {
     final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
     final t = l10n.t;
     final db = context.watch<DatabaseService>();
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25))),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: const BoxDecoration(
+              color: Color(0xFF17171A),
+              border: Border(
+                bottom: BorderSide(color: Color(0xFF252426)),
+                left: BorderSide(color: Color(0xFFC1232C), width: 3),
               ),
+            ),
             child: Row(children: [
-              Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.dashboard_rounded, size: 22, color: AppColors.warning)),
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: AppColors.goldPrimary.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.grid_view_rounded, size: 20, color: AppColors.goldPrimary),
+              ),
               const SizedBox(width: 12),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(t('admin'), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: isDark ? Colors.white : AppColors.navyText, decoration: TextDecoration.none)),
-                Text(l10n.isRtl ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة' : 'Full-screen dashboard — all in one page', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, decoration: TextDecoration.none)),
+                Text(t('admin'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.white, decoration: TextDecoration.none)),
+                Text(l10n.isRtl ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة' : 'Full-screen dashboard — all in one page', style: const TextStyle(fontSize: 11, color: Color(0xFF8A8578), decoration: TextDecoration.none)),
               ]),
               const Spacer(),
-              FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 18), label: Text(t('addCourse'))),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(t('addCourse'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFC1232C),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
             ]),
           ),
         ),
         SliverPadding(padding: const EdgeInsets.all(16), sliver: SliverToBoxAdapter(child: _StatsGrid(db: db))),
-        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverToBoxAdapter(
@@ -65,6 +81,8 @@ class AdminDashboard extends StatelessWidget {
             }),
           ),
         ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _RequestsPreview())),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -83,21 +101,21 @@ class _StatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, c) {
-      final count = c.maxWidth >= 1200 ? 6 : c.maxWidth > 700 ? 3 : 2;
+      final count = c.maxWidth >= 900 ? 6 : c.maxWidth > 600 ? 3 : 2;
       return GridView.count(
         crossAxisCount: count,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-         childAspectRatio: 2.8,
+        childAspectRatio: c.maxWidth >= 900 ? 2.3 : 2.7,
         children: [
-          _StatStreamCard(icon: Icons.menu_book_rounded, color: AppColors.tealPrimary, label: 'الكورسات', stream: db.coursesStream().map((l) => l.length)),
-          _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'التخصصات', stream: db.tracksStream().map((l) => l.length)),
-          _StatStreamCard(icon: Icons.group_rounded, color: AppColors.navyText, label: 'المستخدمون', stream: db.allUsersStream().map((l) => l.length)),
-          _StatStreamCard(icon: Icons.assignment_rounded, color: AppColors.warning, label: 'واجبات معلقة', stream: db.homeworkSubmissionsStream(status: 'pending').map((l) => l.length)),
-          _StatStreamCard(icon: Icons.edit_note_rounded, color: AppColors.success, label: 'تمارين معلقة', stream: db.exerciseSubmissionsStream(status: 'pending').map((l) => l.length)),
-          _StatStreamCard(icon: Icons.mark_email_read_rounded, color: AppColors.danger, label: 'طلبات معلقة', stream: db.accessRequestsStream().map((l) => l.where((r) => r.status == 'pending').length)),
+          _StatStreamCard(icon: Icons.menu_book_rounded, color: const Color(0xFFC1232C), label: 'الكورسات', stream: db.coursesStream().map((l) => l.length)),
+          _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'المسارات', stream: db.tracksStream().map((l) => l.length)),
+          _StatStreamCard(icon: Icons.group_rounded, color: Colors.white70, label: 'المستخدمون', stream: db.allUsersStream().map((l) => l.length)),
+          _StatStreamCard(icon: Icons.assignment_rounded, color: AppColors.goldPrimary, label: 'واجبات معلقة', stream: db.homeworkSubmissionsStream(status: 'pending').map((l) => l.length)),
+          _StatStreamCard(icon: Icons.edit_note_rounded, color: const Color(0xFF2BB673), label: 'تمارين معلقة', stream: db.exerciseSubmissionsStream(status: 'pending').map((l) => l.length)),
+          _StatStreamCard(icon: Icons.mark_email_unread_rounded, color: const Color(0xFFFF6A3D), label: 'طلبات معلقة', stream: db.accessRequestsStream().map((l) => l.where((r) => r.status == 'pending').length)),
         ],
       );
     });
@@ -112,18 +130,35 @@ class _StatStreamCard extends StatelessWidget {
   const _StatStreamCard({required this.icon, required this.color, required this.label, required this.stream});
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return StreamBuilder<int>(
       stream: stream,
       builder: (context, snap) {
         final count = snap.data ?? 0;
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF17171A),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF252426)),
+          ),
           child: Row(children: [
-            Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 22, color: color)),
-            const SizedBox(width: 10),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text('$count', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22)), Text(label, style: TextStyle(fontSize: 12, color: AppColors.grayMedium, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)])),
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(8)),
+              child: Icon(icon, size: 20, color: color),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('$count', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Colors.white, decoration: TextDecoration.none)),
+                  const SizedBox(height: 2),
+                  Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF8A8578), fontWeight: FontWeight.w600, decoration: TextDecoration.none), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
           ]),
         );
       },
@@ -134,13 +169,53 @@ class _StatStreamCard extends StatelessWidget {
 class _PendingHomeworkPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.assignment_rounded, size: 16, color: AppColors.warning)), const SizedBox(width: 8), const Text('واجبات بانتظار التصحيح', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HomeworkSubmissionsScreen())), child: const Text('عرض الكل'))])),
-        const Divider(height: 1),
-        SizedBox(height: 380, child: const HomeworkSubmissionsScreen()),
-      ]),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.goldPrimary.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.assignment_rounded, size: 16, color: AppColors.goldPrimary),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'واجبات بانتظار التصحيح',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white, decoration: TextDecoration.none),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HomeworkSubmissionsScreen())),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFE5384A),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('عرض الكل', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF17171A),
+            borderRadius: BorderRadius.circular(14),
+            border: const Border(
+              top: BorderSide(color: Color(0xFF252426)),
+              right: BorderSide(color: Color(0xFF252426)),
+              bottom: BorderSide(color: Color(0xFF252426)),
+              left: BorderSide(color: Color(0xFFC1232C), width: 3),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: const SizedBox(height: 480, child: HomeworkSubmissionsScreen()),
+        ),
+      ],
     );
   }
 }
@@ -148,13 +223,53 @@ class _PendingHomeworkPreview extends StatelessWidget {
 class _PendingExercisePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.edit_note_rounded, size: 16, color: AppColors.success)), const SizedBox(width: 8), const Text('تمارين بانتظار التصحيح', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ExerciseSubmissionsScreen())), child: const Text('عرض الكل'))])),
-        const Divider(height: 1),
-        SizedBox(height: 380, child: const ExerciseSubmissionsScreen()),
-      ]),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2BB673).withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.edit_note_rounded, size: 16, color: Color(0xFF2BB673)),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'تمارين بانتظار التصحيح',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white, decoration: TextDecoration.none),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ExerciseSubmissionsScreen())),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFE5384A),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('عرض الكل', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF17171A),
+            borderRadius: BorderRadius.circular(14),
+            border: const Border(
+              top: BorderSide(color: Color(0xFF252426)),
+              right: BorderSide(color: Color(0xFF252426)),
+              bottom: BorderSide(color: Color(0xFF252426)),
+              left: BorderSide(color: Color(0xFFC1232C), width: 3),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: const SizedBox(height: 480, child: ExerciseSubmissionsScreen()),
+        ),
+      ],
     );
   }
 }
@@ -163,11 +278,33 @@ class _RequestsPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: const Color(0xFF17171A),
+        borderRadius: BorderRadius.circular(14),
+        border: const Border(
+          top: BorderSide(color: Color(0xFF252426)),
+          right: BorderSide(color: Color(0xFF252426)),
+          bottom: BorderSide(color: Color(0xFF252426)),
+          left: BorderSide(color: Color(0xFFC1232C), width: 3),
+        ),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.danger.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.mark_email_read_rounded, size: 16, color: AppColors.danger)), const SizedBox(width: 8), const Text('طلبات الوصول', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RequestsScreen())), child: const Text('إدارة'))])),
-        const Divider(height: 1),
-        SizedBox(height: 320, child: const RequestsScreen()),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.danger.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.mark_email_read_rounded, size: 16, color: AppColors.danger)),
+            const SizedBox(width: 8),
+            const Text('طلبات الوصول', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white, decoration: TextDecoration.none)),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RequestsScreen())),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFE5384A)),
+              child: const Text('إدارة', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ]),
+        ),
+        const Divider(height: 1, color: Color(0xFF252426)),
+        const SizedBox(height: 320, child: RequestsScreen()),
       ]),
     );
   }
@@ -179,10 +316,32 @@ class _UsersPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: const Color(0xFF17171A),
+        borderRadius: BorderRadius.circular(14),
+        border: const Border(
+          top: BorderSide(color: Color(0xFF252426)),
+          right: BorderSide(color: Color(0xFF252426)),
+          bottom: BorderSide(color: Color(0xFF252426)),
+          left: BorderSide(color: Color(0xFFC1232C), width: 3),
+        ),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.navyText.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.group_rounded, size: 16, color: AppColors.navyText)), const SizedBox(width: 8), const Text('المستخدمون', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => UsersScreen(user: user))), child: const Text('إدارة'))])),
-        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.group_rounded, size: 16, color: Colors.white)),
+            const SizedBox(width: 8),
+            const Text('المستخدمون', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white, decoration: TextDecoration.none)),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => UsersScreen(user: user))),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFE5384A)),
+              child: const Text('إدارة', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ]),
+        ),
+        const Divider(height: 1, color: Color(0xFF252426)),
         SizedBox(height: 380, child: UsersScreen(user: user)),
       ]),
     );
@@ -196,10 +355,33 @@ class _CoursesPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final db = context.watch<DatabaseService>();
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: const Color(0xFF17171A),
+        borderRadius: BorderRadius.circular(14),
+        border: const Border(
+          top: BorderSide(color: Color(0xFF252426)),
+          right: BorderSide(color: Color(0xFF252426)),
+          bottom: BorderSide(color: Color(0xFF252426)),
+          left: BorderSide(color: Color(0xFFC1232C), width: 3),
+        ),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.tealPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.tealPrimary)), const SizedBox(width: 8), const Text('الكورسات', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 16), label: const Text('إضافة'))])),
-        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: const Color(0xFFC1232C).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.menu_book_rounded, size: 16, color: Color(0xFFC1232C))),
+            const SizedBox(width: 8),
+            const Text('الكورسات', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white, decoration: TextDecoration.none)),
+            const Spacer(),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())),
+              icon: const Icon(Icons.add_rounded, size: 16),
+              label: const Text('إضافة', style: TextStyle(fontWeight: FontWeight.w700)),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFC1232C), foregroundColor: Colors.white),
+            ),
+          ]),
+        ),
+        const Divider(height: 1, color: Color(0xFF252426)),
         StreamBuilder<List<Track>>(
           stream: db.tracksStream(),
           builder: (context, trackSnap) {
@@ -217,7 +399,7 @@ class _CoursesPreview extends StatelessWidget {
           stream: db.coursesStream(),
           builder: (context, snap) {
             final courses = snap.data ?? [];
-            if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات'));
+            if (courses.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد كورسات', style: TextStyle(color: Color(0xFF8A8578))));
             return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: courses.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
               final c = courses[i];
               final loc = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
@@ -235,7 +417,7 @@ class _CoursesPreview extends StatelessWidget {
                               : c.track;
               return ListTile(
                 dense: true,
-                title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Wrap(
@@ -272,7 +454,7 @@ class _CourseChip extends StatelessWidget {
   const _CourseChip({required this.label, this.color});
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.grayMedium;
+    final c = color ?? const Color(0xFF8A8578);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)),
@@ -287,23 +469,36 @@ class _TracksPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final db = context.watch<DatabaseService>();
-    final theme = Theme.of(context);
     final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
     final t = l10n.t;
     return Container(
-      decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: const Color(0xFF17171A),
+        borderRadius: BorderRadius.circular(14),
+        border: const Border(
+          top: BorderSide(color: Color(0xFF252426)),
+          right: BorderSide(color: Color(0xFF252426)),
+          bottom: BorderSide(color: Color(0xFF252426)),
+          left: BorderSide(color: Color(0xFFC1232C), width: 3),
+        ),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
           padding: const EdgeInsets.all(14),
           child: Row(children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.category_rounded, size: 16, color: AppColors.goldPrimary)),
             const SizedBox(width: 8),
-            Text(t('tracks'), style: const TextStyle(fontWeight: FontWeight.w800, decoration: TextDecoration.none)),
+            Text(t('tracks'), style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white, decoration: TextDecoration.none)),
             const Spacer(),
-            FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())), icon: const Icon(Icons.add_rounded, size: 16), label: Text(t('addTrack'))),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())),
+              icon: const Icon(Icons.add_rounded, size: 16),
+              label: Text(t('addTrack'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFC1232C), foregroundColor: Colors.white),
+            ),
           ]),
         ),
-        const Divider(height: 1),
+        const Divider(height: 1, color: Color(0xFF252426)),
         StreamBuilder<List<Track>>(
           stream: db.tracksStream(),
           builder: (context, snap) {
@@ -312,7 +507,7 @@ class _TracksPreview extends StatelessWidget {
             }
             final tracks = snap.data ?? [];
             if (tracks.isEmpty) {
-              return Padding(padding: const EdgeInsets.all(20), child: Text(t('noTracks'), style: const TextStyle(decoration: TextDecoration.none)));
+              return Padding(padding: const EdgeInsets.all(20), child: Text(t('noTracks'), style: const TextStyle(color: Color(0xFF8A8578), decoration: TextDecoration.none)));
             }
             return ListView.separated(
               shrinkWrap: true,
@@ -328,7 +523,7 @@ class _TracksPreview extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                    border: Border.all(color: const Color(0xFF2D2C2E)),
                   ),
                   child: Row(children: [
                     Container(
@@ -340,7 +535,7 @@ class _TracksPreview extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(name.isNotEmpty ? name : tr.id, style: const TextStyle(fontWeight: FontWeight.w700, decoration: TextDecoration.none)),
+                        Text(name.isNotEmpty ? name : tr.id, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white, decoration: TextDecoration.none)),
                         const SizedBox(height: 2),
                         Text(
                           tr.published ? t('published') : t('draft'),

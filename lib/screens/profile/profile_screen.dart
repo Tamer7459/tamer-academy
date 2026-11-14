@@ -7,11 +7,9 @@ import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/exercise_submission.dart';
 import '../../models/homework_submission.dart';
-import '../../models/track.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 import '../../state/app_state.dart';
-import '../admin/track_edit_screen.dart';
 import '../homeworks/my_homeworks_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -44,17 +42,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
     final t = l10n.t;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final state = context.watch<AppState>();
     final db = context.watch<DatabaseService>();
     final isAdmin = widget.user.isAdmin;
     final viewed = _viewedUser ?? widget.user;
     final isSelf = _selectedUid == widget.user.uid;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1040),
-        child: ListView(
-          padding: _pagePadding,
+    return ColoredBox(
+      color: isDark ? const Color(0xFF0B0B0D) : const Color(0xFFF4F1EA),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040),
+          child: ListView(
+            padding: _pagePadding,
           children: [
             // ═══ Admin: اختيار أي حساب ═══
             if (isAdmin) ...[
@@ -62,12 +63,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 tint: AppColors.warning,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
-                    _IconBadge(icon: Icons.admin_panel_settings_rounded, color: AppColors.tealPrimary, size: 18),
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: AppColors.goldPrimary.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: const Icon(Icons.manage_accounts_rounded, color: AppColors.goldPrimary, size: 18),
+                    ),
                     const SizedBox(width: 10),
-                    const Text('عرض حساب آخر', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, decoration: TextDecoration.none)),
+                    const Text('عرض حساب آخر', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white, decoration: TextDecoration.none)),
                     const Spacer(),
                     if (!isSelf)
-                      TextButton(onPressed: () => setState(() { _viewedUser = widget.user; _selectedUid = widget.user.uid; }), child: const Text('العودة لحسابي')),
+                      TextButton(
+                        onPressed: () => setState(() { _viewedUser = widget.user; _selectedUid = widget.user.uid; }),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.goldPrimary),
+                        child: const Text('العودة لحسابي'),
+                      ),
                   ]),
                   const SizedBox(height: 12),
                   StreamBuilder<List<AppUser>>(
@@ -80,14 +92,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         isExpanded: true,
                         decoration: InputDecoration(
                           labelText: 'اختر حساباً',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.outlineVariant)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.outlineVariant)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.tealPrimary, width: 1.5)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2D2C2E))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF2D2C2E))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.goldPrimary, width: 1.5)),
                           filled: true,
-                          fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                          fillColor: const Color(0xFF141416),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
-                        items: users.map((u) => DropdownMenuItem(value: u.uid, child: Text('${u.name} — ${u.email} ${u.isAdmin ? "(أدمن)" : ""}', overflow: TextOverflow.ellipsis))).toList(),
+                        items: users.map((u) => DropdownMenuItem(value: u.uid, child: Text('${u.name} — ${u.email} ${u.isAdmin ? "(أدمن)" : ""}', style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis))).toList(),
                         onChanged: (uid) {
                           if (uid == null) return;
                           final found = users.firstWhere((x) => x.uid == uid, orElse: () => widget.user);
@@ -96,21 +108,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Row(children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _editUserDialog(viewed),
-                        icon: const Icon(Icons.edit_rounded, size: 17),
-                        label: const Text('تعديل هذا الحساب', style: TextStyle(fontSize: 13)),
+                        icon: const Icon(Icons.edit_rounded, size: 16, color: Color(0xFFE5384A)),
+                        label: const Text('تعديل هذا الحساب', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFE5384A))),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: const Color(0xFF17171A),
+                          side: const BorderSide(color: Color(0xFF2D2C2E)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: FilledButton.icon(
                         onPressed: () => _previewAsUser(viewed),
-                        icon: const Icon(Icons.visibility_rounded, size: 17),
-                        label: const Text('الدخول كطالب', style: TextStyle(fontSize: 13)),
+                        icon: const Icon(Icons.visibility_rounded, size: 16, color: Colors.white),
+                        label: const Text('الدخول كطالب', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFFC1232C),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                        ),
                       ),
                     ),
                   ]),
@@ -121,41 +145,175 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // ═══ Profile Header ═══
             _Card(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppColors.tealPrimary, AppColors.tealLight]), shape: BoxShape.circle),
+                    padding: const EdgeInsets.all(2.5),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFC1232C), width: 2.5),
+                    ),
                     child: CircleAvatar(
-                      radius: 27,
-                      backgroundColor: theme.colorScheme.surface,
+                      radius: 30,
+                      backgroundColor: const Color(0xFF17171A),
                       backgroundImage: viewed.photoUrl.isNotEmpty ? NetworkImage(viewed.photoUrl) : null,
                       child: viewed.photoUrl.isEmpty
-                          ? Text(viewed.name.trim().isEmpty ? '?' : viewed.name.trim()[0].toUpperCase(), style: const TextStyle(color: AppColors.tealPrimary, fontSize: 22, fontWeight: FontWeight.w900))
+                          ? Text(
+                              viewed.name.trim().isEmpty ? '?' : viewed.name.trim()[0].toUpperCase(),
+                              style: const TextStyle(color: Color(0xFFC1232C), fontSize: 26, fontWeight: FontWeight.w900),
+                            )
                           : null,
                     ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(viewed.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, decoration: TextDecoration.none)),
-                      const SizedBox(height: 2),
-                      Text(viewed.email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.grayMedium, fontSize: 12.5, decoration: TextDecoration.none)),
+                      Text(
+                        viewed.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white, decoration: TextDecoration.none),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        viewed.email,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Color(0xFF8A8578), fontSize: 13, decoration: TextDecoration.none),
+                      ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(color: (viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(100)),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                        decoration: BoxDecoration(
+                          color: (viewed.isAdmin ? AppColors.goldPrimary : const Color(0xFFC1232C)).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(100),
+                          border: Border.all(
+                            color: (viewed.isAdmin ? AppColors.goldPrimary : const Color(0xFFC1232C)).withValues(alpha: 0.35),
+                          ),
+                        ),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(viewed.isAdmin ? Icons.admin_panel_settings_rounded : Icons.school_rounded, size: 13, color: viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary),
+                          Icon(
+                            viewed.isAdmin ? Icons.military_tech_rounded : Icons.school_rounded,
+                            size: 13,
+                            color: viewed.isAdmin ? AppColors.goldPrimary : const Color(0xFFC1232C),
+                          ),
                           const SizedBox(width: 5),
-                          Text(viewed.isAdmin ? t('adminRole') : t('student'), style: TextStyle(color: viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary, fontWeight: FontWeight.w700, fontSize: 11, decoration: TextDecoration.none)),
+                          Text(
+                            viewed.isAdmin ? t('adminRole') : t('student'),
+                            style: TextStyle(
+                              color: viewed.isAdmin ? AppColors.goldPrimary : const Color(0xFFC1232C),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
                         ]),
                       ),
                     ]),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 14),
+
+            // ═══ التقدم (مكتمل / تمارين محلولة) ═══
+            StreamBuilder<Map<String, dynamic>>(
+              stream: db.progressStream(viewed.uid),
+              builder: (context, snap) {
+                final data = snap.data ?? {};
+                final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
+                var totalCompleted = 0;
+                var totalAnswered = 0;
+                courses.forEach((_, v) {
+                  final m = Map<String, dynamic>.from(v as Map? ?? {});
+                  totalCompleted += ((m['completed'] as List?)?.length ?? 0);
+                  totalAnswered += ((m['answered'] as List?)?.length ?? 0);
+                });
+                return Row(
+                  children: [
+                    // Card 1 (Right in RTL): Completed (مكتمل)
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF17171A),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFF2D2C2E)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFC1232C).withValues(alpha: 0.14),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFFC1232C)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '$totalCompleted',
+                              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFFC1232C), decoration: TextDecoration.none),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t('completed'),
+                              style: const TextStyle(fontSize: 12.5, color: Color(0xFF8A8578), fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Card 2 (Left in RTL): Solved Exercises (تمارين محلولة)
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF17171A),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFF2D2C2E)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.goldPrimary.withValues(alpha: 0.14),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.quiz_rounded, size: 16, color: AppColors.goldPrimary),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '$totalAnswered',
+                              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: AppColors.goldPrimary, decoration: TextDecoration.none),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t('exercisesSolved'),
+                              style: const TextStyle(fontSize: 12.5, color: Color(0xFF8A8578), fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
 
@@ -176,51 +334,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final count = hwReviewed.length + exReviewed.length;
                     final avg = count == 0 ? null : total / count;
 
-                    return _Section(
-                      title: 'مجموع النقاط',
-                      icon: Icons.star_rounded,
-                      iconColor: AppColors.goldPrimary,
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(100)),
-                        child: Text('${_num(total)} نقطة', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.goldPrimary, fontSize: 12, decoration: TextDecoration.none)),
-                      ),
-                      child: Row(children: [
-                        Expanded(child: _ScoreTile(label: 'المعدل', value: avg == null ? '—' : _num(avg), sub: '$count تقييم', color: AppColors.goldPrimary)),
-                        const SizedBox(width: 8),
-                        Expanded(child: _ScoreTile(label: 'تمارين مصححة', value: '${exReviewed.length}', sub: '${_num(totalEx)} ن', color: AppColors.success)),
-                        const SizedBox(width: 8),
-                        Expanded(child: _ScoreTile(label: 'واجبات مصححة', value: '${hwReviewed.length}', sub: '${_num(totalHw)} ن', color: AppColors.tealLight)),
-                      ]),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 20, color: AppColors.goldPrimary),
+                            const SizedBox(width: 8),
+                            const Text('مجموع النقاط', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5, color: Colors.white, decoration: TextDecoration.none)),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.goldPrimary.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.45)),
+                              ),
+                              child: Text('${_num(total)} نقطة', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.goldPrimary, fontSize: 12, decoration: TextDecoration.none)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(children: [
+                          Expanded(child: _ScoreTile(label: 'واجبات مصححة', value: '${hwReviewed.length}', sub: '${_num(totalHw)} ن', color: const Color(0xFFC1232C), bgTint: const Color(0xFF201618))),
+                          const SizedBox(width: 8),
+                          Expanded(child: _ScoreTile(label: 'تمارين مصححة', value: '${exReviewed.length}', sub: '${_num(totalEx)} ن', color: const Color(0xFF2BB673), bgTint: const Color(0xFF14221D))),
+                          const SizedBox(width: 8),
+                          Expanded(child: _ScoreTile(label: 'المعدل', value: avg == null ? '-' : _num(avg), sub: '$count تقييم', color: AppColors.goldPrimary, bgTint: const Color(0xFF221E15))),
+                        ]),
+                      ],
                     );
                   },
-                );
-              },
-            ),
-            const SizedBox(height: 14),
-
-            // ═══ التقدم ═══
-            StreamBuilder<Map<String, dynamic>>(
-              stream: db.progressStream(viewed.uid),
-              builder: (context, snap) {
-                final data = snap.data ?? {};
-                final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
-                var totalCompleted = 0;
-                var totalAnswered = 0;
-                courses.forEach((_, v) {
-                  final m = Map<String, dynamic>.from(v as Map? ?? {});
-                  totalCompleted += ((m['completed'] as List?)?.length ?? 0);
-                  totalAnswered += ((m['answered'] as List?)?.length ?? 0);
-                });
-                return _Section(
-                  title: t('yourProgress'),
-                  icon: Icons.check_circle_rounded,
-                  iconColor: AppColors.danger,
-                  child: Row(children: [
-                    Expanded(child: _ScoreTile(label: t('completed'), value: '$totalCompleted', sub: '', color: AppColors.danger)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _ScoreTile(label: t('exercisesSolved'), value: '$totalAnswered', sub: '', color: AppColors.goldPrimary)),
-                  ]),
                 );
               },
             ),
@@ -232,41 +376,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
               builder: (context, snap) {
                 final all = snap.data ?? [];
                 final myCourses = all.where((c) => viewed.accessCourses.contains(c.id)).toList();
-                return _Section(
-                  title: 'الدورات (${myCourses.length})',
-                  icon: Icons.menu_book_rounded,
-                  iconColor: AppColors.tealLight,
-                  trailing: isAdmin
-                      ? TextButton(
-                          onPressed: () => _manageCoursesDialog(viewed),
-                          style: TextButton.styleFrom(foregroundColor: AppColors.tealLight, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                          child: const Text('إدارة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                        )
-                      : null,
-                  child: myCourses.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text('لا يملك أي دورة', style: TextStyle(color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none)),
-                        )
-                      : Column(
-                          children: myCourses.map((c) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)), borderRadius: BorderRadius.circular(10)),
-                                  child: Row(children: [
-                                    Container(width: 34, height: 34, decoration: BoxDecoration(color: AppColors.tealPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: Icon(c.track == 'web' ? Icons.language_rounded : Icons.smartphone_rounded, size: 17, color: AppColors.tealPrimary)),
-                                    const SizedBox(width: 10),
-                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                      Text(c.title.getWithFallback(l10n.languageCode), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                                      Text(c.track, style: const TextStyle(fontSize: 11, color: AppColors.grayMedium)),
-                                    ])),
-                                    if (c.isFree)
-                                      Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)), child: const Text('مجاني', style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w700))),
-                                  ]),
-                                ),
-                              )).toList(),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.menu_book_rounded, size: 18, color: Color(0xFFC1232C)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'الدورات (${myCourses.length})',
+                          style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: Colors.white, decoration: TextDecoration.none),
                         ),
+                        const Spacer(),
+                        if (isAdmin)
+                          TextButton(
+                            onPressed: () => _manageCoursesDialog(viewed),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFFC1232C),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              minimumSize: const Size(0, 32),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text('إدارة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _Card(
+                      padding: const EdgeInsets.all(16),
+                      child: myCourses.isEmpty
+                          ? SizedBox(
+                              width: double.infinity,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Text('لا يملك أي دورة', style: const TextStyle(color: Color(0xFF8A8578), fontSize: 13, decoration: TextDecoration.none)),
+                              ),
+                            )
+                          : Column(
+                              children: myCourses.map((c) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFF2D2C2E)), borderRadius: BorderRadius.circular(10)),
+                                      child: Row(children: [
+                                        Container(width: 34, height: 34, decoration: BoxDecoration(color: const Color(0xFFC1232C).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: Icon(c.track == 'web' ? Icons.language_rounded : Icons.smartphone_rounded, size: 17, color: const Color(0xFFC1232C))),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                          Text(c.title.getWithFallback(l10n.languageCode), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white)),
+                                          Text(c.track, style: const TextStyle(fontSize: 11, color: Color(0xFF8A8578))),
+                                        ])),
+                                        if (c.isFree)
+                                          Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2), decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(100)), child: const Text('مجاني', style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w700))),
+                                      ]),
+                                    ),
+                                  )).toList(),
+                            ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -317,113 +483,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
 
-            // ═══ التخصصات (للأدمن) ═══
-            if (isAdmin) ...[
-              const SizedBox(height: 14),
-              _Section(
-                title: t('tracks'),
-                icon: Icons.category_rounded,
-                iconColor: AppColors.goldPrimary,
-                trailing: TextButton.icon(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.tealLight, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  icon: const Icon(Icons.add_rounded, size: 16),
-                  label: const Text('إضافة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                ),
-                child: StreamBuilder<List<Track>>(
-                  stream: db.tracksStream(),
-                  builder: (context, snap) {
-                    if (snap.hasError) {
-                      return Text('تعذر تحميل التخصصات', style: TextStyle(color: AppColors.danger, fontSize: 13, decoration: TextDecoration.none));
-                    }
-                    final tracks = snap.data ?? [];
-                    if (tracks.isEmpty) {
-                      return Text(t('noTracks'), style: const TextStyle(color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none));
-                    }
-                    return Column(
-                      children: tracks.map((tr) {
-                        final color = Color(tr.color);
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(children: [
-                              Container(
-                                width: 34,
-                                height: 34,
-                                decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(8)),
-                                child: Icon(Icons.category_rounded, size: 17, color: color),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                  Text(tr.name.getWithFallback(l10n.languageCode), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, decoration: TextDecoration.none)),
-                                  Text(
-                                    tr.published ? t('published') : t('draft'),
-                                    style: TextStyle(fontSize: 11, color: tr.published ? AppColors.success : AppColors.warning, decoration: TextDecoration.none),
-                                  ),
-                                ]),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.edit_rounded, size: 18),
-                                tooltip: t('editTrack'),
-                                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr))),
-                              ),
-                            ]),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ),
-            ],
-
             // ═══ الإعدادات ═══
             if (isSelf) ...[
               const SizedBox(height: 24),
-              Text(t('settings'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, decoration: TextDecoration.none, decorationColor: Colors.transparent)),
+              Text(
+                t('settings'),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white, decoration: TextDecoration.none),
+              ),
               const SizedBox(height: 12),
               _Card(
                 padding: EdgeInsets.zero,
-                child: Column(children: [
-                  ListTile(
-                    leading: _IconBadge(icon: Icons.language_rounded, color: AppColors.tealPrimary),
-                    title: Text(t('language'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
-                    trailing: PopupMenuButton<String>(
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text(
-                          state.locale.languageCode == 'ar' ? t('arabic') : state.locale.languageCode == 'fr' ? t('french') : t('english'),
-                          style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none),
-                        ),
-                        const Icon(Icons.expand_more_rounded, size: 20, color: AppColors.grayMedium),
-                      ]),
+                child: Column(
+                  children: [
+                    // Language item
+                    PopupMenuButton<String>(
+                      tooltip: t('language'),
                       onSelected: (code) => context.read<AppState>().setLanguage(code),
                       itemBuilder: (_) => [
                         PopupMenuItem(value: 'ar', child: Text(t('arabic'))),
                         PopupMenuItem(value: 'en', child: Text(t('english'))),
                         PopupMenuItem(value: 'fr', child: Text(t('french'))),
                       ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        child: Row(
+                          children: [
+                            _IconBadge(icon: Icons.language_rounded, color: const Color(0xFFC1232C)),
+                            const SizedBox(width: 12),
+                            Text(
+                              t('language'),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white, decoration: TextDecoration.none),
+                            ),
+                            const Spacer(),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.arrow_drop_down_rounded, size: 20, color: Color(0xFF8A8578)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  state.locale.languageCode == 'ar'
+                                      ? t('arabic')
+                                      : state.locale.languageCode == 'fr'
+                                          ? t('french')
+                                          : t('english'),
+                                  style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFE5384A), fontSize: 13, decoration: TextDecoration.none),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
-                  SwitchListTile(
-                    secondary: _IconBadge(icon: state.themeMode == ThemeMode.dark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: AppColors.goldPrimary),
-                    title: Text(state.themeMode == ThemeMode.dark ? t('darkMode') : t('lightMode'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
-                    value: state.themeMode == ThemeMode.dark,
-                    onChanged: (_) => context.read<AppState>().toggleTheme(),
-                  ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
-                  ListTile(
-                    leading: _IconBadge(icon: Icons.logout_rounded, color: AppColors.tealLight),
-                    title: Text(t('logout'), style: const TextStyle(color: AppColors.tealLight, fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
-                    onTap: () async => await context.read<AuthService>().logout(),
-                  ),
-                ]),
+                    const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFF252426)),
+                    // Dark Mode item
+                    InkWell(
+                      onTap: () => context.read<AppState>().toggleTheme(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        child: Row(
+                          children: [
+                            _IconBadge(icon: Icons.dark_mode_rounded, color: AppColors.goldPrimary),
+                            const SizedBox(width: 12),
+                            Text(
+                              state.themeMode == ThemeMode.dark ? t('darkMode') : t('lightMode'),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white, decoration: TextDecoration.none),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: state.themeMode == ThemeMode.dark,
+                              onChanged: (_) => context.read<AppState>().toggleTheme(),
+                              activeTrackColor: const Color(0xFFC1232C),
+                              activeThumbColor: const Color(0xFF0B0B0D),
+                              inactiveThumbColor: const Color(0xFF6B6760),
+                              inactiveTrackColor: const Color(0xFF1E1E22),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFF252426)),
+                    // Logout item
+                    InkWell(
+                      onTap: () async => await context.read<AuthService>().logout(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.logout_rounded, color: Color(0xFFE5384A), size: 20),
+                            const SizedBox(width: 12),
+                            Text(
+                              t('logout'),
+                              style: const TextStyle(color: Color(0xFFE5384A), fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
 
@@ -433,6 +590,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -583,14 +741,27 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: padding,
       decoration: BoxDecoration(
-        color: tint == null ? theme.colorScheme.surface : tint!.withValues(alpha: 0.05),
+        color: tint == null
+            ? (isDark ? const Color(0xFF17171A) : theme.colorScheme.surface)
+            : tint!.withValues(alpha: isDark ? 0.08 : 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: tint == null ? theme.colorScheme.outlineVariant : tint!.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: tint == null
+              ? (isDark ? const Color(0xFF2D2C2E) : theme.colorScheme.outlineVariant)
+              : tint!.withValues(alpha: 0.25),
+        ),
       ),
-      child: child,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
+      ),
     );
   }
 }
@@ -601,26 +772,35 @@ class _ScoreTile extends StatelessWidget {
   final String value;
   final String sub;
   final Color color;
+  final Color? bgTint;
 
-  const _ScoreTile({required this.label, required this.value, required this.sub, required this.color});
+  const _ScoreTile({
+    required this.label,
+    required this.value,
+    required this.sub,
+    required this.color,
+    this.bgTint,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
+        color: bgTint ?? color.withValues(alpha: isDark ? 0.08 : 0.05),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Column(
         children: [
-          Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grayMedium, decoration: TextDecoration.none)),
-          const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: color, decoration: TextDecoration.none)),
+          Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF8A8578), decoration: TextDecoration.none)),
+          const SizedBox(height: 6),
+          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color, decoration: TextDecoration.none)),
           if (sub.isNotEmpty) ...[
             const SizedBox(height: 2),
-            Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.grayMedium, decoration: TextDecoration.none)),
+            Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF8A8578), decoration: TextDecoration.none)),
           ],
         ],
       ),
