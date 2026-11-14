@@ -26,132 +26,137 @@ class AdminDashboard extends StatelessWidget {
     final t = l10n.t;
     final db = context.watch<DatabaseService>();
 
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            decoration: const BoxDecoration(
-              color: Color(0xFF17171A),
-              border: Border(
-                bottom: BorderSide(color: Color(0xFF252426)),
-                left: BorderSide(color: Color(0xFFC1232C), width: 3),
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.0,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: const BoxDecoration(
+                color: Color(0xFF17171A),
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFF252426)),
+                  left: BorderSide(color: Color(0xFFC1232C), width: 3),
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: AppColors.goldPrimary.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.grid_view_rounded,
-                    size: 20,
-                    color: AppColors.goldPrimary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t('admin'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: Colors.white,
-                        decoration: TextDecoration.none,
-                      ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldPrimary.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    Text(
-                      l10n.isRtl
-                          ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة'
-                          : 'Full-screen dashboard — all in one page',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF8A8578),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                FilledButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CourseEditScreen()),
-                  ),
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: Text(
-                    t('addCourse'),
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFC1232C),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                    child: const Icon(
+                      Icons.grid_view_rounded,
+                      size: 20,
+                      color: AppColors.goldPrimary,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverToBoxAdapter(child: _StatsGrid(db: db)),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverToBoxAdapter(
-            child: LayoutBuilder(
-              builder: (context, c) {
-                final wide = c.maxWidth >= Breakpoints.medium;
-                final hw = _PendingHomeworkPreview();
-                final ex = _PendingExercisePreview();
-                if (wide)
-                  return Row(
+                  const SizedBox(width: 12),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: hw),
-                      const SizedBox(width: 16),
-                      Expanded(child: ex),
+                      Text(
+                        t('admin'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      Text(
+                        l10n.isRtl
+                            ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة'
+                            : 'Full-screen dashboard — all in one page',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF8A8578),
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
                     ],
-                  );
-                return Column(children: [hw, const SizedBox(height: 16), ex]);
-              },
+                  ),
+                  const Spacer(),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CourseEditScreen(),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: Text(
+                      t('addCourse'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFC1232C),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverToBoxAdapter(child: _RequestsPreview()),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverToBoxAdapter(child: _UsersPreview(user: user)),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverToBoxAdapter(child: _CoursesPreview(user: user)),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverToBoxAdapter(child: _TracksPreview(user: user)),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-      ],
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverToBoxAdapter(child: _StatsGrid(db: db)),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final wide = c.maxWidth >= Breakpoints.medium;
+                  final hw = _PendingHomeworkPreview();
+                  final ex = _PendingExercisePreview();
+                  if (wide)
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: hw),
+                        const SizedBox(width: 16),
+                        Expanded(child: ex),
+                      ],
+                    );
+                  return Column(children: [hw, const SizedBox(height: 16), ex]);
+                },
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(child: _RequestsPreview()),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(child: _UsersPreview(user: user)),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(child: _CoursesPreview(user: user)),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(child: _TracksPreview(user: user)),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
+      ),
     );
   }
 }
