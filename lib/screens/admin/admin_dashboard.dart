@@ -31,19 +31,19 @@ class AdminDashboard extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2))),
-            ),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25))),
+              ),
             child: Row(children: [
               Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.warning.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.dashboard_rounded, size: 22, color: AppColors.warning)),
               const SizedBox(width: 12),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(t('admin'), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: isDark ? Colors.white : AppColors.navyText)),
-                Text(l10n.isRtl ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة' : 'Full-screen dashboard — all in one page', style: TextStyle(fontSize: 12, color: AppColors.grayMedium)),
+                Text(t('admin'), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: isDark ? Colors.white : AppColors.navyText, decoration: TextDecoration.none)),
+                Text(l10n.isRtl ? 'لوحة تحكم شاملة — كل شيء في صفحة واحدة' : 'Full-screen dashboard — all in one page', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, decoration: TextDecoration.none)),
               ]),
               const Spacer(),
               FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 18), label: Text(t('addCourse'))),
@@ -90,7 +90,7 @@ class _StatsGrid extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 2.4,
+         childAspectRatio: 2.8,
         children: [
           _StatStreamCard(icon: Icons.menu_book_rounded, color: AppColors.tealPrimary, label: 'الكورسات', stream: db.coursesStream().map((l) => l.length)),
           _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'المسارات', stream: db.tracksStream().map((l) => l.length)),
