@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
+import '../../core/design_tokens.dart';
 import '../../models/app_user.dart';
 import '../../state/app_state.dart';
 import '../../models/course.dart';
@@ -116,11 +117,14 @@ class _LessonScreenState extends State<LessonScreen> {
           initialIndex: visibleTab,
           child: Scaffold(
           appBar: AppBar(
-            title: Text(
-              lesson.title.getWithFallback(lang),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            title: Directionality(
+              textDirection: lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+              child: Text(
+                lesson.title.getWithFallback(lang),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             actions: [
               Consumer<AppState>(
@@ -338,9 +342,14 @@ class _LessonScreenState extends State<LessonScreen> {
         tabs: tabs,
         onTap: (i) => setState(() => _tab = i),
         dividerColor: Theme.of(context).colorScheme.surface,
-        // stretch remaining tabs when some are hidden
         isScrollable: false,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+        indicator: BoxDecoration(
+          color: const Color(0xFFC1232C),
+          borderRadius: DTokens.borderRadiusSm,
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        indicatorPadding: const EdgeInsets.symmetric(horizontal: -4, vertical: 4),
       ),
     );
   }
