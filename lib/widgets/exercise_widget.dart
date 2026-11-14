@@ -6,8 +6,10 @@ import '../core/app_theme.dart';
 import '../models/app_user.dart';
 import '../models/course.dart';
 import '../models/exercise_submission.dart';
+import '../models/file_attachment.dart';
 import '../models/lesson.dart';
 import '../services/database_service.dart';
+import 'file_upload_widget.dart';
 import 'lesson_content_renderer.dart';
 
 class ExerciseWidget extends StatefulWidget {
@@ -36,6 +38,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
   int? _selected;
   bool _showSolution = false;
   bool _sending = false;
+  List<FileAttachment> _attachments = const [];
   late final TextEditingController _answerController = TextEditingController();
 
   @override
@@ -74,6 +77,7 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
         lessonId: widget.lesson.id,
         lessonTitle: widget.lesson.title.getWithFallback(lang),
         answerText: answerText,
+        attachments: _attachments,
         selectedOptionIndex: _selected,
         isCorrect: isCorrect,
         status: 'pending',
@@ -182,6 +186,12 @@ class _ExerciseWidgetState extends State<ExerciseWidget> {
                   const SizedBox(height: 8),
                   Text(t('exerciseHint'), style: TextStyle(fontSize: 12, color: AppColors.grayMedium, fontStyle: FontStyle.italic)),
                 ],
+                const SizedBox(height: 12),
+                FileUploadWidget(
+                  assignmentId: '_',
+                  onAttachmentsChanged: (atts) => _attachments = atts,
+                  initialAttachments: _attachments,
+                ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,

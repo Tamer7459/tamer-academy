@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'file_attachment.dart';
+
 class ExerciseSubmission {
   final String id;
   final String userId;
@@ -10,6 +12,7 @@ class ExerciseSubmission {
   final String lessonId;
   final String lessonTitle;
   final String answerText;
+  final List<FileAttachment> attachments;
   final int? selectedOptionIndex;
   final bool isCorrect;
   final String status; // pending | reviewed
@@ -29,6 +32,7 @@ class ExerciseSubmission {
     required this.lessonId,
     required this.lessonTitle,
     required this.answerText,
+    this.attachments = const [],
     this.selectedOptionIndex,
     this.isCorrect = false,
     this.status = 'pending',
@@ -59,6 +63,10 @@ class ExerciseSubmission {
       lessonId: map['lessonId'] as String? ?? '',
       lessonTitle: map['lessonTitle'] as String? ?? '',
       answerText: map['answerText'] as String? ?? '',
+      attachments: (map['attachments'] as List?)
+              ?.map((e) => FileAttachment.fromMap(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const [],
       selectedOptionIndex: (map['selectedOptionIndex'] as num?)?.toInt(),
       isCorrect: map['isCorrect'] as bool? ?? false,
       status: map['status'] as String? ?? 'pending',
@@ -84,6 +92,7 @@ class ExerciseSubmission {
       'lessonId': lessonId,
       'lessonTitle': lessonTitle,
       'answerText': answerText,
+      'attachments': attachments.map((a) => a.toMap()).toList(),
       'selectedOptionIndex': selectedOptionIndex,
       'isCorrect': isCorrect,
       'status': status,

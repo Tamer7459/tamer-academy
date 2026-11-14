@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../core/app_localizations.dart';
 import '../core/app_theme.dart';
 import '../models/course.dart';
+import '../models/file_attachment.dart';
 import '../models/homework_submission.dart';
 import '../models/lesson.dart';
 import '../services/database_service.dart';
+import 'file_upload_widget.dart';
 import 'lesson_content_renderer.dart';
 
 class HomeworkWidget extends StatefulWidget {
@@ -34,6 +36,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
   final _ctrl = TextEditingController();
   bool _sending = false;
   bool _showSolution = false;
+  List<FileAttachment> _attachments = const [];
 
   @override
   void dispose() {
@@ -63,6 +66,7 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
         lessonId: widget.lesson.id,
         lessonTitle: widget.lesson.title.getWithFallback(lang),
         codeAnswer: code,
+        attachments: _attachments,
         status: 'pending',
         createdAt: DateTime.now(),
       );
@@ -388,6 +392,12 @@ class _HomeworkWidgetState extends State<HomeworkWidget> {
             filled: true,
             fillColor: theme.colorScheme.surface,
           ),
+        ),
+        const SizedBox(height: 12),
+        FileUploadWidget(
+          assignmentId: '_',
+          onAttachmentsChanged: (atts) => _attachments = atts,
+          initialAttachments: _attachments,
         ),
         const SizedBox(height: 12),
         SizedBox(

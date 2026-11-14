@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'file_attachment.dart';
+
 class HomeworkSubmission {
   final String id;
   final String userId;
@@ -10,6 +12,7 @@ class HomeworkSubmission {
   final String lessonId;
   final String lessonTitle;
   final String codeAnswer;
+  final List<FileAttachment> attachments;
   final String status; // pending | reviewed
   final double? grade; // 0-10 with comma support
   final String feedback;
@@ -27,6 +30,7 @@ class HomeworkSubmission {
     required this.lessonId,
     required this.lessonTitle,
     required this.codeAnswer,
+    this.attachments = const [],
     this.status = 'pending',
     this.grade,
     this.feedback = '',
@@ -55,6 +59,10 @@ class HomeworkSubmission {
       lessonId: map['lessonId'] as String? ?? '',
       lessonTitle: map['lessonTitle'] as String? ?? '',
       codeAnswer: map['codeAnswer'] as String? ?? '',
+      attachments: (map['attachments'] as List?)
+              ?.map((e) => FileAttachment.fromMap(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const [],
       status: map['status'] as String? ?? 'pending',
       grade: parseGrade(map['grade']),
       feedback: map['feedback'] as String? ?? '',
@@ -80,6 +88,7 @@ class HomeworkSubmission {
       'lessonId': lessonId,
       'lessonTitle': lessonTitle,
       'codeAnswer': codeAnswer,
+      'attachments': attachments.map((a) => a.toMap()).toList(),
       'status': status,
       'grade': grade,
       'feedback': feedback,
