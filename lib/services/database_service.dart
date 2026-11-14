@@ -16,12 +16,18 @@ class DatabaseService {
   // تم إيقاف Supabase مؤقتاً لإصلاح البناء — سيعود بعد حل مشكلة Realtime
   static const bool _useSupabase = false;
 
-  CollectionReference<Map<String, dynamic>> get _users => _db.collection('users');
-  CollectionReference<Map<String, dynamic>> get _courses => _db.collection('courses');
-  CollectionReference<Map<String, dynamic>> get _lessons => _db.collection('lessons');
-  CollectionReference<Map<String, dynamic>> get _progress => _db.collection('progress');
-  CollectionReference<Map<String, dynamic>> get _tracks => _db.collection('tracks');
-  CollectionReference<Map<String, dynamic>> get _requests => _db.collection('accessRequests');
+  CollectionReference<Map<String, dynamic>> get _users =>
+      _db.collection('users');
+  CollectionReference<Map<String, dynamic>> get _courses =>
+      _db.collection('courses');
+  CollectionReference<Map<String, dynamic>> get _lessons =>
+      _db.collection('lessons');
+  CollectionReference<Map<String, dynamic>> get _progress =>
+      _db.collection('progress');
+  CollectionReference<Map<String, dynamic>> get _tracks =>
+      _db.collection('tracks');
+  CollectionReference<Map<String, dynamic>> get _requests =>
+      _db.collection('accessRequests');
   CollectionReference<Map<String, dynamic>> get _homeworkSubs =>
       _db.collection('homeworkSubmissions');
   CollectionReference<Map<String, dynamic>> get _exerciseSubs =>
@@ -36,9 +42,10 @@ class DatabaseService {
   }
 
   Stream<AppUser?> userStream(String uid) {
-    return _users.doc(uid).snapshots().map(
-          (doc) => doc.exists ? AppUser.fromMap(doc.id, doc.data()!) : null,
-        );
+    return _users
+        .doc(uid)
+        .snapshots()
+        .map((doc) => doc.exists ? AppUser.fromMap(doc.id, doc.data()!) : null);
   }
 
   Future<AppUser?> getUser(String uid) async {
@@ -48,15 +55,22 @@ class DatabaseService {
 
   Stream<List<AppUser>> allUsersStream() {
     return _users.snapshots().map((snap) {
-      final users = snap.docs.map((d) => AppUser.fromMap(d.id, d.data())).toList();
+      final users = snap.docs
+          .map((d) => AppUser.fromMap(d.id, d.data()))
+          .toList();
       users.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return users;
     });
   }
 
-  Future<void> updateUser(AppUser user) => _users.doc(user.uid).set(user.toMap());
+  Future<void> updateUser(AppUser user) =>
+      _users.doc(user.uid).set(user.toMap());
 
-  Future<void> toggleUserCourseAccess(String uid, String courseId, bool has) async {
+  Future<void> toggleUserCourseAccess(
+    String uid,
+    String courseId,
+    bool has,
+  ) async {
     final doc = await _users.doc(uid).get();
     if (!doc.exists) return;
     final user = AppUser.fromMap(doc.id, doc.data()!);
@@ -69,7 +83,8 @@ class DatabaseService {
     await _users.doc(uid).update({'accessCourses': access});
   }
 
-  Future<void> setUserRole(String uid, String role) => _users.doc(uid).update({'role': role});
+  Future<void> setUserRole(String uid, String role) =>
+      _users.doc(uid).update({'role': role});
 
   Future<void> updateUserName(String uid, String name) =>
       _users.doc(uid).update({'name': name});
@@ -86,15 +101,21 @@ class DatabaseService {
   Stream<List<Course>> coursesStream() {
     if (_useSupabase) {
       try {
-        return _supa.coursesStream().handleError((e) => _courses.snapshots().map((snap) {
-          final courses = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList();
-          courses.sort((a, b) => a.order.compareTo(b.order));
-          return courses;
-        }));
+        return _supa.coursesStream().handleError(
+          (e) => _courses.snapshots().map((snap) {
+            final courses = snap.docs
+                .map((d) => Course.fromMap(d.id, d.data()))
+                .toList();
+            courses.sort((a, b) => a.order.compareTo(b.order));
+            return courses;
+          }),
+        );
       } catch (_) {}
     }
     return _courses.snapshots().map((snap) {
-      final courses = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList();
+      final courses = snap.docs
+          .map((d) => Course.fromMap(d.id, d.data()))
+          .toList();
       courses.sort((a, b) => a.order.compareTo(b.order));
       return courses;
     });
@@ -107,7 +128,8 @@ class DatabaseService {
       } catch (_) {}
     }
     return _courses.where('published', isEqualTo: true).snapshots().map((snap) {
-      final list = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList()..sort((a, b) => a.order.compareTo(b.order));
+      final list = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
       return list;
     });
   }
@@ -147,8 +169,11 @@ class DatabaseService {
         return _supa.lessonsStream(courseId);
       } catch (_) {}
     }
-    return _lessons.where('courseId', isEqualTo: courseId).snapshots().map((snap) {
-      final list = snap.docs.map((d) => Lesson.fromMap(d.id, d.data())).toList()..sort((a, b) => a.order.compareTo(b.order));
+    return _lessons.where('courseId', isEqualTo: courseId).snapshots().map((
+      snap,
+    ) {
+      final list = snap.docs.map((d) => Lesson.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
       return list;
     });
   }
@@ -187,7 +212,11 @@ class DatabaseService {
     return _progress.doc(uid).snapshots().map((doc) => doc.data() ?? {});
   }
 
-  Future<void> markLessonCompleted(String uid, String courseId, String lessonId) async {
+  Future<void> markLessonCompleted(
+    String uid,
+    String courseId,
+    String lessonId,
+  ) async {
     final doc = _progress.doc(uid);
     final data = (await doc.get()).data() ?? {};
     final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
@@ -199,7 +228,11 @@ class DatabaseService {
     await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
-  Future<void> unmarkLessonCompleted(String uid, String courseId, String lessonId) async {
+  Future<void> unmarkLessonCompleted(
+    String uid,
+    String courseId,
+    String lessonId,
+  ) async {
     final doc = _progress.doc(uid);
     final data = (await doc.get()).data() ?? {};
     final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
@@ -211,7 +244,12 @@ class DatabaseService {
     await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
-  Future<void> toggleLessonCompleted(String uid, String courseId, String lessonId, bool isCompleted) async {
+  Future<void> toggleLessonCompleted(
+    String uid,
+    String courseId,
+    String lessonId,
+    bool isCompleted,
+  ) async {
     if (isCompleted) {
       await markLessonCompleted(uid, courseId, lessonId);
     } else {
@@ -219,7 +257,11 @@ class DatabaseService {
     }
   }
 
-  Future<void> markLessonAnswered(String uid, String courseId, String lessonId) async {
+  Future<void> markLessonAnswered(
+    String uid,
+    String courseId,
+    String lessonId,
+  ) async {
     final doc = _progress.doc(uid);
     final data = (await doc.get()).data() ?? {};
     final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
@@ -231,20 +273,32 @@ class DatabaseService {
     await doc.set({'courses': courses}, SetOptions(merge: true));
   }
 
-  Future<bool> isLessonCompleted(String uid, String courseId, String lessonId) async {
+  Future<bool> isLessonCompleted(
+    String uid,
+    String courseId,
+    String lessonId,
+  ) async {
     final doc = await _progress.doc(uid).get();
     final data = doc.data() ?? {};
     final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
     final course = Map<String, dynamic>.from(courses[courseId] as Map? ?? {});
-    return ((course['completed'] as List?)?.cast<String>() ?? []).contains(lessonId);
+    return ((course['completed'] as List?)?.cast<String>() ?? []).contains(
+      lessonId,
+    );
   }
 
-  Future<bool> isLessonAnswered(String uid, String courseId, String lessonId) async {
+  Future<bool> isLessonAnswered(
+    String uid,
+    String courseId,
+    String lessonId,
+  ) async {
     final doc = await _progress.doc(uid).get();
     final data = doc.data() ?? {};
     final courses = Map<String, dynamic>.from(data['courses'] as Map? ?? {});
     final course = Map<String, dynamic>.from(courses[courseId] as Map? ?? {});
-    return ((course['answered'] as List?)?.cast<String>() ?? []).contains(lessonId);
+    return ((course['answered'] as List?)?.cast<String>() ?? []).contains(
+      lessonId,
+    );
   }
 
   // ---------- Tracks ----------
@@ -276,15 +330,22 @@ class DatabaseService {
 
   Stream<List<AccessRequest>> accessRequestsStream() {
     return _requests.snapshots().map((snap) {
-      final requests = snap.docs.map((d) => AccessRequest.fromMap(d.id, d.data())).toList();
+      final requests = snap.docs
+          .map((d) => AccessRequest.fromMap(d.id, d.data()))
+          .toList();
       requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return requests;
     });
   }
 
   Stream<List<AccessRequest>> userRequestsStream(String userId) {
-    return _requests.where('userId', isEqualTo: userId).snapshots().map(
-          (snap) => snap.docs.map((d) => AccessRequest.fromMap(d.id, d.data())).toList(),
+    return _requests
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map(
+          (snap) => snap.docs
+              .map((d) => AccessRequest.fromMap(d.id, d.data()))
+              .toList(),
         );
   }
 
@@ -308,16 +369,20 @@ class DatabaseService {
       await toggleUserCourseAccess(req.userId, req.courseId, true);
     }
     final isApproved = status == 'approved';
-    await createNotification(AppNotification(
-      id: '${req.userId}_${DateTime.now().microsecondsSinceEpoch}_request_${status}',
-      userId: req.userId,
-      title: isApproved ? 'تم قبول طلبك' : 'تم رفض طلبك',
-      body: isApproved ? 'تم منحك الوصول إلى ${req.courseTitle}' : 'تم رفض طلب الوصول إلى ${req.courseTitle}',
-      type: isApproved ? 'request_approved' : 'request_rejected',
-      referenceId: requestId,
-      courseId: req.courseId,
-      createdAt: DateTime.now(),
-    ));
+    await createNotification(
+      AppNotification(
+        id: '${req.userId}_${DateTime.now().microsecondsSinceEpoch}_request_${status}',
+        userId: req.userId,
+        title: isApproved ? 'تم قبول طلبك' : 'تم رفض طلبك',
+        body: isApproved
+            ? 'تم منحك الوصول إلى ${req.courseTitle}'
+            : 'تم رفض طلب الوصول إلى ${req.courseTitle}',
+        type: isApproved ? 'request_approved' : 'request_rejected',
+        referenceId: requestId,
+        courseId: req.courseId,
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> deleteRequest(String id) => _requests.doc(id).delete();
@@ -348,7 +413,11 @@ class DatabaseService {
   }) {
     if (_useSupabase) {
       try {
-        return _supa.homeworkSubmissionsStream(courseId: courseId, lessonId: lessonId, status: status);
+        return _supa.homeworkSubmissionsStream(
+          courseId: courseId,
+          lessonId: lessonId,
+          status: status,
+        );
       } catch (_) {}
     }
     Query<Map<String, dynamic>> q = _homeworkSubs;
@@ -356,7 +425,11 @@ class DatabaseService {
     if (lessonId != null) q = q.where('lessonId', isEqualTo: lessonId);
     if (status != null) q = q.where('status', isEqualTo: status);
     return q.snapshots().map((snap) {
-      final list = snap.docs.map((d) => HomeworkSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final list =
+          snap.docs
+              .map((d) => HomeworkSubmission.fromMap(d.id, d.data()))
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
@@ -367,8 +440,13 @@ class DatabaseService {
         return _supa.allHomeworkSubmissionsStream();
       } catch (_) {}
     }
-    return _homeworkSubs.orderBy('createdAt', descending: true).snapshots().map(
-          (snap) => snap.docs.map((d) => HomeworkSubmission.fromMap(d.id, d.data())).toList(),
+    return _homeworkSubs
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snap) => snap.docs
+              .map((d) => HomeworkSubmission.fromMap(d.id, d.data()))
+              .toList(),
         );
   }
 
@@ -378,46 +456,82 @@ class DatabaseService {
         return _supa.userHomeworkStream(userId);
       } catch (_) {}
     }
-    return _homeworkSubs.where('userId', isEqualTo: userId).snapshots().map((snap) {
-      final list = snap.docs.map((d) => HomeworkSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return _homeworkSubs.where('userId', isEqualTo: userId).snapshots().map((
+      snap,
+    ) {
+      final list =
+          snap.docs
+              .map((d) => HomeworkSubmission.fromMap(d.id, d.data()))
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
 
-  Stream<List<HomeworkSubmission>> lessonHomeworkStream(String lessonId, String userId) {
+  Stream<List<HomeworkSubmission>> lessonHomeworkStream(
+    String lessonId,
+    String userId,
+  ) {
     if (_useSupabase) {
       try {
         return _supa.lessonHomeworkStream(lessonId, userId);
       } catch (_) {}
     }
-    return _homeworkSubs.where('lessonId', isEqualTo: lessonId).where('userId', isEqualTo: userId).snapshots().map((snap) {
-      final list = snap.docs.map((d) => HomeworkSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return list;
-    });
+    return _homeworkSubs
+        .where('lessonId', isEqualTo: lessonId)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snap) {
+          final list =
+              snap.docs
+                  .map((d) => HomeworkSubmission.fromMap(d.id, d.data()))
+                  .toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
-  Future<void> reviewHomework(String submissionId, {required double grade, required String feedback, required String reviewedBy}) async {
+  Future<void> reviewHomework(
+    String submissionId, {
+    required double grade,
+    required String feedback,
+    required String reviewedBy,
+  }) async {
     if (_useSupabase) {
       try {
-        await _supa.reviewHomework(submissionId, grade: grade, feedback: feedback, reviewedBy: reviewedBy);
+        await _supa.reviewHomework(
+          submissionId,
+          grade: grade,
+          feedback: feedback,
+          reviewedBy: reviewedBy,
+        );
       } catch (_) {}
     }
-    await _homeworkSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    await _homeworkSubs.doc(submissionId).update({
+      'status': 'reviewed',
+      'grade': grade,
+      'feedback': feedback,
+      'reviewedAt': Timestamp.now(),
+      'reviewedBy': reviewedBy,
+    });
     try {
       final doc = await _homeworkSubs.doc(submissionId).get();
       final userId = doc.data()?['userId'] as String?;
       if (userId != null) {
-        await createNotification(AppNotification(
-          id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_homework_reviewed',
-          userId: userId,
-          title: 'تم تصحيح واجبك',
-          body: 'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
-          type: 'homework_reviewed',
-          referenceId: submissionId,
-          courseId: doc.data()?['courseId'] as String?,
-          lessonId: doc.data()?['lessonId'] as String?,
-          createdAt: DateTime.now(),
-        ));
+        await createNotification(
+          AppNotification(
+            id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_homework_reviewed',
+            userId: userId,
+            title: 'تم تصحيح واجبك',
+            body:
+                'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
+            type: 'homework_reviewed',
+            referenceId: submissionId,
+            courseId: doc.data()?['courseId'] as String?,
+            lessonId: doc.data()?['lessonId'] as String?,
+            createdAt: DateTime.now(),
+          ),
+        );
       }
     } catch (_) {}
   }
@@ -432,8 +546,9 @@ class DatabaseService {
   }
 
   Future<int> pendingHomeworkCount() async {
-    final snap =
-        await _homeworkSubs.where('status', isEqualTo: 'pending').get();
+    final snap = await _homeworkSubs
+        .where('status', isEqualTo: 'pending')
+        .get();
     return snap.docs.length;
   }
 
@@ -462,8 +577,13 @@ class DatabaseService {
         return _supa.allExerciseSubmissionsStream();
       } catch (_) {}
     }
-    return _exerciseSubs.orderBy('createdAt', descending: true).snapshots().map(
-          (snap) => snap.docs.map((d) => ExerciseSubmission.fromMap(d.id, d.data())).toList(),
+    return _exerciseSubs
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snap) => snap.docs
+              .map((d) => ExerciseSubmission.fromMap(d.id, d.data()))
+              .toList(),
         );
   }
 
@@ -473,22 +593,39 @@ class DatabaseService {
         return _supa.userExerciseStream(userId);
       } catch (_) {}
     }
-    return _exerciseSubs.where('userId', isEqualTo: userId).snapshots().map((snap) {
-      final list = snap.docs.map((d) => ExerciseSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return _exerciseSubs.where('userId', isEqualTo: userId).snapshots().map((
+      snap,
+    ) {
+      final list =
+          snap.docs
+              .map((d) => ExerciseSubmission.fromMap(d.id, d.data()))
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
 
-  Stream<List<ExerciseSubmission>> lessonExerciseStream(String lessonId, String userId) {
+  Stream<List<ExerciseSubmission>> lessonExerciseStream(
+    String lessonId,
+    String userId,
+  ) {
     if (_useSupabase) {
       try {
         return _supa.lessonExerciseStream(lessonId, userId);
       } catch (_) {}
     }
-    return _exerciseSubs.where('lessonId', isEqualTo: lessonId).where('userId', isEqualTo: userId).snapshots().map((snap) {
-      final list = snap.docs.map((d) => ExerciseSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return list;
-    });
+    return _exerciseSubs
+        .where('lessonId', isEqualTo: lessonId)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snap) {
+          final list =
+              snap.docs
+                  .map((d) => ExerciseSubmission.fromMap(d.id, d.data()))
+                  .toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
   Stream<List<ExerciseSubmission>> exerciseSubmissionsStream({
@@ -498,7 +635,11 @@ class DatabaseService {
   }) {
     if (_useSupabase) {
       try {
-        return _supa.exerciseSubmissionsStream(courseId: courseId, lessonId: lessonId, status: status);
+        return _supa.exerciseSubmissionsStream(
+          courseId: courseId,
+          lessonId: lessonId,
+          status: status,
+        );
       } catch (_) {}
     }
     Query<Map<String, dynamic>> q = _exerciseSubs;
@@ -506,33 +647,56 @@ class DatabaseService {
     if (lessonId != null) q = q.where('lessonId', isEqualTo: lessonId);
     if (status != null) q = q.where('status', isEqualTo: status);
     return q.snapshots().map((snap) {
-      final list = snap.docs.map((d) => ExerciseSubmission.fromMap(d.id, d.data())).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final list =
+          snap.docs
+              .map((d) => ExerciseSubmission.fromMap(d.id, d.data()))
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
 
-  Future<void> reviewExercise(String submissionId, {required double grade, required String feedback, required String reviewedBy}) async {
+  Future<void> reviewExercise(
+    String submissionId, {
+    required double grade,
+    required String feedback,
+    required String reviewedBy,
+  }) async {
     if (_useSupabase) {
       try {
-        await _supa.reviewExercise(submissionId, grade: grade, feedback: feedback, reviewedBy: reviewedBy);
+        await _supa.reviewExercise(
+          submissionId,
+          grade: grade,
+          feedback: feedback,
+          reviewedBy: reviewedBy,
+        );
       } catch (_) {}
     }
-    await _exerciseSubs.doc(submissionId).update({'status': 'reviewed', 'grade': grade, 'feedback': feedback, 'reviewedAt': Timestamp.now(), 'reviewedBy': reviewedBy});
+    await _exerciseSubs.doc(submissionId).update({
+      'status': 'reviewed',
+      'grade': grade,
+      'feedback': feedback,
+      'reviewedAt': Timestamp.now(),
+      'reviewedBy': reviewedBy,
+    });
     try {
       final doc = await _exerciseSubs.doc(submissionId).get();
       final userId = doc.data()?['userId'] as String?;
       if (userId != null) {
-        await createNotification(AppNotification(
-          id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_exercise_reviewed',
-          userId: userId,
-          title: 'تم تصحيح تمرينك',
-          body: 'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
-          type: 'exercise_reviewed',
-          referenceId: submissionId,
-          courseId: doc.data()?['courseId'] as String?,
-          lessonId: doc.data()?['lessonId'] as String?,
-          createdAt: DateTime.now(),
-        ));
+        await createNotification(
+          AppNotification(
+            id: '${userId}_${DateTime.now().microsecondsSinceEpoch}_exercise_reviewed',
+            userId: userId,
+            title: 'تم تصحيح تمرينك',
+            body:
+                'حصلت على ${grade.toStringAsFixed(grade.truncateToDouble() == grade ? 0 : 1).replaceAll('.', ',')}/10 في ${doc.data()?['lessonTitle'] ?? ''}',
+            type: 'exercise_reviewed',
+            referenceId: submissionId,
+            courseId: doc.data()?['courseId'] as String?,
+            lessonId: doc.data()?['lessonId'] as String?,
+            createdAt: DateTime.now(),
+          ),
+        );
       }
     } catch (_) {}
   }
@@ -548,11 +712,15 @@ class DatabaseService {
 
   // ---------- Random Seen (per lesson) ----------
   Future<void> saveRandomSeen(
-      String uid, String lessonId, List<int> seen) async {
+    String uid,
+    String lessonId,
+    List<int> seen,
+  ) async {
     final doc = _progress.doc(uid);
     final data = (await doc.get()).data() ?? {};
-    final randomSeen =
-        Map<String, dynamic>.from(data['randomSeen'] as Map? ?? {});
+    final randomSeen = Map<String, dynamic>.from(
+      data['randomSeen'] as Map? ?? {},
+    );
     randomSeen[lessonId] = seen;
     await doc.set({'randomSeen': randomSeen}, SetOptions(merge: true));
   }
@@ -560,16 +728,18 @@ class DatabaseService {
   Future<List<int>> getRandomSeen(String uid, String lessonId) async {
     final doc = await _progress.doc(uid).get();
     final data = doc.data() ?? {};
-    final randomSeen =
-        Map<String, dynamic>.from(data['randomSeen'] as Map? ?? {});
+    final randomSeen = Map<String, dynamic>.from(
+      data['randomSeen'] as Map? ?? {},
+    );
     return (randomSeen[lessonId] as List?)?.cast<int>() ?? [];
   }
 
   Stream<List<int>> randomSeenStream(String uid, String lessonId) {
     return _progress.doc(uid).snapshots().map((doc) {
       final data = doc.data() ?? {};
-      final randomSeen =
-          Map<String, dynamic>.from(data['randomSeen'] as Map? ?? {});
+      final randomSeen = Map<String, dynamic>.from(
+        data['randomSeen'] as Map? ?? {},
+      );
       return (randomSeen[lessonId] as List?)?.cast<int>() ?? [];
     });
   }
@@ -583,7 +753,11 @@ class DatabaseService {
         .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => AppNotification.fromMap(d.id, d.data())).toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AppNotification.fromMap(d.id, d.data()))
+              .toList(),
+        );
   }
 
   Stream<int> unreadCountStream(String userId) {
@@ -598,7 +772,10 @@ class DatabaseService {
       _notifications.doc(id).update({'isRead': true});
 
   Future<void> markAllNotificationsRead(String userId) async {
-    final snap = await _notifications.where('userId', isEqualTo: userId).where('isRead', isEqualTo: false).get();
+    final snap = await _notifications
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .get();
     if (snap.docs.isEmpty) return;
     final batch = _db.batch();
     for (final d in snap.docs) {
