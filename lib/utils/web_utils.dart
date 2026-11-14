@@ -39,10 +39,15 @@ void setupWebTestHook(BuildContext context) {
               nav2.push(MaterialPageRoute(builder: (_) => const TestViewerScreen()));
               print('pushed via navKey (delayed)');
             } else {
-              Navigator.of(TamerAcademyApp.navigatorKey.currentContext ?? TamerAcademyApp.navigatorKey.currentState!.context).push(
-                MaterialPageRoute(builder: (_) => const TestViewerScreen()),
-              );
-              print('pushed via context fallback');
+              final fallbackContext = TamerAcademyApp.navigatorKey.currentContext;
+              if (fallbackContext != null) {
+                Navigator.of(fallbackContext).push(
+                  MaterialPageRoute(builder: (_) => const TestViewerScreen()),
+                );
+                print('pushed via context fallback');
+              } else {
+                print('no navigator context available');
+              }
             }
           } catch (err) {
             print('delayed push error: ');
