@@ -68,6 +68,20 @@ class AppTheme {
   static ThemeData light() => _build(Brightness.light, DColorsLight());
   static ThemeData dark() => _build(Brightness.dark, DColorsDark());
 
+  // Backward-compat helpers (used by screens)
+  static Color accent(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? AppColors.tealLight : AppColors.tealPrimary;
+  }
+
+  static Color track(BuildContext context, String track) {
+    if (track == 'web' || track == '1787326651194000') return accent(context);
+    if (track == 'ai_automation' || track == 'ai' || track == '1794165775204000') {
+      return const Color(0xFF8B5CF6);
+    }
+    return AppColors.tealLight;
+  }
+
   // للويب: سكرول دائم + أسهم لوحة المفاتيح
   static ScrollBehavior get scrollBehavior => const _AppScrollBehavior();
 

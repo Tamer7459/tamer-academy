@@ -14,6 +14,7 @@ import '../../models/lesson.dart';
 import '../../services/database_service.dart';
 import '../homeworks/my_homeworks_screen.dart';
 import '../lessons/lesson_screen.dart';
+import '../../widgets/cinematic_effects.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final AppUser user;
@@ -293,7 +294,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
 
   void _openLesson(Lesson lesson) {
     Navigator.of(context).push(
-      MaterialPageRoute(
+      CinematicPageRoute(
         builder: (_) => LessonScreen(
           user: widget.user,
           course: widget.course,

@@ -151,7 +151,7 @@ class _TopBar extends StatelessWidget {
           if (!loggedIn)
             FilledButton.icon(
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                CinematicPageRoute(builder: (_) => const LoginScreen()),
               ),
               icon: const Icon(Icons.login, size: 18),
               label: Text(t('login'), style: const TextStyle(fontSize: 14)),
@@ -251,7 +251,11 @@ class _HeroSection extends StatelessWidget {
             ),
           ),
         ),
-        content,
+        MouseFollowerGlow(
+          color: DTokens.brandTeal.withValues(alpha: 0.12),
+          size: 160,
+          child: content,
+        ),
       ],
     );
   }

@@ -13,6 +13,7 @@ import '../../widgets/exercise_widget.dart';
 import '../../widgets/homework_widget.dart';
 import '../../widgets/lesson_content_renderer.dart';
 import '../../widgets/questions_widget.dart';
+import '../../widgets/cinematic_effects.dart';
 import '../admin/lesson_edit_screen.dart';
 
 class LessonScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _LessonScreenState extends State<LessonScreen> {
 
   void _goToLesson(BuildContext context, Lesson lesson) {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
+      CinematicPageRoute(
         builder: (_) => LessonScreen(
           user: widget.user,
           course: widget.course,
