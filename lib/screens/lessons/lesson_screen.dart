@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
+import '../../core/design_tokens.dart';
 import '../../models/app_user.dart';
 import '../../state/app_state.dart';
 import '../../models/course.dart';
@@ -117,11 +118,14 @@ class _LessonScreenState extends State<LessonScreen> {
           initialIndex: visibleTab,
           child: Scaffold(
           appBar: AppBar(
-            title: Text(
-              lesson.title.getWithFallback(lang),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            title: Directionality(
+              textDirection: lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+              child: Text(
+                lesson.title.getWithFallback(lang),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             actions: [
               Consumer<AppState>(
@@ -173,9 +177,17 @@ class _LessonScreenState extends State<LessonScreen> {
                           if (lesson.videoUrl.isNotEmpty) ...[
                             _SectionHeader(icon: Icons.ondemand_video_rounded, title: t('video')),
                             const SizedBox(height: 10),
-                            CodeResultViewer(
-                              type: CodeResultType.html,
-                              videoUrl: lesson.videoUrl,
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: DGradients.brandGlow,
+                                borderRadius: DTokens.borderRadiusLg,
+                                boxShadow: DShadows.brandGlow,
+                              ),
+                              padding: const EdgeInsets.all(2),
+                              child: CodeResultViewer(
+                                type: CodeResultType.html,
+                                videoUrl: lesson.videoUrl,
+                              ),
                             ),
                             const SizedBox(height: 24),
                           ],
@@ -342,6 +354,12 @@ class _LessonScreenState extends State<LessonScreen> {
         // stretch remaining tabs when some are hidden
         isScrollable: false,
         labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+        indicator: BoxDecoration(
+          gradient: DGradients.brandGlow,
+          borderRadius: DTokens.borderRadiusMd,
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        indicatorPadding: const EdgeInsets.symmetric(horizontal: -6, vertical: 4),
       ),
     );
   }
