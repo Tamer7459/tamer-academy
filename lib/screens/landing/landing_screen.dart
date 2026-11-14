@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
+import '../../core/design_tokens.dart';
 import '../../models/track.dart';
 import '../../services/database_service.dart';
 import '../../state/app_state.dart';
 import '../../widgets/animated_widgets.dart';
+import '../../widgets/cinematic_effects.dart';
 import '../../widgets/impressive_widgets.dart';
 import '../auth/login_screen.dart';
 
@@ -184,10 +186,58 @@ class _HeroSection extends StatelessWidget {
               _HeroCard(),
             ],
           );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        const Positioned.fill(child: GradientOrbs()),
+        // backgrund متحرك (Mesh Gradient)
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: isDark
+                  ? DGradients.heroMesh
+                  : DGradients.heroMeshLight,
+            ),
+          ),
+        ),
+        // كرات توهج تتحرك ببطء في الخلفية
+        GradientOrb(
+          color: DTokens.brandTeal.withValues(alpha: 0.22),
+          size: 520,
+          start: const Offset(-0.35, -0.35),
+          end: const Offset(1.15, 0.55),
+          duration: const Duration(seconds: 14),
+        ),
+        GradientOrb(
+          color: DTokens.brandWarm.withValues(alpha: 0.16),
+          size: 420,
+          start: const Offset(0.85, 0.85),
+          end: const Offset(-0.25, 1.15),
+          duration: const Duration(seconds: 16),
+        ),
+        GradientOrb(
+          color: DTokens.brandSoft.withValues(alpha: 0.12),
+          size: 320,
+          start: const Offset(-0.15, 0.95),
+          end: const Offset(1.15, -0.25),
+          duration: const Duration(seconds: 12),
+        ),
+        // طبقة تغمية خفيفة لجعل النص قابلاً للقراءة
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  (isDark ? DColorsDark.background : DColorsLight.background)
+                      .withValues(alpha: 0.42),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+        ),
         content,
       ],
     );

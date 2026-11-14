@@ -5,6 +5,58 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'design_tokens.dart';
 
+/// ══════════════════════════════════════════════════════════════════════════════
+/// AppColors — الألوان القديمة للتوافق الخلفي (Backward Compatibility).
+/// يُفضل استخدام Design Tokens (DTokens / DColorsLight / DColorsDark) في الكود الجديد.
+/// ══════════════════════════════════════════════════════════════════════════════
+
+class AppColors {
+  AppColors._();
+
+  static const Color tealDeep     = Color(0xFF136B5E);
+  static const Color tealPrimary  = Color(0xFF1A8A7A);
+  static const Color tealLight    = Color(0xFF3BBFAE);
+  static const Color tealPale     = Color(0xFFD6F0EC);
+
+  static const Color peachStart   = Color(0xFFF5A623);
+  static const Color peachEnd     = Color(0xFFF8C291);
+  static const Color peachLight   = Color(0xFFFDEBD3);
+  static const Color warmOrange   = Color(0xFFF09030);
+  static const Color coral        = Color(0xFFE8604C);
+
+  static const Color navyDark     = Color(0xFF0D2137);
+  static const Color navyText     = Color(0xFF1A2B42);
+  static const Color grayDark     = Color(0xFF374151);
+  static const Color grayMedium   = Color(0xFF6B7280);
+  static const Color grayLight    = Color(0xFF9CA3AF);
+  static const Color grayVeryLight= Color(0xFFF3F4F6);
+  static const Color offWhite     = Color(0xFFFAFBFC);
+  static const Color white        = Color(0xFFFFFFFF);
+
+  static const Color success  = Color(0xFF22C55E);
+  static const Color danger   = Color(0xFFEF4444);
+  static const Color warning  = Color(0xFFF59E0B);
+  static const Color star     = Color(0xFFF59E0B);
+  static const Color info     = Color(0xFF3B82F6);
+
+  static const Color primary    = tealPrimary;
+  static const Color secondary  = Color(0xFFF5A623);
+  static const Color accent     = Color(0xFF3BBFAE);
+  static const Color navyPrimary= tealDeep;
+  static const Color goldPrimary= Color(0xFFF5A623);
+  static const Color goldLight  = Color(0xFFF8C291);
+  static const Color goldDark   = Color(0xFFD4940F);
+  static const Color cyanAccent = tealLight;
+  static const Color creamWhite = offWhite;
+  static const Color navyDeep   = navyDark;
+
+  static const Color darkBg      = Color(0xFF0A1628);
+  static const Color darkSurface = Color(0xFF122240);
+  static const Color darkCard    = Color(0xFF1B3A5C);
+  static const Color darkElevated= Color(0xFF23456B);
+  static const Color darkTextDim = Color(0xFFB9C7DC);
+}
+
 /// ═════════════════════════════════════════════════════════════════════════════
 /// AppTheme — يُعتمد بالكامل على Design Tokens.
 /// कोई لون أو مسافة أو زاوية سحرية لا تُكتب داخل الويدجتس بعد الآن.
