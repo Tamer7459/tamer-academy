@@ -150,7 +150,7 @@ class _TerminalWindowState extends State<TerminalWindow> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF0D0D0F) : const Color(0xFF1A1A1C);
-    final textColor = isDark ? const Color(0xFFEDE6D6) : const Color(0xFFEDE6D6);
+    // textColor reserved for future use
     final promptColor = const Color(0xFF5CC8FF); // Eagle Vision blue
     final cmdColor = const Color(0xFFEDE6D6);
     final outputColor = const Color(0xFFA8A39A);

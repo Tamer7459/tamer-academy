@@ -71,6 +71,20 @@ class AppTheme {
   static ThemeData light() => _build(Brightness.light, false);
   static ThemeData dark() => _build(Brightness.dark, true);
 
+  // Backward-compat helpers
+  static Color accent(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? DColorsDark.brand : DColorsLight.brand;
+  }
+
+  static Color track(BuildContext context, String track) {
+    if (track == 'web' || track == '1787326651194000') return accent(context);
+    if (track == 'ai_automation' || track == 'ai' || track == '1794165775204000') {
+      return const Color(0xFF8B5CF6);
+    }
+    return DColorsDark.brand; // fallback to crimson
+  }
+
   static ScrollBehavior get scrollBehavior => const _AppScrollBehavior();
 
   static ThemeData _build(Brightness brightness, bool isDark) {
