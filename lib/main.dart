@@ -1,3 +1,4 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -20,6 +21,18 @@ Future<void> main() async {
     await Firebase.initializeApp(options: AppConstants.firebaseWebOptions);
   } else {
     await Firebase.initializeApp();
+  }
+  // Firebase App Check (reCAPTCHA Enterprise على الويب، Play Integrity/App Attest على الموبايل)
+  try {
+    await FirebaseAppCheck.instance.activate(
+      providerWeb: kIsWeb
+          ? ReCaptchaV3Provider('6Lf...') // استبدل بمفتاح reCAPTCHA v3 من Firebase Console
+          : null,
+      providerAndroid: const AndroidPlayIntegrityProvider(),
+      providerApple: const AppleDeviceCheckProvider(),
+    );
+  } catch (e) {
+    debugPrint('Firebase App Check init failed: $e');
   }
   // Supabase لتخفيف ضغط Firebase (قراءات/كتابات/تخزين) — يبقى Firebase Auth هو المصدر
   try {
