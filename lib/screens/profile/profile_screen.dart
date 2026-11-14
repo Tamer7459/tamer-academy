@@ -59,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // ═══ Admin: اختيار أي حساب ═══
             if (isAdmin) ...[
               _Card(
+                tint: AppColors.warning,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
                     _IconBadge(icon: Icons.admin_panel_settings_rounded, color: AppColors.tealPrimary, size: 18),
@@ -213,12 +214,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 });
                 return _Section(
                   title: t('yourProgress'),
-                  icon: Icons.insights_rounded,
-                  iconColor: AppColors.info,
+                  icon: Icons.check_circle_rounded,
+                  iconColor: AppColors.danger,
                   child: Row(children: [
-                    Expanded(child: _ScoreTile(label: t('completed'), value: '$totalCompleted', sub: '', color: AppColors.tealPrimary)),
+                    Expanded(child: _ScoreTile(label: t('completed'), value: '$totalCompleted', sub: '', color: AppColors.danger)),
                     const SizedBox(width: 8),
-                    Expanded(child: _ScoreTile(label: t('exercisesSolved'), value: '$totalAnswered', sub: '', color: AppColors.info)),
+                    Expanded(child: _ScoreTile(label: t('exercisesSolved'), value: '$totalAnswered', sub: '', color: AppColors.goldPrimary)),
                   ]),
                 );
               },
