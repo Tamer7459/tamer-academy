@@ -157,7 +157,7 @@ class _HomeShellState extends State<HomeShell> {
       children: [
         _sidebarHeader(context, user, t, isDark),
         const Divider(height: 1),
-        Expanded(child: _navList(context, user, t, isDark)),
+        _navList(context, user, t, isDark),
         const Spacer(),
         _sidebarFooter(context, user, t, isDark),
       ],
@@ -201,8 +201,8 @@ class _HomeShellState extends State<HomeShell> {
 
   Widget _navList(BuildContext context, AppUser user, String Function(String) t, bool isDark) {
     final navItems = _buildNavItems(user, t);
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: DTokens.spaceSm),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: navItems.asMap().entries.map((entry) {
         final i = entry.key;
         final item = entry.value;
