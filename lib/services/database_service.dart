@@ -47,9 +47,11 @@ class DatabaseService {
   }
 
   Stream<List<AppUser>> allUsersStream() {
-    return _users.orderBy('createdAt', descending: true).snapshots().map(
-          (snap) => snap.docs.map((d) => AppUser.fromMap(d.id, d.data())).toList(),
-        );
+    return _users.snapshots().map((snap) {
+      final users = snap.docs.map((d) => AppUser.fromMap(d.id, d.data())).toList();
+      users.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return users;
+    });
   }
 
   Future<void> updateUser(AppUser user) => _users.doc(user.uid).set(user.toMap());
@@ -84,10 +86,18 @@ class DatabaseService {
   Stream<List<Course>> coursesStream() {
     if (_useSupabase) {
       try {
-        return _supa.coursesStream().handleError((e) => _courses.orderBy('order').snapshots().map((snap) => snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList()));
+        return _supa.coursesStream().handleError((e) => _courses.snapshots().map((snap) {
+          final courses = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList();
+          courses.sort((a, b) => a.order.compareTo(b.order));
+          return courses;
+        }));
       } catch (_) {}
     }
-    return _courses.orderBy('order').snapshots().map((snap) => snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList());
+    return _courses.snapshots().map((snap) {
+      final courses = snap.docs.map((d) => Course.fromMap(d.id, d.data())).toList();
+      courses.sort((a, b) => a.order.compareTo(b.order));
+      return courses;
+    });
   }
 
   Stream<List<Course>> publishedCoursesStream() {
@@ -265,9 +275,11 @@ class DatabaseService {
   // ---------- Access Requests ----------
 
   Stream<List<AccessRequest>> accessRequestsStream() {
-    return _requests.orderBy('createdAt', descending: true).snapshots().map(
-          (snap) => snap.docs.map((d) => AccessRequest.fromMap(d.id, d.data())).toList(),
-        );
+    return _requests.snapshots().map((snap) {
+      final requests = snap.docs.map((d) => AccessRequest.fromMap(d.id, d.data())).toList();
+      requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return requests;
+    });
   }
 
   Stream<List<AccessRequest>> userRequestsStream(String userId) {
