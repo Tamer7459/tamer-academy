@@ -390,13 +390,16 @@ class _TracksSection extends StatelessWidget {
         StreamBuilder<List<Track>>(
           stream: db.publishedTracksStream(),
           builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(t('moreComingSoon'), style: const TextStyle(color: AppColors.grayMedium, decoration: TextDecoration.none));
+            }
             final tracks = snapshot.data ?? [];
             if (tracks.isEmpty) {
               return Row(
                 children: [
                   Icon(Icons.rocket_launch, size: 18, color: AppColors.grayMedium),
                   const SizedBox(width: 8),
-                  Text(t('moreComingSoon'), style: TextStyle(color: AppColors.grayMedium)),
+                  Text(t('moreComingSoon'), style: const TextStyle(color: AppColors.grayMedium, decoration: TextDecoration.none)),
                 ],
               );
             }
@@ -485,6 +488,36 @@ class _TrackCard extends StatelessWidget {
     this.imageFit = BoxFit.cover,
   });
 
+  Widget _trackImage({
+    required String imageUrl,
+    required double height,
+    required double width,
+    required BoxFit fit,
+    required Widget fallback,
+  }) {
+    if (imageUrl.startsWith('data:')) {
+      try {
+        final bytes = base64Decode(imageUrl.split(',').last);
+        return Image.memory(
+          bytes,
+          height: height,
+          width: width,
+          fit: fit,
+          errorBuilder: (_, __, ___) => fallback,
+        );
+      } catch (_) {
+        return SizedBox(height: height, width: width, child: Center(child: fallback));
+      }
+    }
+    return Image.network(
+      imageUrl,
+      height: height,
+      width: width,
+      fit: fit,
+      errorBuilder: (_, __, ___) => fallback,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -507,26 +540,20 @@ class _TrackCard extends StatelessWidget {
           if (imageUrl.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
-              child: imageUrl.startsWith('data:')
-                  ? Image.memory(
-                      base64Decode(imageUrl.split(',').last),
-                      height: imageHeight > 0 ? imageHeight : 120,
-                      width: imageWidth > 0 ? imageWidth : double.infinity,
-                      fit: imageFit,
-                    )
-                  : Image.network(
-                      imageUrl,
-                      height: imageHeight > 0 ? imageHeight : 120,
-                      width: imageWidth > 0 ? imageWidth : double.infinity,
-                      fit: imageFit,
-                    ),
+              child: _trackImage(
+                imageUrl: imageUrl,
+                height: imageHeight > 0 ? imageHeight : 120,
+                width: imageWidth > 0 ? imageWidth : double.infinity,
+                fit: imageFit,
+                fallback: HoverIcon(icon: icon, color: color, size: 32, bgColor: color.withValues(alpha: 0.12)),
+              ),
             )
           else
             HoverIcon(icon: icon, color: color, size: 32, bgColor: color.withValues(alpha: 0.12)),
           const SizedBox(height: 20),
-          Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 22)),
+          Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 22, decoration: TextDecoration.none)),
           const SizedBox(height: 8),
-          Text(desc, style: const TextStyle(height: 1.7, color: AppColors.grayMedium, fontSize: 15)),
+          Text(desc, style: const TextStyle(height: 1.7, color: AppColors.grayMedium, fontSize: 15, decoration: TextDecoration.none)),
           const SizedBox(height: 20),
           Wrap(
             spacing: 8,
@@ -541,7 +568,7 @@ class _TrackCard extends StatelessWidget {
                           color: color.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(100),
                         ),
-                        child: Text(tag, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+                        child: Text(tag, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13, decoration: TextDecoration.none)),
                       ),
                     ))
                 .toList(),

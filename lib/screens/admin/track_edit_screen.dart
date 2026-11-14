@@ -315,7 +315,12 @@ class _TrackEditScreenState extends State<TrackEditScreen> {
         published: _published,
       );
       await db.saveTrack(track).timeout(const Duration(seconds: 15));
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_published ? 'تم حفظ التخصص ونشره' : 'تم حفظ التخصص كمسودة'), behavior: SnackBarBehavior.floating),
+        );
+        Navigator.of(context).pop(track);
+      }
     } catch (e) {
       debugPrint('track save error: $e');
       if (mounted) {
@@ -747,7 +752,13 @@ class _LangFieldSetState extends State<_LangFieldSet> {
           decoration: InputDecoration(
             hintText: widget.hint,
           ),
-          validator: widget.required ? (v) => (v == null || v.trim().isEmpty) ? widget.label : null : null,
+          // Validate Arabic (or any filled language) even if another tab is visible.
+          validator: widget.required
+              ? (_) {
+                  final hasAny = widget.controllers.any((c) => c.text.trim().isNotEmpty);
+                  return hasAny ? null : widget.label;
+                }
+              : null,
         ),
       ],
     );

@@ -79,10 +79,13 @@ class TamerAcademyApp extends StatelessWidget {
               behavior: AppTheme.scrollBehavior,
               child: MediaQuery.withClampedTextScaling(
                 maxScaleFactor: 1.3,
-                child: Scrollbar(
-                  thumbVisibility: false,
-                  trackVisibility: false,
-                  child: child!,
+                // Kill Flutter-web yellow underlines + avoid a global grey scrollbar track.
+                child: DefaultTextStyle.merge(
+                  style: const TextStyle(
+                    decoration: TextDecoration.none,
+                    decorationColor: Colors.transparent,
+                  ),
+                  child: child ?? const SizedBox.shrink(),
                 ),
               ),
             ),

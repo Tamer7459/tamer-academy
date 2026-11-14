@@ -581,31 +581,48 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
                       final lang = Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode;
                       final dbTracks = snap.data ?? [];
 
-                      final items = <DropdownMenuItem<String>>[
-                        DropdownMenuItem(value: 'web', child: Text(t('webDevelopment'))),
-                        DropdownMenuItem(value: 'mobile', child: Text(t('mobileDevelopment'))),
-                        DropdownMenuItem(value: 'ai_automation', child: Text(t('aiAutomation'))),
-                      ];
-                      final knownValues = {'web', 'mobile', 'ai_automation'};
+                      // Prefer live DB tracks so newly created specialties show immediately.
+                      const legacyIds = {
+                        '1787326651194000': 'web',
+                        '1787327901334000': 'mobile',
+                        '1794165775204000': 'ai_automation',
+                      };
+                      final items = <DropdownMenuItem<String>>[];
+                      final knownValues = <String>{};
 
-                      for (final tr in dbTracks) {
-                        if (tr.id == '1787326651194000' || tr.id == '1787327901334000' || tr.id == '1794165775204000') {
-                          continue;
-                        }
-                        if (!knownValues.contains(tr.id)) {
-                          knownValues.add(tr.id);
-                          final title = tr.name.getWithFallback(lang);
-                          items.add(DropdownMenuItem(value: tr.id, child: Text(title.isNotEmpty ? title : tr.id)));
-                        }
+                      void addItem(String value, String label) {
+                        if (knownValues.contains(value)) return;
+                        knownValues.add(value);
+                        items.add(DropdownMenuItem(value: value, child: Text(label)));
                       }
 
-                      final effectiveValue = knownValues.contains(_track) ? _track : 'web';
+                      for (final tr in dbTracks) {
+                        final slug = legacyIds[tr.id];
+                        final value = slug ?? tr.id;
+                        final title = tr.name.getWithFallback(lang);
+                        addItem(value, title.isNotEmpty ? title : value);
+                      }
+
+                      // Fallback defaults if Firestore is empty / still loading.
+                      if (items.isEmpty) {
+                        addItem('web', t('webDevelopment'));
+                        addItem('mobile', t('mobileDevelopment'));
+                        addItem('ai_automation', t('aiAutomation'));
+                      } else {
+                        if (!knownValues.contains('web')) addItem('web', t('webDevelopment'));
+                        if (!knownValues.contains('mobile')) addItem('mobile', t('mobileDevelopment'));
+                        if (!knownValues.contains('ai_automation')) addItem('ai_automation', t('aiAutomation'));
+                      }
+
+                      final effectiveValue = knownValues.contains(_track)
+                          ? _track
+                          : (legacyIds[_track] != null && knownValues.contains(legacyIds[_track]) ? legacyIds[_track]! : knownValues.first);
 
                       return DropdownButtonFormField<String>(
                         value: effectiveValue,
                         decoration: InputDecoration(labelText: t('track')),
                         items: items,
-                        onChanged: (v) => setState(() => _track = v ?? 'web'),
+                        onChanged: (v) => setState(() => _track = v ?? effectiveValue),
                       );
                     },
                   ),

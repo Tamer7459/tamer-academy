@@ -7,9 +7,11 @@ import '../../models/app_user.dart';
 import '../../models/course.dart';
 import '../../models/exercise_submission.dart';
 import '../../models/homework_submission.dart';
+import '../../models/track.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 import '../../state/app_state.dart';
+import '../admin/track_edit_screen.dart';
 import '../homeworks/my_homeworks_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -57,12 +59,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // ═══ Admin: اختيار أي حساب ═══
             if (isAdmin) ...[
               _Card(
-                tint: AppColors.warning,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
-                    _IconBadge(icon: Icons.admin_panel_settings_rounded, color: AppColors.warning, size: 18),
+                    _IconBadge(icon: Icons.admin_panel_settings_rounded, color: AppColors.tealPrimary, size: 18),
                     const SizedBox(width: 10),
-                    const Text('عرض حساب آخر', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                    const Text('عرض حساب آخر', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, decoration: TextDecoration.none)),
                     const Spacer(),
                     if (!isSelf)
                       TextButton(onPressed: () => setState(() { _viewedUser = widget.user; _selectedUid = widget.user.uid; }), child: const Text('العودة لحسابي')),
@@ -78,9 +79,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         isExpanded: true,
                         decoration: InputDecoration(
                           labelText: 'اختر حساباً',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.outlineVariant)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.outlineVariant)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.tealPrimary, width: 1.5)),
                           filled: true,
-                          fillColor: theme.colorScheme.surface,
+                          fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
                         items: users.map((u) => DropdownMenuItem(value: u.uid, child: Text('${u.name} — ${u.email} ${u.isAdmin ? "(أدمن)" : ""}', overflow: TextOverflow.ellipsis))).toList(),
@@ -135,9 +138,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(viewed.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                      Text(viewed.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, decoration: TextDecoration.none)),
                       const SizedBox(height: 2),
-                      Text(viewed.email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.grayMedium, fontSize: 12.5)),
+                      Text(viewed.email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.grayMedium, fontSize: 12.5, decoration: TextDecoration.none)),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -145,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(viewed.isAdmin ? Icons.admin_panel_settings_rounded : Icons.school_rounded, size: 13, color: viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary),
                           const SizedBox(width: 5),
-                          Text(viewed.isAdmin ? t('adminRole') : t('student'), style: TextStyle(color: viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary, fontWeight: FontWeight.w700, fontSize: 11)),
+                          Text(viewed.isAdmin ? t('adminRole') : t('student'), style: TextStyle(color: viewed.isAdmin ? AppColors.warning : AppColors.tealPrimary, fontWeight: FontWeight.w700, fontSize: 11, decoration: TextDecoration.none)),
                         ]),
                       ),
                     ]),
@@ -179,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(100)),
-                        child: Text('${_num(total)} نقطة', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.goldPrimary, fontSize: 12)),
+                        child: Text('${_num(total)} نقطة', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.goldPrimary, fontSize: 12, decoration: TextDecoration.none)),
                       ),
                       child: Row(children: [
                         Expanded(child: _ScoreTile(label: 'المعدل', value: avg == null ? '—' : _num(avg), sub: '$count تقييم', color: AppColors.goldPrimary)),
@@ -240,15 +243,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       : null,
                   child: myCourses.isEmpty
-                      ? Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                          ),
-                          child: Text('لا يملك أي دورة', style: TextStyle(color: AppColors.grayMedium, fontSize: 13)),
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text('لا يملك أي دورة', style: TextStyle(color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none)),
                         )
                       : Column(
                           children: myCourses.map((c) => Padding(
@@ -319,22 +316,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
 
+            // ═══ التخصصات (للأدمن) ═══
+            if (isAdmin) ...[
+              const SizedBox(height: 14),
+              _Section(
+                title: t('tracks'),
+                icon: Icons.category_rounded,
+                iconColor: AppColors.goldPrimary,
+                trailing: TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())),
+                  style: TextButton.styleFrom(foregroundColor: AppColors.tealLight, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  icon: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text('إضافة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                ),
+                child: StreamBuilder<List<Track>>(
+                  stream: db.tracksStream(),
+                  builder: (context, snap) {
+                    if (snap.hasError) {
+                      return Text('تعذر تحميل التخصصات', style: TextStyle(color: AppColors.danger, fontSize: 13, decoration: TextDecoration.none));
+                    }
+                    final tracks = snap.data ?? [];
+                    if (tracks.isEmpty) {
+                      return Text(t('noTracks'), style: const TextStyle(color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none));
+                    }
+                    return Column(
+                      children: tracks.map((tr) {
+                        final color = Color(tr.color);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(8)),
+                                child: Icon(Icons.category_rounded, size: 17, color: color),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Text(tr.name.getWithFallback(l10n.languageCode), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, decoration: TextDecoration.none)),
+                                  Text(
+                                    tr.published ? t('published') : t('draft'),
+                                    style: TextStyle(fontSize: 11, color: tr.published ? AppColors.success : AppColors.warning, decoration: TextDecoration.none),
+                                  ),
+                                ]),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_rounded, size: 18),
+                                tooltip: t('editTrack'),
+                                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr))),
+                              ),
+                            ]),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              ),
+            ],
+
             // ═══ الإعدادات ═══
             if (isSelf) ...[
               const SizedBox(height: 24),
-              Text(t('settings'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+              Text(t('settings'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, decoration: TextDecoration.none, decorationColor: Colors.transparent)),
               const SizedBox(height: 12),
               _Card(
                 padding: EdgeInsets.zero,
                 child: Column(children: [
                   ListTile(
                     leading: _IconBadge(icon: Icons.language_rounded, color: AppColors.tealPrimary),
-                    title: Text(t('language'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    title: Text(t('language'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
                     trailing: PopupMenuButton<String>(
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Text(
                           state.locale.languageCode == 'ar' ? t('arabic') : state.locale.languageCode == 'fr' ? t('french') : t('english'),
-                          style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.grayMedium, fontSize: 13),
+                          style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.grayMedium, fontSize: 13, decoration: TextDecoration.none),
                         ),
                         const Icon(Icons.expand_more_rounded, size: 20, color: AppColors.grayMedium),
                       ]),
@@ -346,19 +409,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
                   SwitchListTile(
                     secondary: _IconBadge(icon: state.themeMode == ThemeMode.dark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: AppColors.goldPrimary),
-                    title: Text(state.themeMode == ThemeMode.dark ? t('darkMode') : t('lightMode'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    title: Text(state.themeMode == ThemeMode.dark ? t('darkMode') : t('lightMode'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
                     value: state.themeMode == ThemeMode.dark,
-                    activeThumbColor: Colors.white,
-                    activeTrackColor: AppColors.tealPrimary,
                     onChanged: (_) => context.read<AppState>().toggleTheme(),
                   ),
-                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  Divider(height: 1, indent: 16, endIndent: 16, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
                   ListTile(
                     leading: _IconBadge(icon: Icons.logout_rounded, color: AppColors.tealLight),
-                    title: Text(t('logout'), style: const TextStyle(color: AppColors.tealLight, fontWeight: FontWeight.w700, fontSize: 14)),
+                    title: Text(t('logout'), style: const TextStyle(color: AppColors.tealLight, fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none)),
                     onTap: () async => await context.read<AuthService>().logout(),
                   ),
                 ]),
@@ -496,7 +557,7 @@ class _Section extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800),
+                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, decoration: TextDecoration.none),
                 ),
               ),
               ?trailing,
@@ -553,12 +614,12 @@ class _ScoreTile extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grayMedium)),
+          Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grayMedium, decoration: TextDecoration.none)),
           const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: color)),
+          Text(value, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: color, decoration: TextDecoration.none)),
           if (sub.isNotEmpty) ...[
             const SizedBox(height: 2),
-            Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.grayMedium)),
+            Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.grayMedium, decoration: TextDecoration.none)),
           ],
         ],
       ),

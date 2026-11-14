@@ -154,6 +154,7 @@ class AppTheme {
       bodyColor: onSurface,
       displayColor: onSurface,
       decoration: TextDecoration.none,
+      decorationColor: Colors.transparent,
     );
 
     return base.copyWith(
@@ -304,15 +305,15 @@ class AppTheme {
         trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbVisibility: const WidgetStatePropertyAll(true),
-        trackVisibility: const WidgetStatePropertyAll(true),
-        thickness: const WidgetStatePropertyAll(8),
+        thumbVisibility: const WidgetStatePropertyAll(false),
+        trackVisibility: const WidgetStatePropertyAll(false),
+        thickness: const WidgetStatePropertyAll(6),
         radius: const Radius.circular(4),
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered)) return brand;
-          return brand.withValues(alpha: 0.6);
+          if (states.contains(WidgetState.hovered)) return brand.withValues(alpha: 0.7);
+          return brand.withValues(alpha: 0.35);
         }),
-        trackColor: WidgetStatePropertyAll(border),
+        trackColor: const WidgetStatePropertyAll(Colors.transparent),
         trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
         interactive: true,
       ),
@@ -362,12 +363,13 @@ class _AppScrollBehavior extends MaterialScrollBehavior {
 
   @override
   Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+    // No grey track strip — only a thin thumb on hover/scroll.
     return Scrollbar(
       controller: details.controller,
-      thumbVisibility: true,
-      trackVisibility: true,
+      thumbVisibility: false,
+      trackVisibility: false,
       interactive: true,
-      thickness: 8,
+      thickness: 6,
       radius: const Radius.circular(4),
       child: child,
     );

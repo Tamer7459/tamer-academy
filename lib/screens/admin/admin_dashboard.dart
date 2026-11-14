@@ -51,6 +51,8 @@ class AdminDashboard extends StatelessWidget {
           ),
         ),
         SliverPadding(padding: const EdgeInsets.all(16), sliver: SliverToBoxAdapter(child: _StatsGrid(db: db))),
+        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverToBoxAdapter(
@@ -69,8 +71,6 @@ class AdminDashboard extends StatelessWidget {
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _UsersPreview(user: user))),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _CoursesPreview(user: user))),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: SliverToBoxAdapter(child: _TracksPreview(user: user))),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
     );
@@ -93,7 +93,7 @@ class _StatsGrid extends StatelessWidget {
          childAspectRatio: 2.8,
         children: [
           _StatStreamCard(icon: Icons.menu_book_rounded, color: AppColors.tealPrimary, label: 'الكورسات', stream: db.coursesStream().map((l) => l.length)),
-          _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'المسارات', stream: db.tracksStream().map((l) => l.length)),
+          _StatStreamCard(icon: Icons.category_rounded, color: AppColors.goldPrimary, label: 'التخصصات', stream: db.tracksStream().map((l) => l.length)),
           _StatStreamCard(icon: Icons.group_rounded, color: AppColors.navyText, label: 'المستخدمون', stream: db.allUsersStream().map((l) => l.length)),
           _StatStreamCard(icon: Icons.assignment_rounded, color: AppColors.warning, label: 'واجبات معلقة', stream: db.homeworkSubmissionsStream(status: 'pending').map((l) => l.length)),
           _StatStreamCard(icon: Icons.edit_note_rounded, color: AppColors.success, label: 'تمارين معلقة', stream: db.exerciseSubmissionsStream(status: 'pending').map((l) => l.length)),
@@ -200,7 +200,20 @@ class _CoursesPreview extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.tealPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.tealPrimary)), const SizedBox(width: 8), const Text('الكورسات', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CourseEditScreen())), icon: const Icon(Icons.add_rounded, size: 16), label: const Text('إضافة'))])),
         const Divider(height: 1),
-        StreamBuilder<List<Course>>(
+        StreamBuilder<List<Track>>(
+          stream: db.tracksStream(),
+          builder: (context, trackSnap) {
+            final langCode = Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode;
+            final trackMap = <String, String>{};
+            for (final tr in trackSnap.data ?? []) {
+              final name = tr.name.getWithFallback(langCode);
+              if (name.isEmpty) continue;
+              trackMap[tr.id] = name;
+              if (tr.id == '1787326651194000') trackMap['web'] = name;
+              if (tr.id == '1787327901334000') trackMap['mobile'] = name;
+              if (tr.id == '1794165775204000') trackMap['ai_automation'] = name;
+            }
+            return StreamBuilder<List<Course>>(
           stream: db.coursesStream(),
           builder: (context, snap) {
             final courses = snap.data ?? [];
@@ -211,13 +224,15 @@ class _CoursesPreview extends StatelessWidget {
               final lang = loc.languageCode;
               final tr = loc.t;
               final priceLabel = c.isFree ? tr('free') : '${c.price}';
-              final trackLabel = (c.track == 'mobile' || c.track == '1787327901334000')
-                  ? tr('mobileDevelopment')
-                  : (c.track == 'web' || c.track == '1787326651194000')
-                      ? tr('webDevelopment')
-                      : (c.track == 'ai_automation' || c.track == '1794165775204000')
-                          ? tr('aiAutomation')
-                          : c.track;
+              final trackLabel = trackMap[c.track]?.isNotEmpty == true
+                  ? trackMap[c.track]!
+                  : (c.track == 'mobile' || c.track == '1787327901334000')
+                      ? tr('mobileDevelopment')
+                      : (c.track == 'web' || c.track == '1787326651194000')
+                          ? tr('webDevelopment')
+                          : (c.track == 'ai_automation' || c.track == '1794165775204000')
+                              ? tr('aiAutomation')
+                              : c.track;
               return ListTile(
                 dense: true,
                 title: Text(c.title.getWithFallback(lang), style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -242,6 +257,8 @@ class _CoursesPreview extends StatelessWidget {
                 ]),
               );
             });
+          },
+        );
           },
         ),
       ]),
@@ -270,20 +287,73 @@ class _TracksPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final db = context.watch<DatabaseService>();
+    final theme = Theme.of(context);
+    final l10n = Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final t = l10n.t;
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.all(14), child: Row(children: [Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.category_rounded, size: 16, color: AppColors.goldPrimary)), const SizedBox(width: 8), const Text('المسارات', style: TextStyle(fontWeight: FontWeight.w800)), const Spacer(), FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())), icon: const Icon(Icons.add_rounded, size: 16), label: const Text('إضافة'))])),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.goldPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.category_rounded, size: 16, color: AppColors.goldPrimary)),
+            const SizedBox(width: 8),
+            Text(t('tracks'), style: const TextStyle(fontWeight: FontWeight.w800, decoration: TextDecoration.none)),
+            const Spacer(),
+            FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TrackEditScreen())), icon: const Icon(Icons.add_rounded, size: 16), label: Text(t('addTrack'))),
+          ]),
+        ),
         const Divider(height: 1),
         StreamBuilder<List<Track>>(
           stream: db.tracksStream(),
           builder: (context, snap) {
+            if (snap.hasError) {
+              return Padding(padding: const EdgeInsets.all(20), child: Text('تعذر تحميل التخصصات', style: TextStyle(color: AppColors.danger, decoration: TextDecoration.none)));
+            }
             final tracks = snap.data ?? [];
-            if (tracks.isEmpty) return const Padding(padding: EdgeInsets.all(20), child: Text('لا توجد مسارات'));
-            return ListView.separated(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), padding: const EdgeInsets.all(12), itemCount: tracks.length, separatorBuilder: (_, _) => const SizedBox(height: 8), itemBuilder: (context, i) {
-              final tr = tracks[i];
-              return ListTile(dense: true, title: Text(tr.name.getWithFallback(Localizations.of<AppLocalizations>(context, AppLocalizations)!.languageCode), style: const TextStyle(fontWeight: FontWeight.w700)), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.edit_rounded, size: 18), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr)))), IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteTrack(context, db, tr))]));
-            });
+            if (tracks.isEmpty) {
+              return Padding(padding: const EdgeInsets.all(20), child: Text(t('noTracks'), style: const TextStyle(decoration: TextDecoration.none)));
+            }
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(12),
+              itemCount: tracks.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemBuilder: (context, i) {
+                final tr = tracks[i];
+                final color = Color(tr.color);
+                final name = tr.name.getWithFallback(l10n.languageCode);
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(8)),
+                      child: Icon(Icons.category_rounded, size: 18, color: color),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(name.isNotEmpty ? name : tr.id, style: const TextStyle(fontWeight: FontWeight.w700, decoration: TextDecoration.none)),
+                        const SizedBox(height: 2),
+                        Text(
+                          tr.published ? t('published') : t('draft'),
+                          style: TextStyle(fontSize: 11, color: tr.published ? AppColors.success : AppColors.warning, decoration: TextDecoration.none),
+                        ),
+                      ]),
+                    ),
+                    IconButton(icon: const Icon(Icons.edit_rounded, size: 18), tooltip: t('editTrack'), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TrackEditScreen(track: tr)))),
+                    IconButton(icon: const Icon(Icons.delete_rounded, size: 18, color: AppColors.danger), onPressed: () => _confirmDeleteTrack(context, db, tr)),
+                  ]),
+                );
+              },
+            );
           },
         ),
       ]),

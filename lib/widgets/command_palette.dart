@@ -63,7 +63,7 @@ class _CommandPaletteState extends State<CommandPalette> {
     setState(() {
       _filtered = widget.commands.where((c) {
         return c.label.toLowerCase().contains(q) ||
-            c.command.toLowerCase().contains(q) ||
+            (c.command ?? '').toLowerCase().contains(q) ||
             (c.description?.toLowerCase().contains(q) ?? false);
       }).toList();
     });

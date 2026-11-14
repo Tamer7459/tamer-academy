@@ -240,27 +240,24 @@ class DatabaseService {
   // ---------- Tracks ----------
 
   Stream<List<Track>> tracksStream() {
-    return _tracks
-        .orderBy('order')
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => Track.fromMap(d.id, d.data())).toList());
+    // Sort client-side so docs missing `order` still appear (orderBy would exclude them).
+    return _tracks.snapshots().map((snap) {
+      final list = snap.docs.map((d) => Track.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
+      return list;
+    });
   }
 
   Stream<List<Track>> publishedTracksStream() {
-    return _tracks
-        .where('published', isEqualTo: true)
-        .snapshots()
-        .map((snap) {
-          final list = snap.docs
-              .map((d) => Track.fromMap(d.id, d.data()))
-              .toList()
-            ..sort((a, b) => a.order.compareTo(b.order));
-          return list;
-        });
+    return _tracks.where('published', isEqualTo: true).snapshots().map((snap) {
+      final list = snap.docs.map((d) => Track.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
+      return list;
+    });
   }
 
   Future<void> saveTrack(Track track) {
-    return _tracks.doc(track.id).set(track.toMap());
+    return _tracks.doc(track.id).set(track.toMap(), SetOptions(merge: true));
   }
 
   Future<void> deleteTrack(String id) => _tracks.doc(id).delete();
