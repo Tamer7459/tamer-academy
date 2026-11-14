@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,12 +5,13 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_localizations.dart';
 import '../../core/app_theme.dart';
+import '../../core/design_tokens.dart';
 import '../../models/track.dart';
-import '../../widgets/cinematic_effects.dart' hide FadeSlideIn;
 import '../../services/database_service.dart';
 import '../../state/app_state.dart';
 import '../../widgets/animated_widgets.dart';
 import '../../widgets/impressive_widgets.dart';
+import '../../widgets/terminal_window.dart';
 import '../auth/login_screen.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -46,20 +46,12 @@ class _LandingScreenState extends State<LandingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Animated glow orbs (scroll with page)
-                  SizedBox(
-                    height: 400,
-                    child: Stack(
-                      children: [
-                        GradientOrb(color: const Color(0xFFC1232C).withValues(alpha: 0.12), size: 500, start: const Offset(-0.3, -0.2), end: const Offset(1.2, 0.4), duration: const Duration(seconds: 18)),
-                        GradientOrb(color: const Color(0xFFD4A64A).withValues(alpha: 0.08), size: 400, start: const Offset(0.7, 0.6), end: const Offset(-0.1, 1.1), duration: const Duration(seconds: 20)),
-                        GradientOrb(color: const Color(0xFF5CC8FF).withValues(alpha: 0.06), size: 300, start: const Offset(-0.1, 0.8), end: const Offset(1.1, -0.1), duration: const Duration(seconds: 16)),
-                      ],
-                    ),
-                  ),
                   FadeSlideIn(delay: const Duration(milliseconds: 80), child: _TopBar(t: t, isWide: isWide, loggedIn: widget.loggedIn, isAdmin: widget.isAdmin, onEnter: widget.onEnter)),
                   const SizedBox(height: 40),
                   FadeSlideIn(delay: const Duration(milliseconds: 160), offset: const Offset(0, 30), child: _HeroSection(t: t, isWide: isWide, loggedIn: widget.loggedIn, isAdmin: widget.isAdmin, onEnter: widget.onEnter)),
+                  const SizedBox(height: 72),
+                  // Terminal showcase section (before tracks)
+                  FadeSlideIn(delay: const Duration(milliseconds: 220), child: _TerminalShowcase(t: t, isWide: isWide)),
                   const SizedBox(height: 72),
                   FadeSlideIn(delay: const Duration(milliseconds: 280), child: _TracksSection(t: t, isWide: isWide)),
                   const SizedBox(height: 72),
@@ -317,9 +309,53 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// TERMINAL SHOWCASE SECTION (before tracks)
+// ══════════════════════════════════════════════════════════════════════════════
+class _TerminalShowcase extends StatelessWidget {
+  final String Function(String) t;
+  final bool isWide;
+
+  const _TerminalShowcase({required this.t, required this.isWide});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Terminal',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w900,
+            fontSize: 24,
+            fontFamily: DTypography.heading,
+            color: isDark ? DColorsDark.onSurface : DColorsLight.onSurface,
+          ),
+        ),
+        const SizedBox(height: DTokens.spaceSm),
+        Text(
+          'تجربة برمجة حقيقية — من terminal إلى production',
+          style: TextStyle(
+            color: isDark ? DColorsDark.onSurfaceDim : DColorsLight.onSurfaceDim,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: DTokens.spaceLg),
+        SizedBox(
+          height: 360,
+          child: TerminalWindow(
+            onFinalCommandTap: () {},
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // TRACKS SECTION
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 class _SectionKeys {
   static final tracks = GlobalKey();
   static final why = GlobalKey();
