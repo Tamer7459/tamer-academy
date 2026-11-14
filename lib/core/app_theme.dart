@@ -153,6 +153,7 @@ class AppTheme {
     ).apply(
       bodyColor: onSurface,
       displayColor: onSurface,
+      decoration: TextDecoration.none,
     );
 
     return base.copyWith(
@@ -179,7 +180,7 @@ class AppTheme {
       chipTheme: base.chipTheme.copyWith(
         shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
         side: BorderSide(color: borderSoft),
-        labelStyle: TextStyle(color: onSurface, fontSize: 13),
+        labelStyle: TextStyle(color: onSurface, fontSize: 13, decoration: TextDecoration.none),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -216,7 +217,7 @@ class AppTheme {
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -225,7 +226,7 @@ class AppTheme {
           side: BorderSide(color: brand.withValues(alpha: 0.5)),
           shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -243,6 +244,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: brand,
           shape: RoundedRectangleBorder(borderRadius: DTokens.borderRadiusSm),
+          textStyle: const TextStyle(decoration: TextDecoration.none),
         ),
       ),
       dialogTheme: DialogThemeData(
