@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -434,6 +433,29 @@ class UploadedFileLinks extends StatelessWidget {
     }
   }
 
+  Future<void> _copyAllLinks(BuildContext context) async {
+    try {
+      final urls = <String>[];
+      for (final attachment in attachments) {
+        urls.add(
+          await FileUploadService().getDownloadUrl(attachment.storagePath),
+        );
+      }
+      await Clipboard.setData(ClipboardData(text: urls.join('\n')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم نسخ ${urls.length} رابط بالتسلسل')),
+        );
+      }
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر جمع روابط الملفات: $error')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (attachments.isEmpty) return const SizedBox.shrink();
@@ -449,21 +471,35 @@ class UploadedFileLinks extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: attachments
-              .map(
-                (attachment) => OutlinedButton.icon(
-                  onPressed: () => _open(context, attachment),
-                  icon: const Icon(Icons.attach_file_rounded, size: 16),
-                  label: Text(
-                    attachment.originalName,
+        if (attachments.length > 1)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: () => _copyAllLinks(context),
+              icon: const Icon(Icons.copy_all_rounded, size: 16),
+              label: const Text('نسخ كل الروابط بالتسلسل'),
+            ),
+          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: attachments.asMap().entries.map((entry) {
+            final index = entry.key + 1;
+            final attachment = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: OutlinedButton.icon(
+                onPressed: () => _open(context, attachment),
+                icon: const Icon(Icons.link_rounded, size: 16),
+                label: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    '$index. ${attachment.originalName}',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              )
-              .toList(),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

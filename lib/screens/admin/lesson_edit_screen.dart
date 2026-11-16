@@ -33,7 +33,12 @@ class LessonEditScreen extends StatefulWidget {
   final Lesson? lesson;
   final int order;
 
-  const LessonEditScreen({super.key, required this.course, this.lesson, this.order = 0});
+  const LessonEditScreen({
+    super.key,
+    required this.course,
+    this.lesson,
+    this.order = 0,
+  });
 
   @override
   State<LessonEditScreen> createState() => _LessonEditScreenState();
@@ -43,31 +48,67 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
   final _formKey = GlobalKey<FormState>();
   static const _langs = ['ar', 'en', 'fr'];
 
-  late final _titleAr = TextEditingController(text: widget.lesson?.title.ar ?? '');
-  late final _titleEn = TextEditingController(text: widget.lesson?.title.en ?? '');
-  late final _titleFr = TextEditingController(text: widget.lesson?.title.fr ?? '');
-  late final _contentAr = TextEditingController(text: widget.lesson?.content.ar ?? '');
-  late final _contentEn = TextEditingController(text: widget.lesson?.content.en ?? '');
-  late final _contentFr = TextEditingController(text: widget.lesson?.content.fr ?? '');
-  late final _videoUrl = TextEditingController(text: widget.lesson?.videoUrl ?? '');
-  late final _codeHtml = TextEditingController(text: widget.lesson?.codeHtml ?? '');
-  late final _codeDart = TextEditingController(text: widget.lesson?.codeDart ?? '');
+  late final _titleAr = TextEditingController(
+    text: widget.lesson?.title.ar ?? '',
+  );
+  late final _titleEn = TextEditingController(
+    text: widget.lesson?.title.en ?? '',
+  );
+  late final _titleFr = TextEditingController(
+    text: widget.lesson?.title.fr ?? '',
+  );
+  late final _contentAr = TextEditingController(
+    text: widget.lesson?.content.ar ?? '',
+  );
+  late final _contentEn = TextEditingController(
+    text: widget.lesson?.content.en ?? '',
+  );
+  late final _contentFr = TextEditingController(
+    text: widget.lesson?.content.fr ?? '',
+  );
+  late final _videoUrl = TextEditingController(
+    text: widget.lesson?.videoUrl ?? '',
+  );
+  late final _codeHtml = TextEditingController(
+    text: widget.lesson?.codeHtml ?? '',
+  );
+  late final _codeDart = TextEditingController(
+    text: widget.lesson?.codeDart ?? '',
+  );
 
   // ── Exercise (2nd category) ──
-  late final _exerciseAr = TextEditingController(text: widget.lesson?.exercise?.question.ar ?? '');
-  late final _exerciseEn = TextEditingController(text: widget.lesson?.exercise?.question.en ?? '');
-  late final _exerciseFr = TextEditingController(text: widget.lesson?.exercise?.question.fr ?? '');
-  late final _solutionAr = TextEditingController(text: widget.lesson?.exercise?.solution.ar ?? '');
-  late final _solutionEn = TextEditingController(text: widget.lesson?.exercise?.solution.en ?? '');
-  late final _solutionFr = TextEditingController(text: widget.lesson?.exercise?.solution.fr ?? '');
+  late final _exerciseAr = TextEditingController(
+    text: widget.lesson?.exercise?.question.ar ?? '',
+  );
+  late final _exerciseEn = TextEditingController(
+    text: widget.lesson?.exercise?.question.en ?? '',
+  );
+  late final _exerciseFr = TextEditingController(
+    text: widget.lesson?.exercise?.question.fr ?? '',
+  );
+  late final _solutionAr = TextEditingController(
+    text: widget.lesson?.exercise?.solution.ar ?? '',
+  );
+  late final _solutionEn = TextEditingController(
+    text: widget.lesson?.exercise?.solution.en ?? '',
+  );
+  late final _solutionFr = TextEditingController(
+    text: widget.lesson?.exercise?.solution.fr ?? '',
+  );
   late bool _hasExercise = widget.lesson?.exercise?.hasExercise ?? false;
 
   late List<_QCtrl> _qCtrls;
   late bool _hasQuestions;
   late bool _hasHomework;
-  late final _hwAr = TextEditingController(text: widget.lesson?.homeworkPrompt.ar ?? '');
-  late final _hwEn = TextEditingController(text: widget.lesson?.homeworkPrompt.en ?? '');
-  late final _hwFr = TextEditingController(text: widget.lesson?.homeworkPrompt.fr ?? '');
+  late final _hwAr = TextEditingController(
+    text: widget.lesson?.homeworkPrompt.ar ?? '',
+  );
+  late final _hwEn = TextEditingController(
+    text: widget.lesson?.homeworkPrompt.en ?? '',
+  );
+  late final _hwFr = TextEditingController(
+    text: widget.lesson?.homeworkPrompt.fr ?? '',
+  );
 
   late String _codeType;
   bool _saving = false;
@@ -97,7 +138,10 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
       _hasQuestions = false;
     }
     _hasHomework = widget.lesson?.hasHomework ?? false;
-    if (_hasHomework && _hwAr.text.isEmpty && _hwEn.text.isEmpty && _hwFr.text.isEmpty) {
+    if (_hasHomework &&
+        _hwAr.text.isEmpty &&
+        _hwEn.text.isEmpty &&
+        _hwFr.text.isEmpty) {
       // keep empty to force fill
     }
   }
@@ -105,12 +149,24 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
   @override
   void dispose() {
     for (final c in [
-      _titleAr, _titleEn, _titleFr,
-      _contentAr, _contentEn, _contentFr,
-      _videoUrl, _codeHtml, _codeDart,
-      _exerciseAr, _exerciseEn, _exerciseFr,
-      _solutionAr, _solutionEn, _solutionFr,
-      _hwAr, _hwEn, _hwFr,
+      _titleAr,
+      _titleEn,
+      _titleFr,
+      _contentAr,
+      _contentEn,
+      _contentFr,
+      _videoUrl,
+      _codeHtml,
+      _codeDart,
+      _exerciseAr,
+      _exerciseEn,
+      _exerciseFr,
+      _solutionAr,
+      _solutionEn,
+      _solutionFr,
+      _hwAr,
+      _hwEn,
+      _hwFr,
     ]) {
       c.dispose();
     }
@@ -120,29 +176,53 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
 
   Exercise? _buildExercise() {
     if (!_hasExercise) return null;
-    final hasQ = _exerciseAr.text.trim().isNotEmpty || _exerciseEn.text.trim().isNotEmpty || _exerciseFr.text.trim().isNotEmpty;
+    final hasQ =
+        _exerciseAr.text.trim().isNotEmpty ||
+        _exerciseEn.text.trim().isNotEmpty ||
+        _exerciseFr.text.trim().isNotEmpty;
     if (!hasQ) return null;
     return Exercise(
-      question: LocalizedText(ar: _exerciseAr.text.trim(), en: _exerciseEn.text.trim(), fr: _exerciseFr.text.trim()),
+      question: LocalizedText(
+        ar: _exerciseAr.text.trim(),
+        en: _exerciseEn.text.trim(),
+        fr: _exerciseFr.text.trim(),
+      ),
       options: const [],
       answerIndex: 0,
-      solution: LocalizedText(ar: _solutionAr.text.trim(), en: _solutionEn.text.trim(), fr: _solutionFr.text.trim()),
+      solution: LocalizedText(
+        ar: _solutionAr.text.trim(),
+        en: _solutionEn.text.trim(),
+        fr: _solutionFr.text.trim(),
+      ),
     );
   }
 
   List<LessonQuestion> _buildQuestions() {
     if (!_hasQuestions) return [];
-    return _qCtrls.map((c) {
-      return LessonQuestion(
-        question: LocalizedText(ar: c.qAr.text.trim(), en: c.qEn.text.trim(), fr: c.qFr.text.trim()),
-        solution: LocalizedText(ar: c.sAr.text.trim(), en: c.sEn.text.trim(), fr: c.sFr.text.trim()),
-      );
-    }).where((q) => q.hasContent).toList();
+    return _qCtrls
+        .map((c) {
+          return LessonQuestion(
+            question: LocalizedText(
+              ar: c.qAr.text.trim(),
+              en: c.qEn.text.trim(),
+              fr: c.qFr.text.trim(),
+            ),
+            solution: LocalizedText(
+              ar: c.sAr.text.trim(),
+              en: c.sEn.text.trim(),
+              fr: c.sFr.text.trim(),
+            ),
+          );
+        })
+        .where((q) => q.hasContent)
+        .toList();
   }
 
   void _addQuestion() {
     if (_qCtrls.length >= 12) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الحد الأقصى 12 سؤال')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('الحد الأقصى 12 سؤال')));
       return;
     }
     setState(() => _qCtrls.add(_QCtrl()));
@@ -161,7 +241,9 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     setState(() {
       _qCtrls.shuffle(rnd);
     });
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم خلط الأسئلة ✓')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('تم خلط الأسئلة ✓')));
   }
 
   Future<void> _quickPaste() async {
@@ -177,23 +259,50 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: qCtrl, maxLines: 9, decoration: const InputDecoration(labelText: 'الأسئلة (ar) — سطر لكل سؤال', hintText: 'ما هو final؟\nما هو const؟')),
+                TextField(
+                  controller: qCtrl,
+                  maxLines: 9,
+                  decoration: const InputDecoration(
+                    labelText: 'الأسئلة (ar) — سطر لكل سؤال',
+                    hintText: 'ما هو final؟\nما هو const؟',
+                  ),
+                ),
                 const SizedBox(height: 12),
-                TextField(controller: sCtrl, maxLines: 9, decoration: const InputDecoration(labelText: 'الحلول (ar) — سطر لكل حل', hintText: 'حل 1\nحل 2')),
+                TextField(
+                  controller: sCtrl,
+                  maxLines: 9,
+                  decoration: const InputDecoration(
+                    labelText: 'الحلول (ar) — سطر لكل حل',
+                    hintText: 'حل 1\nحل 2',
+                  ),
+                ),
                 const SizedBox(height: 8),
-                const Text('سيتم إنشاء أسئلة بعدد الأسطر. EN/FR يمكنك تعبئتها لاحقا. الحل يدعم كود وجدول Markdown.', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                const Text(
+                  'سيتم إنشاء أسئلة بعدد الأسطر. EN/FR يمكنك تعبئتها لاحقا. الحل يدعم كود وجدول Markdown.',
+                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                ),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('إلغاء')),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('إضافة')),
+          TextButton(
+            onPressed: () => Navigator.pop(d, false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(d, true),
+            child: const Text('إضافة'),
+          ),
         ],
       ),
     );
     if (result != true) return;
-    final qs = qCtrl.text.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    final qs = qCtrl.text
+        .split('\n')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
     final ss = sCtrl.text.split('\n').map((e) => e.trim()).toList();
     if (qs.isEmpty) return;
     // dispose old if was single empty
@@ -233,8 +342,14 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
         title: Text(title),
         content: const Text('الحقل يحتوي بيانات. هل تريد الكتابة فوقه؟'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('إلغاء')),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('نعم، استبدال')),
+          TextButton(
+            onPressed: () => Navigator.pop(d, false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(d, true),
+            child: const Text('نعم، استبدال'),
+          ),
         ],
       ),
     );
@@ -242,17 +357,25 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
   }
 
   Future<void> _applyContentTemplate() async {
-    if (_contentAr.text.trim().isNotEmpty && !await _confirmOverwrite('استبدال المحتوى؟')) return;
+    if (_contentAr.text.trim().isNotEmpty &&
+        !await _confirmOverwrite('استبدال المحتوى؟'))
+      return;
     setState(() {
       _contentAr.text = ContentTemplates.lessonContentAr;
       _contentEn.text = ContentTemplates.lessonContentEn;
       _contentFr.text = ContentTemplates.lessonContentFr;
     });
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب المحتوى ✓')));
+    if (mounted)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب المحتوى ✓')));
   }
 
   Future<void> _applyExerciseTemplate() async {
-    if (_hasExercise && _exerciseAr.text.trim().isNotEmpty && !await _confirmOverwrite('استبدال التمرين؟')) return;
+    if (_hasExercise &&
+        _exerciseAr.text.trim().isNotEmpty &&
+        !await _confirmOverwrite('استبدال التمرين؟'))
+      return;
     setState(() {
       _hasExercise = true;
       _exerciseAr.text = ContentTemplates.exerciseQuestionAr;
@@ -262,11 +385,17 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
       _solutionEn.text = ContentTemplates.exerciseSolutionEn;
       _solutionFr.text = ContentTemplates.exerciseSolutionFr;
     });
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب التمرين ✓')));
+    if (mounted)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب التمرين ✓')));
   }
 
   Future<void> _applyQuestionsTemplate() async {
-    if (_hasQuestions && _qCtrls.any((c) => c.qAr.text.trim().isNotEmpty) && !await _confirmOverwrite('استبدال الأسئلة الشفوية؟')) return;
+    if (_hasQuestions &&
+        _qCtrls.any((c) => c.qAr.text.trim().isNotEmpty) &&
+        !await _confirmOverwrite('استبدال الأسئلة الشفوية؟'))
+      return;
     for (final c in _qCtrls) c.dispose();
     final list = ContentTemplates.oralQuestionsAr;
     setState(() {
@@ -282,22 +411,38 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
         return c;
       }).toList();
     });
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب 9 أسئلة شفوية ✓')));
+    if (mounted)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تطبيق قالب 9 أسئلة شفوية ✓')),
+      );
   }
 
   Future<void> _applyHomeworkTemplate() async {
-    if (_hasHomework && _hwAr.text.trim().isNotEmpty && !await _confirmOverwrite('استبدال الواجب؟')) return;
+    if (_hasHomework &&
+        _hwAr.text.trim().isNotEmpty &&
+        !await _confirmOverwrite('استبدال الواجب؟'))
+      return;
     setState(() {
       _hasHomework = true;
       _hwAr.text = ContentTemplates.homeworkAr;
       _hwEn.text = ContentTemplates.homeworkEn;
       _hwFr.text = ContentTemplates.homeworkFr;
     });
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب الواجب ✓')));
+    if (mounted)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تم تطبيق قالب الواجب ✓')));
   }
 
   Future<void> _applyAllTemplates() async {
-    if ((_contentAr.text.trim().isNotEmpty || _hasExercise || _hasQuestions || _hasHomework) && !await _confirmOverwrite('تطبيق كل القوالب؟ سيتم ملء الأقسام الفارغة وإضافة الباقي.')) return;
+    if ((_contentAr.text.trim().isNotEmpty ||
+            _hasExercise ||
+            _hasQuestions ||
+            _hasHomework) &&
+        !await _confirmOverwrite(
+          'تطبيق كل القوالب؟ سيتم ملء الأقسام الفارغة وإضافة الباقي.',
+        ))
+      return;
     await _applyContentTemplate();
     await Future.delayed(const Duration(milliseconds: 100));
     // exercise, questions, homework will each check overwrite again, so call directly
@@ -329,7 +474,10 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     }).toList();
     _hasQuestions = true;
     setState(() {});
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تطبيق كل القوالب ✓')));
+    if (mounted)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تم تطبيق كل القوالب ✓')));
   }
 
   // ── Image insertion dialog & helpers ──
@@ -342,16 +490,29 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final url = urlCtrl.text.trim();
-          final hasUrl = url.isNotEmpty;
+          final urls = urlCtrl.text
+              .split(RegExp(r'[\n,]+'))
+              .map((value) => value.trim())
+              .where((value) => value.isNotEmpty)
+              .toList();
+          final hasUrl = urls.isNotEmpty;
+          final previewUrl = urls.isEmpty ? '' : urls.first;
 
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             title: const Row(
               children: [
-                Icon(Icons.add_photo_alternate_rounded, color: AppColors.tealPrimary),
+                Icon(
+                  Icons.add_photo_alternate_rounded,
+                  color: AppColors.tealPrimary,
+                ),
                 SizedBox(width: 8),
-                Text('إدراج صورة في الدرس', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                Text(
+                  'إدراج صورة في الدرس',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             content: SingleChildScrollView(
@@ -362,16 +523,21 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'الصق رابط الصورة (Cloudinary أو أي رابط مباشر):',
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                      'الصق روابط الصور — رابط واحد في كل سطر، وسيتم إدراجها بالتسلسل:',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: urlCtrl,
                       autofocus: true,
+                      maxLines: 5,
                       decoration: InputDecoration(
-                        labelText: 'رابط الصورة (URL)',
-                        hintText: 'https://res.cloudinary.com/.../image.png',
+                        labelText: 'روابط الصور (URL)',
+                        hintText:
+                            'https://.../image-1.png\nhttps://.../image-2.png\nhttps://.../image-3.png',
                         prefixIcon: const Icon(Icons.link_rounded),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.paste_rounded),
@@ -400,44 +566,64 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        const Text('الإدراج في: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        const Text(
+                          'الإدراج في: ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(width: 8),
                         ChoiceChip(
                           label: const Text('العربية'),
                           selected: selectedLang == 'ar',
-                          onSelected: (s) => setDialogState(() => selectedLang = 'ar'),
+                          onSelected: (s) =>
+                              setDialogState(() => selectedLang = 'ar'),
                         ),
                         const SizedBox(width: 6),
                         ChoiceChip(
                           label: const Text('الإنجليزية'),
                           selected: selectedLang == 'en',
-                          onSelected: (s) => setDialogState(() => selectedLang = 'en'),
+                          onSelected: (s) =>
+                              setDialogState(() => selectedLang = 'en'),
                         ),
                         const SizedBox(width: 6),
                         ChoiceChip(
                           label: const Text('الفرنسية'),
                           selected: selectedLang == 'fr',
-                          onSelected: (s) => setDialogState(() => selectedLang = 'fr'),
+                          onSelected: (s) =>
+                              setDialogState(() => selectedLang = 'fr'),
                         ),
                       ],
                     ),
                     if (hasUrl) ...[
                       const SizedBox(height: 16),
-                      const Text('معاينة سريعة:', style: TextStyle(fontSize: 11, color: AppColors.grayMedium)),
+                      const Text(
+                        'معاينة سريعة:',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.grayMedium,
+                        ),
+                      ),
                       const SizedBox(height: 6),
                       Container(
                         height: 140,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.tealPrimary.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: AppColors.tealPrimary.withValues(alpha: 0.3),
+                          ),
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Image.network(
-                          url,
+                          previewUrl,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) => const Center(
-                            child: Text('الرابط لا يظهر صورة صالحة حالياً', style: TextStyle(fontSize: 11, color: Colors.red)),
+                            child: Text(
+                              'الرابط لا يظهر صورة صالحة حالياً',
+                              style: TextStyle(fontSize: 11, color: Colors.red),
+                            ),
                           ),
                         ),
                       ),
@@ -456,27 +642,49 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
                     ? null
                     : () {
                         final alt = altCtrl.text.trim();
-                        final mdImage = '\n\n![${alt.isEmpty ? 'صورة' : alt}]($url)\n\n';
+                        final mdImage = urls
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                              final number = entry.key + 1;
+                              final label = alt.isEmpty
+                                  ? 'صورة $number'
+                                  : '$alt $number';
+                              return '![$label](${entry.value})';
+                            })
+                            .join('\n\n');
+                        final markdownBlock = '\n\n$mdImage\n\n';
                         TextEditingController targetCtrl = _contentAr;
                         if (selectedLang == 'en') targetCtrl = _contentEn;
                         if (selectedLang == 'fr') targetCtrl = _contentFr;
 
                         final text = targetCtrl.text;
                         final sel = targetCtrl.selection;
-                        final offset = sel.isValid ? sel.baseOffset : text.length;
-                        final newText = text.substring(0, offset) + mdImage + text.substring(offset);
+                        final offset = sel.isValid
+                            ? sel.baseOffset
+                            : text.length;
+                        final newText =
+                            text.substring(0, offset) +
+                            markdownBlock +
+                            text.substring(offset);
                         targetCtrl.value = TextEditingValue(
                           text: newText,
-                          selection: TextSelection.collapsed(offset: offset + mdImage.length),
+                          selection: TextSelection.collapsed(
+                            offset: offset + markdownBlock.length,
+                          ),
                         );
                         setState(() {});
                         Navigator.pop(ctx);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('تم إدراج رابط الصورة في المحتوى بنجاح ✓')),
+                          SnackBar(
+                            content: Text(
+                              'تم إدراج ${urls.length} صور بالتسلسل في محتوى الدرس ✓',
+                            ),
+                          ),
                         );
                       },
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: const Text('إدراج'),
+                label: Text(urls.length > 1 ? 'إدراج الصور' : 'إدراج الصورة'),
               ),
             ],
           );
@@ -486,7 +694,8 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
   }
 
   // ── Table template & helpers ──
-  static const _tableTemplate = '| الكلمة | المعنى | تُستخدم |\n|---|---|---|\n| `final` | قيمة تُحدد مرة واحدة فقط | عند التشغيل (Runtime) |\n| `const` | قيمة ثابتة ومعروفة مسبقاً | عند الترجمة (Compile-time) |';
+  static const _tableTemplate =
+      '| الكلمة | المعنى | تُستخدم |\n|---|---|---|\n| `final` | قيمة تُحدد مرة واحدة فقط | عند التشغيل (Runtime) |\n| `const` | قيمة ثابتة ومعروفة مسبقاً | عند الترجمة (Compile-time) |';
 
   void _insertTableTemplate() {
     final ctrl = _contentAr;
@@ -494,8 +703,12 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     final toInsert = '${text.isEmpty ? '' : '\n\n'}$_tableTemplate\n';
     final selection = ctrl.selection;
     final offset = selection.isValid ? selection.baseOffset : text.length;
-    final newText = text.substring(0, offset) + toInsert + text.substring(offset);
-    ctrl.value = TextEditingValue(text: newText, selection: TextSelection.collapsed(offset: offset + toInsert.length));
+    final newText =
+        text.substring(0, offset) + toInsert + text.substring(offset);
+    ctrl.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: offset + toInsert.length),
+    );
     setState(() {});
   }
 
@@ -505,7 +718,9 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     final lines = text.split('\n');
     int start = -1, end = -1;
     for (int i = 0; i < lines.length; i++) {
-      if (lines[i].trim().startsWith('|') && i + 1 < lines.length && RegExp(r'^\s*\|?(\s*:?-+:?\s*\|)+\s*$').hasMatch(lines[i + 1])) {
+      if (lines[i].trim().startsWith('|') &&
+          i + 1 < lines.length &&
+          RegExp(r'^\s*\|?(\s*:?-+:?\s*\|)+\s*$').hasMatch(lines[i + 1])) {
         start = i;
         end = i + 1;
         int j = i + 2;
@@ -523,7 +738,11 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     final rows = <List<String>>[];
     for (final l in tableLines) {
       if (RegExp(r'^\s*\|?(\s*:?-+:?\s*\|)+\s*$').hasMatch(l)) continue;
-      final cells = l.split('|').map((c) => c.trim()).where((c) => c.isNotEmpty).toList();
+      final cells = l
+          .split('|')
+          .map((c) => c.trim())
+          .where((c) => c.isNotEmpty)
+          .toList();
       if (cells.isNotEmpty) rows.add(cells);
     }
     if (rows.isEmpty) return;
@@ -542,24 +761,33 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     final newTable = buffer.toString().trim();
     final before = lines.sublist(0, start).join('\n');
     final after = lines.sublist(end + 1).join('\n');
-    final newText = [before, newTable, after].where((s) => s.trim().isNotEmpty).join('\n\n');
-    ctrl.value = TextEditingValue(text: newText, selection: TextSelection.collapsed(offset: newText.length));
+    final newText = [
+      before,
+      newTable,
+      after,
+    ].where((s) => s.trim().isNotEmpty).join('\n\n');
+    ctrl.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
     setState(() {});
   }
 
-  void _addRow() => _modifyLastTable((rows) => rows.add(List.filled(rows.first.length, 'قيمة جديدة')));
+  void _addRow() => _modifyLastTable(
+    (rows) => rows.add(List.filled(rows.first.length, 'قيمة جديدة')),
+  );
   void _addColumn() => _modifyLastTable((rows) {
-        for (int i = 0; i < rows.length; i++) {
-          rows[i].add(i == 0 ? 'العمود ${rows[i].length + 1}' : 'قيمة');
-        }
-      });
+    for (int i = 0; i < rows.length; i++) {
+      rows[i].add(i == 0 ? 'العمود ${rows[i].length + 1}' : 'قيمة');
+    }
+  });
   void _removeRow() => _modifyLastTable((rows) {
-        if (rows.length > 2) rows.removeLast();
-      });
+    if (rows.length > 2) rows.removeLast();
+  });
   void _removeColumn() => _modifyLastTable((rows) {
-        if (rows.first.length <= 2) return;
-        for (final r in rows) r.removeLast();
-      });
+    if (rows.first.length <= 2) return;
+    for (final r in rows) r.removeLast();
+  });
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -567,18 +795,35 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     if (_hasQuestions) {
       final built = _buildQuestions();
       if (built.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Localizations.of<AppLocalizations>(context, AppLocalizations)!.t('need9Questions'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              Localizations.of<AppLocalizations>(
+                context,
+                AppLocalizations,
+              )!.t('need9Questions'),
+            ),
+          ),
+        );
         return;
       }
       // Check 3 langs mandatory
       for (int i = 0; i < _qCtrls.length; i++) {
         final c = _qCtrls[i];
-        if (c.qAr.text.trim().isEmpty || c.qEn.text.trim().isEmpty || c.qFr.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('السؤال ${i + 1}: يجب ملء 3 لغات للسؤال')));
+        if (c.qAr.text.trim().isEmpty ||
+            c.qEn.text.trim().isEmpty ||
+            c.qFr.text.trim().isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('السؤال ${i + 1}: يجب ملء 3 لغات للسؤال')),
+          );
           return;
         }
-        if (c.sAr.text.trim().isEmpty || c.sEn.text.trim().isEmpty || c.sFr.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('السؤال ${i + 1}: يجب ملء 3 لغات للحل')));
+        if (c.sAr.text.trim().isEmpty ||
+            c.sEn.text.trim().isEmpty ||
+            c.sFr.text.trim().isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('السؤال ${i + 1}: يجب ملء 3 لغات للحل')),
+          );
           return;
         }
       }
@@ -587,10 +832,18 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
           context: context,
           builder: (d) => AlertDialog(
             title: const Text('تنبيه: ليس 9 أسئلة'),
-            content: Text('لديك ${built.length} أسئلة فقط. المطلوب دائما 9. هل تريد الحفظ رغم ذلك؟'),
+            content: Text(
+              'لديك ${built.length} أسئلة فقط. المطلوب دائما 9. هل تريد الحفظ رغم ذلك؟',
+            ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('إلغاء')),
-              FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('حفظ')),
+              TextButton(
+                onPressed: () => Navigator.pop(d, false),
+                child: const Text('إلغاء'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(d, true),
+                child: const Text('حفظ'),
+              ),
             ],
           ),
         );
@@ -598,18 +851,30 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
       }
     }
     if (_hasExercise) {
-      if (_exerciseAr.text.trim().isEmpty || _exerciseEn.text.trim().isEmpty || _exerciseFr.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('التمرين: يجب ملء 3 لغات للسؤال')));
+      if (_exerciseAr.text.trim().isEmpty ||
+          _exerciseEn.text.trim().isEmpty ||
+          _exerciseFr.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('التمرين: يجب ملء 3 لغات للسؤال')),
+        );
         return;
       }
-      if (_solutionAr.text.trim().isEmpty || _solutionEn.text.trim().isEmpty || _solutionFr.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('التمرين: يجب ملء 3 لغات للحل')));
+      if (_solutionAr.text.trim().isEmpty ||
+          _solutionEn.text.trim().isEmpty ||
+          _solutionFr.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('التمرين: يجب ملء 3 لغات للحل')),
+        );
         return;
       }
     }
     if (_hasHomework) {
-      if (_hwAr.text.trim().isEmpty || _hwEn.text.trim().isEmpty || _hwFr.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الواجب: يجب ملء 3 لغات لنص الواجب')));
+      if (_hwAr.text.trim().isEmpty ||
+          _hwEn.text.trim().isEmpty ||
+          _hwFr.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('الواجب: يجب ملء 3 لغات لنص الواجب')),
+        );
         return;
       }
     }
@@ -619,17 +884,31 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     try {
       final db = context.read<DatabaseService>();
       final lesson = Lesson(
-        id: widget.lesson?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+        id:
+            widget.lesson?.id ??
+            DateTime.now().microsecondsSinceEpoch.toString(),
         courseId: widget.course.id,
-        title: LocalizedText(ar: _titleAr.text.trim(), en: _titleEn.text.trim(), fr: _titleFr.text.trim()),
-        content: LocalizedText(ar: _contentAr.text.trim(), en: _contentEn.text.trim(), fr: _contentFr.text.trim()),
+        title: LocalizedText(
+          ar: _titleAr.text.trim(),
+          en: _titleEn.text.trim(),
+          fr: _titleFr.text.trim(),
+        ),
+        content: LocalizedText(
+          ar: _contentAr.text.trim(),
+          en: _contentEn.text.trim(),
+          fr: _contentFr.text.trim(),
+        ),
         videoUrl: _videoUrl.text.trim(),
         codeHtml: _codeHtml.text.trim(),
         codeDart: _codeDart.text.trim(),
         exercise: _buildExercise(),
         questions: _buildQuestions(),
         homeworkPrompt: _hasHomework
-            ? LocalizedText(ar: _hwAr.text.trim(), en: _hwEn.text.trim(), fr: _hwFr.text.trim())
+            ? LocalizedText(
+                ar: _hwAr.text.trim(),
+                en: _hwEn.text.trim(),
+                fr: _hwFr.text.trim(),
+              )
             : const LocalizedText(ar: '', en: '', fr: ''),
         hasHomework: _hasHomework,
         order: widget.lesson?.order ?? widget.order,
@@ -639,7 +918,11 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${t('unknownError')}: $e'), behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 5)),
+          SnackBar(
+            content: Text('${t('unknownError')}: $e'),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     } finally {
@@ -657,7 +940,11 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
       appBar: AppBar(
         title: Text(widget.lesson == null ? t('addLesson') : t('editLesson')),
         actions: [
-          IconButton(onPressed: _saving ? null : _save, icon: const Icon(Icons.save_rounded), tooltip: t('save')),
+          IconButton(
+            onPressed: _saving ? null : _save,
+            icon: const Icon(Icons.save_rounded),
+            tooltip: t('save'),
+          ),
         ],
       ),
       body: Form(
@@ -669,72 +956,254 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppColors.tealPrimary.withValues(alpha: 0.12), AppColors.tealLight.withValues(alpha: 0.08)]),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.tealPrimary.withValues(alpha: 0.12),
+                    AppColors.tealLight.withValues(alpha: 0.08),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.tealPrimary.withValues(alpha: 0.18)),
+                border: Border.all(
+                  color: AppColors.tealPrimary.withValues(alpha: 0.18),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [Icon(Icons.auto_awesome_rounded, size: 18, color: AppColors.tealPrimary), const SizedBox(width: 8), Text('قوالب جاهزة', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.tealPrimary)), const Spacer(), Text('للدورة/الدرس الجديد', style: TextStyle(fontSize: 11, color: AppColors.grayMedium))]),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 18,
+                        color: AppColors.tealPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'قوالب جاهزة',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.tealPrimary,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'للدورة/الدرس الجديد',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.grayMedium,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      FilledButton.icon(onPressed: _applyContentTemplate, icon: const Icon(Icons.article_rounded, size: 16), label: const Text('قالب المحتوى')),
-                      FilledButton.icon(onPressed: _applyExerciseTemplate, icon: const Icon(Icons.edit_note_rounded, size: 16), label: const Text('قالب التمارين')),
-                      FilledButton.icon(onPressed: _applyQuestionsTemplate, icon: const Icon(Icons.record_voice_over_rounded, size: 16), label: const Text('قالب الأسئلة (9)')),
-                      FilledButton.icon(onPressed: _applyHomeworkTemplate, icon: const Icon(Icons.assignment_rounded, size: 16), label: const Text('قالب الواجب')),
-                      OutlinedButton.icon(onPressed: _applyAllTemplates, icon: const Icon(Icons.auto_fix_high_rounded, size: 16), label: const Text('تطبيق الكل للدرس الجديد')),
+                      FilledButton.icon(
+                        onPressed: _applyContentTemplate,
+                        icon: const Icon(Icons.article_rounded, size: 16),
+                        label: const Text('قالب المحتوى'),
+                      ),
+                      FilledButton.icon(
+                        onPressed: _applyExerciseTemplate,
+                        icon: const Icon(Icons.edit_note_rounded, size: 16),
+                        label: const Text('قالب التمارين'),
+                      ),
+                      FilledButton.icon(
+                        onPressed: _applyQuestionsTemplate,
+                        icon: const Icon(
+                          Icons.record_voice_over_rounded,
+                          size: 16,
+                        ),
+                        label: const Text('قالب الأسئلة (9)'),
+                      ),
+                      FilledButton.icon(
+                        onPressed: _applyHomeworkTemplate,
+                        icon: const Icon(Icons.assignment_rounded, size: 16),
+                        label: const Text('قالب الواجب'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: _applyAllTemplates,
+                        icon: const Icon(Icons.auto_fix_high_rounded, size: 16),
+                        label: const Text('تطبيق الكل للدرس الجديد'),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text('تُطبق على الأقسام الأربعة: المحتوى، التمارين، الأسئلة الشفوية (9)، الواجب. تُستخدم عند إنشاء دورة/درس جديد.', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, height: 1.5)),
+                  Text(
+                    'تُطبق على الأقسام الأربعة: المحتوى، التمارين، الأسئلة الشفوية (9)، الواجب. تُستخدم عند إنشاء دورة/درس جديد.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.grayMedium,
+                      height: 1.5,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            _LangSection(title: '${t('title')} (${_langs[0]})', controller: _titleAr, validator: (v) => (v == null || v.trim().isEmpty) ? t('title') : null),
-            _LangSection(title: '${t('title')} (${_langs[1]})', controller: _titleEn),
-            _LangSection(title: '${t('title')} (${_langs[2]})', controller: _titleFr),
+            _LangSection(
+              title: '${t('title')} (${_langs[0]})',
+              controller: _titleAr,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? t('title') : null,
+            ),
+            _LangSection(
+              title: '${t('title')} (${_langs[1]})',
+              controller: _titleEn,
+            ),
+            _LangSection(
+              title: '${t('title')} (${_langs[2]})',
+              controller: _titleFr,
+            ),
             const Divider(height: 32),
-            Text(t('lessonContent'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+            Text(
+              t('lessonContent'),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
             const SizedBox(height: 8),
-            _LangSection(title: '${t('content')} (${_langs[0]})', controller: _contentAr, maxLines: 10, hint: '## عنوان\nنص الدرس...\n![وصف الصورة](https://res.cloudinary.com/.../img.png)\n```dart\n<code>\n```\n> ملاحظة'),
-            _LangSection(title: '${t('content')} (${_langs[1]})', controller: _contentEn, maxLines: 10),
-            _LangSection(title: '${t('content')} (${_langs[2]})', controller: _contentFr, maxLines: 10),
+            _LangSection(
+              title: '${t('content')} (${_langs[0]})',
+              controller: _contentAr,
+              maxLines: 10,
+              hint:
+                  '## عنوان\nنص الدرس...\n![وصف الصورة](https://res.cloudinary.com/.../img.png)\n```dart\n<code>\n```\n> ملاحظة',
+            ),
+            _LangSection(
+              title: '${t('content')} (${_langs[1]})',
+              controller: _contentEn,
+              maxLines: 10,
+            ),
+            _LangSection(
+              title: '${t('content')} (${_langs[2]})',
+              controller: _contentFr,
+              maxLines: 10,
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5))),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [Icon(Icons.auto_fix_normal_rounded, size: 18, color: Theme.of(context).colorScheme.primary), const SizedBox(width: 8), Text('أدوات التنسيق (صور وجداول)', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)), const Spacer(), Text('إدراج سريع بنقرة', style: TextStyle(fontSize: 11, color: AppColors.grayMedium))]),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.auto_fix_normal_rounded,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'أدوات التنسيق (صور وجداول)',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'إدراج سريع بنقرة',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.grayMedium,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
-                  Wrap(spacing: 8, runSpacing: 8, children: [
-                    FilledButton.icon(
-                      onPressed: _showInsertImageDialog,
-                      icon: const Icon(Icons.add_photo_alternate_rounded, size: 18),
-                      label: const Text('إدراج صورة'),
-                      style: FilledButton.styleFrom(backgroundColor: AppColors.tealPrimary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
-                    ),
-                    FilledButton.icon(onPressed: _insertTableTemplate, icon: const Icon(Icons.table_chart_rounded, size: 18), label: const Text('إدراج قالب جدول'), style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10))),
-                    OutlinedButton.icon(onPressed: _addRow, icon: const Icon(Icons.table_rows_rounded, size: 18), label: const Text('+ صف')),
-                    OutlinedButton.icon(onPressed: _addColumn, icon: const Icon(Icons.view_column_rounded, size: 18), label: const Text('+ عمود')),
-                    OutlinedButton.icon(onPressed: _removeRow, icon: const Icon(Icons.remove_rounded, size: 18), label: const Text('- صف')),
-                    OutlinedButton.icon(onPressed: _removeColumn, icon: const Icon(Icons.view_column_outlined, size: 18), label: const Text('- عمود')),
-                  ]),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.icon(
+                        onPressed: _showInsertImageDialog,
+                        icon: const Icon(
+                          Icons.add_photo_alternate_rounded,
+                          size: 18,
+                        ),
+                        label: const Text('إدراج صورة'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.tealPrimary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                        ),
+                      ),
+                      FilledButton.icon(
+                        onPressed: _insertTableTemplate,
+                        icon: const Icon(Icons.table_chart_rounded, size: 18),
+                        label: const Text('إدراج قالب جدول'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: _addRow,
+                        icon: const Icon(Icons.table_rows_rounded, size: 18),
+                        label: const Text('+ صف'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: _addColumn,
+                        icon: const Icon(Icons.view_column_rounded, size: 18),
+                        label: const Text('+ عمود'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: _removeRow,
+                        icon: const Icon(Icons.remove_rounded, size: 18),
+                        label: const Text('- صف'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: _removeColumn,
+                        icon: const Icon(Icons.view_column_outlined, size: 18),
+                        label: const Text('- عمود'),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
-                  Text('الصور: يمكنك النقر على "إدراج صورة" أو لصق رابط الصورة مباشرة في سطر منفصل أو بصيغة Markdown: ![وصف](رابط).\nالجداول: الصق القالب واستخدم أزرار الصفوف والأعمدة للتحكم بها.', style: TextStyle(fontSize: 11, color: AppColors.grayMedium, height: 1.5)),
+                  Text(
+                    'الصور: يمكنك النقر على "إدراج صورة" أو لصق رابط الصورة مباشرة في سطر منفصل أو بصيغة Markdown: ![وصف](رابط).\nالجداول: الصق القالب واستخدم أزرار الصفوف والأعمدة للتحكم بها.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.grayMedium,
+                      height: 1.5,
+                    ),
+                  ),
                 ],
               ),
             ),
             const Divider(height: 32),
-            Text(t('video'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+            Text(
+              t('video'),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
             const SizedBox(height: 8),
-            TextFormField(controller: _videoUrl, decoration: InputDecoration(labelText: t('videoUrl'), prefixIcon: const Icon(Icons.link_rounded), hintText: 'https://www.youtube.com/watch?v=...  أو  https://drive.google.com/file/d/...')),
+            TextFormField(
+              controller: _videoUrl,
+              decoration: InputDecoration(
+                labelText: t('videoUrl'),
+                prefixIcon: const Icon(Icons.link_rounded),
+                hintText:
+                    'https://www.youtube.com/watch?v=...  أو  https://drive.google.com/file/d/...',
+              ),
+            ),
             const Divider(height: 32),
             // ── 2) Exercises (تمارين) ──
             SwitchListTile(
@@ -745,22 +1214,60 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
             ),
             if (_hasExercise) ...[
               const SizedBox(height: 8),
-              Text(t('question'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+              Text(
+                t('question'),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const SizedBox(height: 8),
-              _LangSection(title: '${t('question')} (ar) *', controller: _exerciseAr, maxLines: 4, hint: 'نص التمرين عربي'),
-              _LangSection(title: '${t('question')} (en) *', controller: _exerciseEn, maxLines: 3),
-              _LangSection(title: '${t('question')} (fr) *', controller: _exerciseFr, maxLines: 3),
-              Text(t('solution'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+              _LangSection(
+                title: '${t('question')} (ar) *',
+                controller: _exerciseAr,
+                maxLines: 4,
+                hint: 'نص التمرين عربي',
+              ),
+              _LangSection(
+                title: '${t('question')} (en) *',
+                controller: _exerciseEn,
+                maxLines: 3,
+              ),
+              _LangSection(
+                title: '${t('question')} (fr) *',
+                controller: _exerciseFr,
+                maxLines: 3,
+              ),
+              Text(
+                t('solution'),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const SizedBox(height: 8),
-              _LangSection(title: '${t('solution')} (ar) *', controller: _solutionAr, maxLines: 4, hint: 'حل التمرين عربي — يدعم كود وجدول'),
-              _LangSection(title: '${t('solution')} (en) *', controller: _solutionEn, maxLines: 3),
-              _LangSection(title: '${t('solution')} (fr) *', controller: _solutionFr, maxLines: 3),
+              _LangSection(
+                title: '${t('solution')} (ar) *',
+                controller: _solutionAr,
+                maxLines: 4,
+                hint: 'حل التمرين عربي — يدعم كود وجدول',
+              ),
+              _LangSection(
+                title: '${t('solution')} (en) *',
+                controller: _solutionEn,
+                maxLines: 3,
+              ),
+              _LangSection(
+                title: '${t('solution')} (fr) *',
+                controller: _solutionFr,
+                maxLines: 3,
+              ),
             ],
             const Divider(height: 32),
             // ── 3) Oral Questions (شفوية 9) ──
             SwitchListTile(
               title: Text(t('oralQuestions')),
-              subtitle: Text('${t('questionsCount')}: ${_qCtrls.length} — ${t('need9Questions')}'),
+              subtitle: Text(
+                '${t('questionsCount')}: ${_qCtrls.length} — ${t('need9Questions')}',
+              ),
               value: _hasQuestions,
               onChanged: (v) => setState(() {
                 _hasQuestions = v;
@@ -771,19 +1278,88 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: theme.colorScheme.primary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.15))),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [Icon(Icons.quiz_rounded, size: 18, color: theme.colorScheme.primary), const SizedBox(width: 8), Text(t('questions'), style: TextStyle(fontWeight: FontWeight.w800, color: theme.colorScheme.primary)), const Spacer(), Text('${_qCtrls.length}/9', style: TextStyle(fontWeight: FontWeight.w800, color: _qCtrls.length == 9 ? AppColors.success : AppColors.warning))]),
-                  const SizedBox(height: 10),
-                  Wrap(spacing: 8, runSpacing: 8, children: [
-                    FilledButton.icon(onPressed: _addQuestion, icon: const Icon(Icons.add_rounded, size: 18), label: Text('${t('addLesson')} +')),
-                    OutlinedButton.icon(onPressed: _shuffleQuestions, icon: const Icon(Icons.shuffle_rounded, size: 18), label: Text(t('shuffleQuestions'))),
-                    OutlinedButton.icon(onPressed: _quickPaste, icon: const Icon(Icons.content_paste_rounded, size: 18), label: Text(t('pasteQuick'))),
-                    OutlinedButton.icon(onPressed: () => setState(() { while (_qCtrls.length < 9) _qCtrls.add(_QCtrl()); }), icon: const Icon(Icons.format_list_numbered_rounded, size: 18), label: const Text('إكمال إلى 9')),
-                  ]),
-                  const SizedBox(height: 8),
-                  Text(t('importHint'), style: TextStyle(fontSize: 11, color: AppColors.grayMedium)),
-                ]),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.quiz_rounded,
+                          size: 18,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          t('questions'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${_qCtrls.length}/9',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: _qCtrls.length == 9
+                                ? AppColors.success
+                                : AppColors.warning,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        FilledButton.icon(
+                          onPressed: _addQuestion,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: Text('${t('addLesson')} +'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _shuffleQuestions,
+                          icon: const Icon(Icons.shuffle_rounded, size: 18),
+                          label: Text(t('shuffleQuestions')),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _quickPaste,
+                          icon: const Icon(
+                            Icons.content_paste_rounded,
+                            size: 18,
+                          ),
+                          label: Text(t('pasteQuick')),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => setState(() {
+                            while (_qCtrls.length < 9) _qCtrls.add(_QCtrl());
+                          }),
+                          icon: const Icon(
+                            Icons.format_list_numbered_rounded,
+                            size: 18,
+                          ),
+                          label: const Text('إكمال إلى 9'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      t('importHint'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.grayMedium,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               ...List.generate(_qCtrls.length, (i) {
@@ -792,40 +1368,127 @@ class _LessonEditScreenState extends State<LessonEditScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        CircleAvatar(radius: 14, backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12), child: Text('${i + 1}', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: theme.colorScheme.primary))),
-                        const SizedBox(width: 8),
-                        Text('${t('question')} #${i + 1}', style: const TextStyle(fontWeight: FontWeight.w800)),
-                        const Spacer(),
-                        IconButton(onPressed: () => _removeQuestion(i), icon: const Icon(Icons.delete_rounded, size: 18, color: Colors.red), tooltip: t('delete')),
-                        Icon(Icons.drag_indicator_rounded, size: 18, color: AppColors.grayLight),
-                      ]),
-                      const SizedBox(height: 8),
-                      _LangSection(title: '${t('question')} (ar) *', controller: c.qAr, maxLines: 3, hint: 'نص السؤال عربي — يدعم Markdown وكود'),
-                      _LangSection(title: '${t('question')} (en) *', controller: c.qEn, maxLines: 2),
-                      _LangSection(title: '${t('question')} (fr) *', controller: c.qFr, maxLines: 2),
-                      const Divider(height: 20),
-                      _LangSection(title: '${t('solution')} (ar) *', controller: c.sAr, maxLines: 4, hint: 'الحل عربي — يدعم ```dart و جدول | a | b |'),
-                      _LangSection(title: '${t('solution')} (en) *', controller: c.sEn, maxLines: 3),
-                      _LangSection(title: '${t('solution')} (fr) *', controller: c.sFr, maxLines: 3),
-                    ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: theme.colorScheme.primary
+                                  .withValues(alpha: 0.12),
+                              child: Text(
+                                '${i + 1}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${t('question')} #${i + 1}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () => _removeQuestion(i),
+                              icon: const Icon(
+                                Icons.delete_rounded,
+                                size: 18,
+                                color: Colors.red,
+                              ),
+                              tooltip: t('delete'),
+                            ),
+                            Icon(
+                              Icons.drag_indicator_rounded,
+                              size: 18,
+                              color: AppColors.grayLight,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        _LangSection(
+                          title: '${t('question')} (ar) *',
+                          controller: c.qAr,
+                          maxLines: 3,
+                          hint: 'نص السؤال عربي — يدعم Markdown وكود',
+                        ),
+                        _LangSection(
+                          title: '${t('question')} (en) *',
+                          controller: c.qEn,
+                          maxLines: 2,
+                        ),
+                        _LangSection(
+                          title: '${t('question')} (fr) *',
+                          controller: c.qFr,
+                          maxLines: 2,
+                        ),
+                        const Divider(height: 20),
+                        _LangSection(
+                          title: '${t('solution')} (ar) *',
+                          controller: c.sAr,
+                          maxLines: 4,
+                          hint: 'الحل عربي — يدعم ```dart و جدول | a | b |',
+                        ),
+                        _LangSection(
+                          title: '${t('solution')} (en) *',
+                          controller: c.sEn,
+                          maxLines: 3,
+                        ),
+                        _LangSection(
+                          title: '${t('solution')} (fr) *',
+                          controller: c.sFr,
+                          maxLines: 3,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }),
             ],
             const Divider(height: 32),
-            SwitchListTile(title: Text(t('homework')), subtitle: Text(t('hasHomework')), value: _hasHomework, onChanged: (v) => setState(() => _hasHomework = v)),
+            SwitchListTile(
+              title: Text(t('homework')),
+              subtitle: Text(t('hasHomework')),
+              value: _hasHomework,
+              onChanged: (v) => setState(() => _hasHomework = v),
+            ),
             if (_hasHomework) ...[
               const SizedBox(height: 8),
-              Text(t('homeworkPrompt'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+              Text(
+                t('homeworkPrompt'),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const SizedBox(height: 8),
-              _LangSection(title: '${t('homeworkPrompt')} (ar) *', controller: _hwAr, maxLines: 6, hint: 'اكتب مهمة الواجب — سيكتب الطالب الكود أسفلها'),
-              _LangSection(title: '${t('homeworkPrompt')} (en) *', controller: _hwEn, maxLines: 6),
-              _LangSection(title: '${t('homeworkPrompt')} (fr) *', controller: _hwFr, maxLines: 6),
+              _LangSection(
+                title: '${t('homeworkPrompt')} (ar) *',
+                controller: _hwAr,
+                maxLines: 6,
+                hint: 'اكتب مهمة الواجب — سيكتب الطالب الكود أسفلها',
+              ),
+              _LangSection(
+                title: '${t('homeworkPrompt')} (en) *',
+                controller: _hwEn,
+                maxLines: 6,
+              ),
+              _LangSection(
+                title: '${t('homeworkPrompt')} (fr) *',
+                controller: _hwFr,
+                maxLines: 6,
+              ),
             ],
             const SizedBox(height: 24),
-            FilledButton.icon(onPressed: _saving ? null : _save, icon: const Icon(Icons.save_rounded), label: Text(t('save'))),
+            FilledButton.icon(
+              onPressed: _saving ? null : _save,
+              icon: const Icon(Icons.save_rounded),
+              label: Text(t('save')),
+            ),
           ],
         ),
       ),
@@ -840,13 +1503,28 @@ class _LangSection extends StatelessWidget {
   final String? hint;
   final String? Function(String?)? validator;
 
-  const _LangSection({required this.title, required this.controller, this.maxLines = 1, this.hint, this.validator});
+  const _LangSection({
+    required this.title,
+    required this.controller,
+    this.maxLines = 1,
+    this.hint,
+    this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(controller: controller, maxLines: maxLines, validator: validator, decoration: InputDecoration(labelText: title, alignLabelWithHint: maxLines > 1, hintText: hint)),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: title,
+          alignLabelWithHint: maxLines > 1,
+          hintText: hint,
+        ),
+      ),
     );
   }
 }
