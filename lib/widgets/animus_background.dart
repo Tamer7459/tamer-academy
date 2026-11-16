@@ -190,74 +190,12 @@ class _AnimusBackgroundState extends State<AnimusBackground> {
                     ),
                   ),
                 ),
-              if (_pointerVisible && kIsWeb)
-                Positioned(
-                  left: _pointer.dx - 15,
-                  top: _pointer.dy - 15,
-                  child: IgnorePointer(
-                    child: CustomPaint(
-                      size: const Size.square(30),
-                      painter: _AssassinCursorPainter(isDark: isDark),
-                    ),
-                  ),
-                ),
             ],
           );
         },
       ),
     );
   }
-}
-
-/// Original hood-and-blade cursor glyph. It is an abstract academy mark,
-/// not a Ubisoft/Assassin's Creed asset.
-class _AssassinCursorPainter extends CustomPainter {
-  final bool isDark;
-
-  const _AssassinCursorPainter({required this.isDark});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final crimson = const Color(0xFFE5384A);
-    final gold = const Color(0xFFD4A64A);
-    final outline = Paint()
-      ..color = isDark
-          ? Colors.white.withValues(alpha: 0.9)
-          : const Color(0xFF0B0B0D)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..strokeJoin = StrokeJoin.round;
-    final fill = Paint()..color = crimson.withValues(alpha: 0.92);
-    final center = Offset(size.width / 2, size.height / 2);
-
-    final hood = Path()
-      ..moveTo(center.dx, 2)
-      ..lineTo(size.width - 4, 8)
-      ..lineTo(size.width - 8, size.height - 4)
-      ..lineTo(center.dx, size.height - 9)
-      ..lineTo(8, size.height - 4)
-      ..lineTo(4, 8)
-      ..close();
-    canvas.drawPath(hood, fill);
-    canvas.drawPath(hood, outline);
-
-    final blade = Path()
-      ..moveTo(center.dx - 1, 8)
-      ..lineTo(center.dx + 5, size.height - 7)
-      ..lineTo(center.dx, size.height - 4)
-      ..lineTo(center.dx - 5, size.height - 7)
-      ..close();
-    canvas.drawPath(blade, Paint()..color = gold);
-    canvas.drawLine(
-      Offset(4, size.height - 4),
-      Offset(size.width - 4, size.height - 4),
-      outline,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _AssassinCursorPainter oldDelegate) =>
-      oldDelegate.isDark != isDark;
 }
 
 class _GridPainter extends CustomPainter {
